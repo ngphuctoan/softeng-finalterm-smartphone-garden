@@ -1,0 +1,24 @@
+datasource db {
+    provider = "sqlite"
+    url      = env("DATABASE_URL")
+}
+
+generator client {
+    provider = "prisma-client-js"
+    output   = "../src/generated/prisma"
+}
+
+model Role {
+    id          Int     @id @default(autoincrement())
+    name        String  @unique
+    users       User[]  @relation
+}
+
+model User {
+    id          Int     @id @default(autoincrement())
+    name        String
+    email       String  @unique
+    password    String
+    roleId      Int
+    role        Role    @relation(fields: [roleId], references: [id])
+}
