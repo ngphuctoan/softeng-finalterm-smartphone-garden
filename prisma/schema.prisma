@@ -11,7 +11,7 @@ generator client {
 model Role {
     id          Int         @id @default(autoincrement())
     name        String      @unique
-    users       User[]      @relation
+    users       User[]
 }
 
 model User {
@@ -19,11 +19,27 @@ model User {
     name        String
     email       String      @unique
     password    String
-    roleId      Int
-    role        Role        @relation(fields: [roleId], references: [id])
+    roleName    String
+    role        Role        @relation(fields: [roleName], references: [name])
+}
+
+model Spec {
+    id          Int         @id @default(autoincrement())
+    name        String      @unique
+    value       String
+    items       Item[]
+}
+
+model Item {
+    id          Int         @id @default(autoincrement())
+    name        String      @unique
+    price       Int
+    description String?
+    specs       Spec[]
 }
 
 model AuthTokenLogout {
-    jti         String      @id
+    id          Int         @id @default(autoincrement())
+    jti         String      @unique
     expiresAt   DateTime
 }
