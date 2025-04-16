@@ -1,0 +1,39 @@
+doctype html
+html
+    head
+        title Login Page
+    body
+        h1 Login
+
+        form#logIn
+            label(for="email") Email:
+            input(type="email" name="email" required)
+
+            br
+
+            label(for="password") Password:
+            input(type="password" name="password" required)
+
+            br
+
+            button(type="submit") Login!
+
+        script(src="https://unpkg.com/axios")
+
+        script.
+            document.forms["logIn"].onsubmit = async (event) => {
+                event.preventDefault();
+
+                const form = event.target;
+
+                try {
+                    await axios.post("/api/v1/login", {
+                        email: form.email.value,
+                        password: form.password.value
+                    });
+
+                    window.location.href = "dashboard";
+                } catch (error) {
+                    alert(error.response?.data);
+                }
+            }

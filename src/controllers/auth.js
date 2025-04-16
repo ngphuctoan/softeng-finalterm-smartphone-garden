@@ -15,7 +15,7 @@ export async function login(req, res) {
 
     const token = generateToken(user);
 
-    res.setHeader("Authorization", `Bearer ${token}`);
+    res.cookie("auth_token", token, { httpOnly: true, secure: true });
     res.send("Logged in successfully!");
 }
 

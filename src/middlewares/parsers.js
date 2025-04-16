@@ -1,6 +1,6 @@
 import _ from "lodash";
 
-export function getBodyData(fields) {
+export function parseBody(fields) {
     return function (req, res, next) {
         const body = req.body;
         const missingFields = _.difference(fields, Object.keys(body));

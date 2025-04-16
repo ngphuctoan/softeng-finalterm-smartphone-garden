@@ -5,7 +5,7 @@ import { PrismaClient } from "../generated/prisma/index.js";
 const prisma = new PrismaClient();
 
 export async function authenticate(req, res, next) {
-    const token = req.header("Authorization")?.replace("Bearer ", "");
+    const token = req.cookies["auth_token"];
 
     if (!token) {
         return res.status(401).send("Not logged in.");
