@@ -29,19 +29,33 @@ export async function register(req, res, next) {
     // Performs password validation here...
 
     const passwordHash = await bcrypt.hash(password, 10);
-    const defaultRole = await prisma.role.findUnique({
-        where: { name: "Customer" }
-    });
+    const defaultRole = { name: "customer" };
 
     const user = await prisma.user.create({
         data: {
-            name,
-            email,
+            name, email,
             password: passwordHash,
-            roleId: defaultRole.id
+            role: {
+                connectOrCreate: {
+                    where: defaultRole,
+                    create: defaultRole
+                }
+            }
         }
     });
 
     req.body = { email: user.email, password: user.password };
     next();
+}
+
+export async function logout(req, res) {
+    await prisma.authTokenLogout.create({
+        data: {
+            jti: req.decoded.jti,
+            expiresAt: new Date(req.decoded.exp * 1000)
+        }
+    });
+
+    res.removeHeader("Authorization");
+    res.send("Logged out successfully!");
 }

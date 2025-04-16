@@ -1,20 +1,32 @@
 import jwt from "jsonwebtoken";
+import { v4 as uuidv4 } from "uuid";
+import { PrismaClient } from "../generated/prisma/index.js";
 
-export function authenticate(req, res, next) {
+const prisma = new PrismaClient();
+
+export async function authenticate(req, res, next) {
     const token = req.header("Authorization")?.replace("Bearer ", "");
 
     if (!token) {
         return res.status(401).send("Not logged in.");
     }
 
-    jwt.verify(token, process.env.JWT_SECRET, (error, user) => {
-        if (error) {
-            return res.status(401).send("Invalid token.");
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+        if (
+            await prisma.authTokenLogout.findUnique({
+                where: { jti: decoded.jti }
+            }
+        )) {
+            return res.status(401).send("Not logged in.");
         }
 
-        req.user = user;
+        req.decoded = decoded;
         next();
-    });
+    } catch (error) {
+        return res.status(401).send("Invalid token.");
+    }
 }
 
 export function authoriseRole(requiredRoleId) {
@@ -29,7 +41,11 @@ export function authoriseRole(requiredRoleId) {
 
 export function generateToken(user, expiresIn = "1w") {
     return jwt.sign(
-        { userId: user.id, roleId: user.roleId },
+        {
+            jti: uuidv4(),
+            userId: user.id,
+            roleId: user.roleId
+        },
         process.env.JWT_SECRET, { expiresIn }
     );
 }
