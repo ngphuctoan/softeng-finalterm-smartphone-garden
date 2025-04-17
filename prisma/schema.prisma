@@ -1,6 +1,6 @@
 datasource db {
     provider = "sqlite"
-    url      = env("DATABASE_URL")
+    url      = "file:../data/database.sqlite"
 }
 
 generator client {
@@ -11,6 +11,7 @@ generator client {
 model Role {
     id          Int         @id @default(autoincrement())
     name        String      @unique
+
     users       User[]
 }
 
@@ -19,27 +20,48 @@ model User {
     name        String
     email       String      @unique
     password    String
-    roleName    String
-    role        Role        @relation(fields: [roleName], references: [name])
+    roleId      Int
+
+    role        Role        @relation(fields: [roleId], references: [id])
 }
 
 model Spec {
     id          Int         @id @default(autoincrement())
     name        String      @unique
-    value       String
+
+    items       ItemSpec[]
+}
+
+model BaseItem {
+    id          Int         @id @default(autoincrement())
+    name        String      @unique
+    description String?
+
     items       Item[]
 }
 
 model Item {
     id          Int         @id @default(autoincrement())
-    name        String      @unique
     price       Int
-    description String?
-    specs       Spec[]
+    stock       Int
+    baseItemId  Int
+
+    baseItem    BaseItem    @relation(fields: [baseItemId], references: [id])
+    specs       ItemSpec[]
 }
 
-model AuthTokenLogout {
-    id          Int         @id @default(autoincrement())
-    jti         String      @unique
+model ItemSpec {
+    itemId      Int
+    specId      Int
+    value       String
+
+    item        Item        @relation(fields: [itemId], references: [id])
+    spec        Spec        @relation(fields: [specId], references: [id])
+
+    @@id([itemId, specId])
+}
+
+model RevokedToken {
+    jti         String      @id
     expiresAt   DateTime
 }
