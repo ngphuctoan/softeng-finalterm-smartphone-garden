@@ -1,0 +1,61 @@
+import { z } from "zod";
+import { ItemModel } from "@models";
+import { handleError } from "@utils/errors";
+import { Request, Response } from "express";
+
+const itemSchema = z.object({
+    price: z.number().min(100000, "Price must be >= 100.000đ."),
+    stock: z.number(),
+    specs: z.record(z.string())
+});
+
+export async function getForProduct(req: Request, res: Response) {
+    const productId = Number(req.params.id);
+
+    if (isNaN(productId)) {
+        res.status(400).send("Invalid product ID.");
+        return;
+    }
+
+    try {
+        const items = await ItemModel.getForProduct(productId);
+        res.json(items);
+    } catch (error) {
+        handleError(error, res);
+    }
+}
+
+export async function getById(req: Request, res: Response) {
+    const id = Number(req.params.id);
+
+    if (isNaN(id)) {
+        res.status(400).send("Invalid item ID.");
+        return;
+    }
+
+    try {
+        const item = await ItemModel.getById(id);
+        res.json(item);
+    } catch (error) {
+        handleError(error, res);
+    }
+}
+
+export async function add(req: Request, res: Response) {
+    const productId = Number(req.params.id);
+
+    if (isNaN(productId)) {
+        res.status(400).send("Invalid product ID.");
+        return;
+    }
+
+    try {
+        const product = await ItemModel.add({
+            productId,
+            ...itemSchema.parse(req.body)
+        });
+        res.json(product);
+    } catch (error) {
+        handleError(error, res);
+    }
+}

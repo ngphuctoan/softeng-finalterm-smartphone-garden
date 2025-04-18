@@ -29,41 +29,30 @@ model Spec {
     id              Int             @id @default(autoincrement())
     name            String          @unique
 
-    baseProducts    BaseProductSpec[]
-    products        ProductSpec[]
-}
-
-model BaseProduct {
-    id              Int             @id @default(autoincrement())
-    name            String          @unique
-    description     String?
-
-    baseSpecs       BaseProductSpec[]
-    products        Product[]
+    products        ProductSpecs[]
+    items           ItemSpecs[]
 }
 
 model Product {
     id              Int             @id @default(autoincrement())
+    name            String          @unique
+    description     String?
+
+    baseSpecs       ProductSpecs[]
+    items           Item[]
+}
+
+model Item {
+    id              Int             @id @default(autoincrement())
     price           Int
     stock           Int
-    baseProductId   Int
+    productId       Int
 
-    baseProduct     BaseProduct     @relation(fields: [baseProductId], references: [id])
-    specs           ProductSpec[]
+    product         Product         @relation(fields: [productId], references: [id])
+    specs           ItemSpecs[]
 }
 
-model BaseProductSpec {
-    baseProductId   Int
-    specId          Int
-    value           String
-
-    baseProduct     BaseProduct     @relation(fields: [baseProductId], references: [id])
-    spec            Spec            @relation(fields: [specId], references: [id])
-
-    @@id([baseProductId, specId])
-}
-
-model ProductSpec {
+model ProductSpecs {
     productId       Int
     specId          Int
     value           String
@@ -72,6 +61,17 @@ model ProductSpec {
     spec            Spec            @relation(fields: [specId], references: [id])
 
     @@id([productId, specId])
+}
+
+model ItemSpecs {
+    itemId          Int
+    specId          Int
+    value           String
+
+    Item            Item            @relation(fields: [itemId], references: [id])
+    spec            Spec            @relation(fields: [specId], references: [id])
+
+    @@id([itemId, specId])
 }
 
 model RevokedToken {
