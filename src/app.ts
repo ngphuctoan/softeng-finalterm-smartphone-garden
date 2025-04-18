@@ -2,6 +2,7 @@ import express from "express";
 import cookieParser from "cookie-parser";
 import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
+import { baseProductRoutes, productRoutes } from "./routes/productRoutes.js";
 import authMiddleware from "./middlewares/authMiddleware.js";
 
 const app = express();
@@ -15,10 +16,15 @@ app.set("views", "./src/views");
 
 app.get("/profile", (req, res) => res.render("public/index", { name: "Hello" }));
 
-app.get("/login", (req, res) => res.render("auth/login"));
+app.get("/login", (req, res) => {
+    if (req.auth?.userId) {
+        res.redirect("/");
+        return;
+    }
 
-app.use((req, res) => res.status(404).render("404"));
+    res.render("auth/login");
+});
 
-app.use("/api/v1", authMiddleware, authRoutes, userRoutes);
+app.use("/api/v1", authMiddleware, authRoutes, userRoutes, baseProductRoutes, productRoutes);
 
 export default app;

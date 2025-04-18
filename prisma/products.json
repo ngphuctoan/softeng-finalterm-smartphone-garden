@@ -1,0 +1,22 @@
+[
+    {
+        "name": "iPhone 16 Pro Max",
+        "description": "Built for Apple Intelligence",
+        "baseSpecs": {
+            "CPU": "Apple A18 Pro",
+            "RAM": "8GB",
+            "Battery": "33 hours",
+            "Camera": "Fusion 48MP, Ultra Wide 48MP, Telephoto"
+        },
+        "products": [
+            {
+                "price": 47299000,
+                "stock": 20,
+                "specs": {
+                    "Color": "Desert Titanium",
+                    "Storage": "1TB"
+                }
+            }
+        ]
+    }
+]

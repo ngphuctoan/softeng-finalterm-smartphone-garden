@@ -9,59 +9,72 @@ generator client {
 }
 
 model Role {
-    id          Int         @id @default(autoincrement())
-    name        String      @unique
+    id              Int             @id @default(autoincrement())
+    name            String          @unique
 
-    users       User[]
+    users           User[]
 }
 
 model User {
-    id          Int         @id @default(autoincrement())
-    name        String
-    email       String      @unique
-    password    String
-    roleId      Int
+    id              Int             @id @default(autoincrement())
+    name            String
+    email           String          @unique
+    password        String
+    roleId          Int
 
-    role        Role        @relation(fields: [roleId], references: [id])
+    role            Role            @relation(fields: [roleId], references: [id])
 }
 
 model Spec {
-    id          Int         @id @default(autoincrement())
-    name        String      @unique
+    id              Int             @id @default(autoincrement())
+    name            String          @unique
 
-    items       ItemSpec[]
+    baseProducts    BaseProductSpec[]
+    products        ProductSpec[]
 }
 
-model BaseItem {
-    id          Int         @id @default(autoincrement())
-    name        String      @unique
-    description String?
+model BaseProduct {
+    id              Int             @id @default(autoincrement())
+    name            String          @unique
+    description     String?
 
-    items       Item[]
+    baseSpecs       BaseProductSpec[]
+    products        Product[]
 }
 
-model Item {
-    id          Int         @id @default(autoincrement())
-    price       Int
-    stock       Int
-    baseItemId  Int
+model Product {
+    id              Int             @id @default(autoincrement())
+    price           Int
+    stock           Int
+    baseProductId   Int
 
-    baseItem    BaseItem    @relation(fields: [baseItemId], references: [id])
-    specs       ItemSpec[]
+    baseProduct     BaseProduct     @relation(fields: [baseProductId], references: [id])
+    specs           ProductSpec[]
 }
 
-model ItemSpec {
-    itemId      Int
-    specId      Int
-    value       String
+model BaseProductSpec {
+    baseProductId   Int
+    specId          Int
+    value           String
 
-    item        Item        @relation(fields: [itemId], references: [id])
-    spec        Spec        @relation(fields: [specId], references: [id])
+    baseProduct     BaseProduct     @relation(fields: [baseProductId], references: [id])
+    spec            Spec            @relation(fields: [specId], references: [id])
 
-    @@id([itemId, specId])
+    @@id([baseProductId, specId])
+}
+
+model ProductSpec {
+    productId       Int
+    specId          Int
+    value           String
+
+    product         Product         @relation(fields: [productId], references: [id])
+    spec            Spec            @relation(fields: [specId], references: [id])
+
+    @@id([productId, specId])
 }
 
 model RevokedToken {
-    jti         String      @id
-    expiresAt   DateTime
+    jti             String          @id
+    expiresAt       DateTime
 }
