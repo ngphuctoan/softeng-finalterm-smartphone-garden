@@ -4,7 +4,7 @@ import guard from "express-jwt-permissions";
 import {
     getMyProfile, updateMyProfile, updateMyPassword,
     getAllUsers, getUserById, updateUserRole
-} from "../controllers/userController.js";
+} from "../controllers/user.controller.js";
 
 const userRoutes = Router();
 const userRouteGroup = Router();

@@ -1,9 +1,9 @@
 import express from "express";
 import cookieParser from "cookie-parser";
-import authRoutes from "./routes/authRoutes.js";
-import userRoutes from "./routes/userRoutes.js";
-import { baseProductRoutes, productRoutes } from "./routes/productRoutes.js";
-import authMiddleware from "./middlewares/authMiddleware.js";
+import authRoutes from "./routes/auth.routes.js";
+import userRoutes from "./routes/user.routes.js";
+import { baseProductRoutes, productRoutes } from "./routes/product.routes.js";
+import authMiddleware from "./middlewares/auth.middleware.js";
 
 const app = express();
 
