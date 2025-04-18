@@ -20,8 +20,3 @@ export const productSelect = {
     baseSpecs: { select: specSelect },
     items: { select: itemSelect }
 }
-
-export interface SpecFromDB {
-    spec: { name: string },
-    value: string
-}

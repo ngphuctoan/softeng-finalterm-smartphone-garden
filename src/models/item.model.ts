@@ -1,26 +1,19 @@
 import prisma from "@utils/db";
 import { Item } from "@interfaces";
-import { itemSelect, SpecFromDB } from "@utils/selects";
+import { SpecModel } from "@models";
+import { itemSelect } from "@utils/selects";
 
-export type ItemFromDB = Omit<Item, "specs"> & { specs: SpecFromDB[] };
+export type ItemFromDB = Omit<Item, "specs"> & { specs: SpecModel.SpecFromDB[] };
 
 export function itemToJson(item: ItemFromDB): Item {
     return {
         ...item,
-        specs: Object.fromEntries(
-            item.specs.map(_spec => [ _spec.spec.name, _spec.value ])
-        )
-    }
-}
-
-export async function getAll(): Promise<Item[]> {
-    const items = await prisma.product.findMany({ select: itemSelect });
-
-    return items.map(itemToJson);
+        specs: SpecModel.arrayToSpecs(item.specs)
+    };
 }
 
 export async function getById(id: number): Promise<Item> {
-    const item = await prisma.product.findUnique({
+    const item = await prisma.item.findUnique({
         where: { id },
         select: itemSelect
     });
@@ -32,7 +25,7 @@ export async function getById(id: number): Promise<Item> {
     return itemToJson(item);
 }
 
-export async function add({ productId, price, stock, specs }: Item): Promise<Item> {
+export async function add({ productId, price, stock, specs }: Omit<Item, "id">): Promise<Item> {
     const item = await prisma.item.create({
         data: {
             product: {
@@ -41,17 +34,7 @@ export async function add({ productId, price, stock, specs }: Item): Promise<Ite
             price,
             stock,
             specs: {
-                create: Object.entries(specs).map(
-                    ([name, value]) => ({
-                        spec: {
-                            connectOrCreate: {
-                                where: { name },
-                                create: { name }
-                            }
-                        },
-                        value
-                    })
-                )
+                create: SpecModel.specsToConnect(specs)
             }
         },
         select: itemSelect

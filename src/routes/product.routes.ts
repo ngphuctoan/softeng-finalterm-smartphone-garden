@@ -1,17 +1,20 @@
 import { Router } from "express";
-import { addBaseProduct, addProduct, getAllBaseProducts, getBaseProductById } from "../controllers/product.controller.js";
+import guard from "express-jwt-permissions";
+import { ItemController, ProductController } from "@controllers";
 
-const baseProductRoutes = Router();
 const productRoutes = Router();
 
-baseProductRoutes.route("/products")
-    .get(getAllBaseProducts)
-    .post(addBaseProduct);
+const checker = guard({ requestProperty: "auth" });
 
-baseProductRoutes.route("/products/:id")
-    .get(getBaseProductById);
+productRoutes.route("/products")
+    .get(checker.check("product:read"), ProductController.getAll)
+    .post(checker.check("product:add"), ProductController.add);
 
-productRoutes.route("/products/:productId/items")
-    .post(addProduct);
+productRoutes.route("/products/:id")
+    .get(checker.check("product:read"), ProductController.getById);
 
-export { baseProductRoutes, productRoutes };
+productRoutes.route("/products/:id/items")
+    .get(checker.check("item:read"), ItemController.getById)
+    .post(checker.check("item:add"), ItemController.add);
+
+export default productRoutes;

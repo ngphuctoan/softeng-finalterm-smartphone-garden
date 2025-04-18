@@ -1,22 +1,13 @@
 import { z } from "zod";
-import { ProductModel } from "@models";
+import { ItemModel } from "@models";
 import { handleError } from "@utils/errors";
 import { Request, Response } from "express";
 
-const productSchema = z.object({
-    name: z.string(),
-    description: z.string(),
-    baseSpecs: z.record(z.string())
+const itemSchema = z.object({
+    price: z.number().min(100000, "Price must be >= 100.000đ."),
+    stock: z.number(),
+    specs: z.record(z.string())
 });
-
-export async function getAll(req: Request, res: Response) {
-    try {
-        const product = await ProductModel.getAll();
-        res.json(product);
-    } catch (error) {
-        handleError(error, res);
-    }
-}
 
 export async function getById(req: Request, res: Response) {
     const id = Number(req.params.id);
@@ -27,16 +18,26 @@ export async function getById(req: Request, res: Response) {
     }
 
     try {
-        const product = await ProductModel.getById(id);
-        res.json(product);
+        const item = await ItemModel.getById(id);
+        res.json(item);
     } catch (error) {
         handleError(error, res);
     }
 }
 
 export async function add(req: Request, res: Response) {
+    const productId = Number(req.params.id);
+
+    if (isNaN(productId)) {
+        res.status(400).send("Invalid product ID.");
+        return;
+    }
+
     try {
-        const product = await ProductModel.add(productSchema.parse(req.body));
+        const product = await ItemModel.add({
+            productId,
+            ...itemSchema.parse(req.body)
+        });
         res.json(product);
     } catch (error) {
         handleError(error, res);
