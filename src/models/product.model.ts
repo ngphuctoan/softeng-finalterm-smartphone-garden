@@ -1,6 +1,6 @@
 import prisma from "@utils/db";
 import { Product } from "@interfaces";
-import { ItemFromDB, itemToJson } from "./ItemModel.js";
+import { ItemFromDB, itemToJson } from "@models";
 import { productSelect, SpecFromDB } from "@utils/selects";
 
 type ProductFromDB = Omit<Product, "baseSpecs" | "items"> & { baseSpecs: SpecFromDB[], items: ItemFromDB[] };
