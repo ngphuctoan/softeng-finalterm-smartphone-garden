@@ -4,6 +4,5 @@ export interface Product {
     id: number,
     name: string,
     description: string | null,
-    baseSpecs: Specs,
-    items: Item[]
+    baseSpecs: Specs
 }

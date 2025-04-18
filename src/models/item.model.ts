@@ -12,6 +12,15 @@ export function itemToJson(item: ItemFromDB): Item {
     };
 }
 
+export async function getForProduct(productId: number): Promise<Item[]> {
+    const items = await prisma.item.findMany({
+        where: { productId },
+        select: itemSelect
+    });
+
+    return items.map(itemToJson);
+}
+
 export async function getById(id: number): Promise<Item> {
     const item = await prisma.item.findUnique({
         where: { id },

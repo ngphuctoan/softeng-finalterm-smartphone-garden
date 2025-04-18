@@ -1,15 +1,14 @@
 import prisma from "@utils/db";
-import { ItemModel, SpecModel } from "@models";
+import { SpecModel } from "@models";
 import { Product } from "@interfaces";
 import { productSelect } from "@utils/selects";
 
-export type ProductFromDB = Omit<Product, "baseSpecs" | "items"> & { baseSpecs: SpecModel.SpecFromDB[], items: ItemModel.ItemFromDB[] };
+export type ProductFromDB = Omit<Product, "baseSpecs"> & { baseSpecs: SpecModel.SpecFromDB[] };
 
 export function productToJson(product: ProductFromDB): Product {
     return {
         ...product,
-        baseSpecs: SpecModel.arrayToSpecs(product.baseSpecs),
-        items: product.items.map(ItemModel.itemToJson)
+        baseSpecs: SpecModel.arrayToSpecs(product.baseSpecs)
     };
 }
 

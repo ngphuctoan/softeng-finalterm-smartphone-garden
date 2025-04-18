@@ -9,11 +9,27 @@ const itemSchema = z.object({
     specs: z.record(z.string())
 });
 
+export async function getForProduct(req: Request, res: Response) {
+    const productId = Number(req.params.id);
+
+    if (isNaN(productId)) {
+        res.status(400).send("Invalid product ID.");
+        return;
+    }
+
+    try {
+        const items = await ItemModel.getForProduct(productId);
+        res.json(items);
+    } catch (error) {
+        handleError(error, res);
+    }
+}
+
 export async function getById(req: Request, res: Response) {
     const id = Number(req.params.id);
 
     if (isNaN(id)) {
-        res.status(400).send("Invalid product ID.");
+        res.status(400).send("Invalid item ID.");
         return;
     }
 

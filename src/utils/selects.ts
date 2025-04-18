@@ -17,6 +17,5 @@ export const productSelect = {
     id: true,
     name: true,
     description: true,
-    baseSpecs: { select: specSelect },
-    items: { select: itemSelect }
+    baseSpecs: { select: specSelect }
 }
