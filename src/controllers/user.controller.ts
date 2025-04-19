@@ -1,149 +1,99 @@
-import { z } from "zod";
 import bcrypt from "bcrypt";
-import prisma from "../utils/db.js";
+import { User } from "@interfaces";
+import { UserModel } from "@models";
+import { handleError } from "@utils/errors";
 import { Request, Response } from "express";
+import { passwordSchema, roleSchema, updateSchema } from "@utils/schemas";
 
-interface FullUser {
-    id: number,
-    name: string,
-    email: string,
-    role: string
-}
-
-interface UserProfile {
+export interface Profile {
     name: string,
     email: string
 }
 
-const updateSchema = z.object({
-    name: z.string().min(1)
-}).strict();
-
-const passwordSchema = z.object({
-    password: z.string().min(8, "Password too short.")
-});
-
-const roleSchema = z.object({
-    role: z.string().min(1)
-});
+export function userToProfile(user: User): Profile {
+    return {
+        name: user.name,
+        email: user.email
+    };
+}
 
 export async function getMyProfile(req: Request, res: Response) {
-    const me = await prisma.user.findUnique({
-        where: { id: req.auth?.userId },
-        select: {
-            name: true,
-            email: true
-        }
-    }) as UserProfile;
+    try {
+        const me = await UserModel.getById(req.auth?.userId);
 
-    if (!me) {
-        res.status(404).send("No user found.");
-        return;
+        res.json(userToProfile(me));
+    } catch (error) {
+        handleError(error, res);
     }
-
-    res.json(me);
 }
 
 export async function updateMyProfile(req: Request, res: Response) {
-    const parsedUpdate = updateSchema.parse(req.body);
+    try {
+        const userId = req.auth?.userId;
+        const updateData = updateSchema.parse(req.body);
 
-    const updatedMe = await prisma.user.update({
-        where: { id: req.auth?.userId },
-        data: parsedUpdate,
-        select: {
-            name: true,
-            email: true
-        }
-    }) as UserProfile;
+        const me = await UserModel.update({
+            id: userId,
+            ...updateData
+        });
 
-    res.json(updatedMe);
+        res.json(userToProfile(me));
+    } catch (error) {
+        handleError(error, res);
+    }
 }
 
 export async function updateMyPassword(req: Request, res: Response) {
-    const { password } = passwordSchema.parse(req.body);
-    const passwordHash = await bcrypt.hash(password, 10);
+    try {
+        const userId = req.auth?.userId;
+        const { password } = passwordSchema.parse(req.body);
+        const passwordHash = await bcrypt.hash(password, 10);
 
-    await prisma.user.update({
-        where: { id: req.auth?.userId },
-        data: { password: passwordHash }
-    });
-
-    res.send("Password changed!");
-}
-
-export async function getAllUsers(req: Request, res: Response) {
-    const users = await prisma.user.findMany({
-        select: {
-            id: true,
-            name: true,
-            email: true,
-            role: {
-                select: { name: true }
-            }
-        }
-    });
-
-    res.json(
-        users.map(user => (
-            {
-                id: user.id,
-                name: user.name,
-                email: user.email,
-                role: user.role.name
-            } as FullUser
-        ))
-    );
-}
-
-export async function getUserById(req: Request, res: Response) {
-    const userId = Number(req.params.id);
-
-    if (isNaN(userId)) {
-        res.status(400).send("Invalid user ID.");
-        return;
-    }
-
-    const user = await prisma.user.findUnique({
-        where: { id: userId },
-        select: {
-            name: true,
-            email: true,
-            role: {
-                select: { name: true }
-            }
-        }
-    });
-
-    if (!user) {
-        res.status(404).send("No user found.");
-        return;
-    }
-
-    res.json(
-        {
+        await UserModel.update({
             id: userId,
-            name: user.name,
-            email: user.email,
-            role: user.role.name
-        } as FullUser
-    );
+            password: passwordHash
+        });
+
+        res.send("Password changed!");
+    } catch (error) {
+        handleError(error, res);
+    }
 }
 
-export async function updateUserRole(req: Request, res: Response) {
-    const userId = Number(req.params.id);
-    const updatedRole = { name: roleSchema.parse(req.body).role };
+export async function getAll(req: Request, res: Response) {
+    try {
+        const users = await UserModel.getAll();
 
-    const updatedUser = await prisma.user.update({
-        where: { id: userId },
-        data: {
-            role: {
-                connectOrCreate: {
-                    where: updatedRole,
-                    create: updatedRole
-                }
-            }
-        }
-    });
+        res.json(users);
+    } catch (error) {
+        handleError(error, res);
+    }
+}
 
-    res.json(updatedUser);
+export async function getById(req: Request, res: Response) {
+    try {
+        const userId = Number(req.params.id);
+
+        const user = await UserModel.getById(userId);
+
+        res.json(user);
+    } catch (error) {
+        handleError(error, res);
+    }
+}
+
+export async function updateRole(req: Request, res: Response) {
+    try {
+        const userId = Number(req.params.id);
+        const updatedRole = roleSchema.parse(req.body).role;
+
+        const user = await UserModel.update({
+            id: userId,
+            roleName: updatedRole
+        });
+
+        res.json(user);
+    } catch (error) {
+        handleError(error, res);
+    }
 }

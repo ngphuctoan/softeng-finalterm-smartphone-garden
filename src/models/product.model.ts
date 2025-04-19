@@ -3,9 +3,9 @@ import { SpecModel } from "@models";
 import { Product } from "@interfaces";
 import { productSelect } from "@utils/selects";
 
-export type ProductFromDB = Omit<Product, "baseSpecs"> & { baseSpecs: SpecModel.SpecFromDB[] };
+type ProductFromDB = Omit<Product, "baseSpecs"> & { baseSpecs: SpecModel.SpecFromDB[] };
 
-export function productToJson(product: ProductFromDB): Product {
+function productToJson(product: ProductFromDB): Product {
     return {
         ...product,
         baseSpecs: SpecModel.arrayToSpecs(product.baseSpecs)

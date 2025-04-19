@@ -1,0 +1,97 @@
+import prisma from "@utils/db";
+import { User } from "@interfaces";
+import { userSelect } from "@utils/selects";
+
+interface RoleFromDB {
+    role: { name: string }
+}
+
+export function userToJson(user: Omit<User, "roleName"> & RoleFromDB) {
+    return {
+        ...user,
+        roleName: user.role.name
+    };
+}
+
+export async function getAll(): Promise<User[]> {
+    const users = await prisma.product.findMany({
+        select: userSelect
+    });
+
+    return users.map(userToJson);
+}
+
+export async function getById(id: number): Promise<User> {
+    const user = await prisma.user.findUnique({
+        where: { id },
+        select: userSelect
+    });
+
+    if (!user) {
+        throw new Error("No user found.");
+    }
+
+    return userToJson(user);
+}
+
+export async function getByEmail(email: string): Promise<User> {
+    const user = await prisma.user.findUnique({
+        where: { email },
+        select: userSelect
+    });
+
+    if (!user) {
+        throw new Error("No user found.");
+    }
+
+    return userToJson(user);
+}
+
+export async function getPasswordHash(id: number): Promise<string> {
+    const result = await prisma.user.findUnique({
+        where: { id },
+        select: { password: true }
+    });
+
+    if (!result) {
+        throw new Error("No user found.");
+    }
+
+    return result.password;
+}
+
+export async function add({ name, email, password, roleName }: Omit<User, "id"> & { password: string }): Promise<User> {
+    const user = await prisma.user.create({
+        data: {
+            name,
+            email,
+            password,
+            role: {
+                connectOrCreate: {
+                    where: { name: roleName },
+                    create: { name: roleName }
+                }
+            }
+        },
+        select: userSelect
+    });
+
+    return userToJson(user);
+}
+
+export async function update({ id, name, email, password, roleName }: Partial<Omit<User, "id">> & { id: number, password?: string }): Promise<User> {
+    const data: any = { id, name, email, password };
+
+    if (roleName) {
+        data.role = {
+            connectOrCreate: {
+                where: { name: roleName },
+                create: { name: roleName }
+            }
+        }
+    }
+    
+    const user = await prisma.user.update({ where: { id }, data, select: userSelect });
+
+    return userToJson(user);
+}

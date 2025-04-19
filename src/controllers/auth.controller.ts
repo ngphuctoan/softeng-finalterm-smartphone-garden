@@ -1,9 +1,11 @@
 import { z } from "zod";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import prisma from "../utils/db.js";
+import prisma from "@utils/db";
+import roles from "@utils/roles";
+import { UserModel } from "@models";
 import { v4 as uuidv4 } from "uuid";
-import roles from "../utils/roles.js";
+import { handleError } from "@utils/errors";
 import { NextFunction, Request, Response } from "express";
 
 const loginSchema = z.object({
@@ -18,79 +20,73 @@ const registerSchema = z.object({
 });
 
 export async function login(req: Request, res: Response) {
-    const { email, password } = loginSchema.parse(req.body);
+    try {
+        const { email, password } = loginSchema.parse(req.body);
 
-    const user = await prisma.user.findUnique({
-        where: { email },
-        select: {
-            id: true,
-            password: true,
-            role: {
-                select: { name: true }
-            }
+        const user = await UserModel.getByEmail(email);
+        const passwordHash = await UserModel.getPasswordHash(user.id);
+
+        if (!user || !await bcrypt.compare(password, passwordHash)) {
+            res.status(404).send("Incorrect email or password.");
+            return;
         }
-    });
 
-    if (!user || !await bcrypt.compare(password, user.password)) {
-        res.status(404).send("Incorrect email or password.");
-        return;
-    }
-
-    const token = jwt.sign(
-        {
-            jti: uuidv4(),
-            userId: user.id,
-            permissions: roles[user.role.name]
-        },
-        process.env.JWT_SECRET as string,
-        { expiresIn: "1w" }
-    );
-
-    res.cookie(
-        "authToken",
-        token,
-        {
-            httpOnly: true,
-            secure: true,
-            sameSite: true,
-            maxAge: 604800000
-        }
-    );
+        const token = jwt.sign(
+            {
+                jti: uuidv4(),
+                userId: user.id,
+                permissions: roles[user.roleName]
+            },
+            process.env.JWT_SECRET as string,
+            { expiresIn: "1w" }
+        );
     
-    res.send("Logged in successfully!");
+        res.cookie(
+            "authToken",
+            token,
+            {
+                httpOnly: true,
+                secure: true,
+                sameSite: true,
+                maxAge: 604800000
+            }
+        );
+        
+        res.send("Logged in successfully!");
+    } catch (error) {
+        handleError(error, res);
+    }
 }
 
 export async function register(req: Request, res: Response, next: NextFunction) {
-    const { name, email, password } = registerSchema.parse(req.body);
+    try {
+        const { name, email, password } = registerSchema.parse(req.body);
 
-    if (await prisma.user.findUnique({ where: { email } })) {
-        res.status(409).send("Email was already taken.");
-        return;
-    }
-
-    const passwordHash = await bcrypt.hash(password, 10);
-    const defaultRole = { name: "customer" };
-
-    await prisma.user.create({
-        data: {
-            name, email,
-            password: passwordHash,
-            role: {
-                connectOrCreate: {
-                    where: defaultRole,
-                    create: defaultRole
-                }
-            }
+        if (await UserModel.getByEmail(email)) {
+            res.status(409).send("Email was already taken.");
+            return;
         }
-    });
 
-    req.body = { email, password };
-    next();
+        const passwordHash = await bcrypt.hash(password, 10);
+        const defaultRole = "customer";
+
+        await UserModel.add({
+            name,
+            email,
+            password: passwordHash,
+            roleName: defaultRole
+        });
+
+        req.body = { email, password };
+        next();
+    } catch (error) {
+        handleError(error, res);
+    }
 }
 
 export async function logout(req: Request, res: Response) {
     if (!req.auth) {
-        res.status(401).send("Not logged in.");
+        res.send("Already logged out!");
         return;
     }
 

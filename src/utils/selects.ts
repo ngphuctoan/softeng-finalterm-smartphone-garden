@@ -18,4 +18,13 @@ export const productSelect = {
     name: true,
     description: true,
     baseSpecs: { select: specSelect }
+};
+
+export const userSelect = {
+    id: true,
+    name: true,
+    email: true,
+    role: {
+        select: { name: true }
+    }
 }

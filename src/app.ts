@@ -1,30 +1,18 @@
-import express from "express";
 import cookieParser from "cookie-parser";
-import authRoutes from "./routes/auth.routes.js";
-import userRoutes from "./routes/user.routes.js";
-import authMiddleware from "./middlewares/auth.middleware.js";
-import { itemRoutes, productRoutes } from "@routes";
+import express, { Request, Response } from "express";
+import authMiddleware from "@middlewares/auth.middleware";
+import { authRoutes, userRoutes, productRoutes, itemRoutes } from "@routes";
 
 const app = express();
 
 app.use(express.json());
 app.use(cookieParser());
-app.use(express.urlencoded({ extended: true }));
 
 app.set("view engine", "pug");
 app.set("views", "./src/views");
 
-app.get("/profile", (req, res) => res.render("public/index", { name: "Hello" }));
-
-app.get("/login", (req, res) => {
-    if (req.auth?.userId) {
-        res.redirect("/");
-        return;
-    }
-
-    res.render("auth/login");
-});
-
 app.use("/api/v1", authMiddleware, authRoutes, userRoutes, productRoutes, itemRoutes);
+
+app.get("/login", async (req: Request, res: Response) => res.render("auth/login"));
 
 export default app;

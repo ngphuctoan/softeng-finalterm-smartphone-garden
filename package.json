@@ -4,7 +4,7 @@
     "type": "module",
     "main": "server.ts",
     "scripts": {
-        "start": "tsx server.ts"
+        "start": "tsx --env-file=.env server.ts"
     },
     "prisma": {
         "seed": "tsx prisma/seed.ts"
