@@ -1,0 +1,38 @@
+extends ../layout
+
+block layout-content
+    .container-sm.pt-5
+        .row.gx-5.justify-content-center
+            .col-4
+                .ratio.ratio-1x1
+                    img(src="https://images.unsplash.com/photo-1650580809796-39361e4d77f6" alt="Photo by https://unsplash.com/@karolsmoczynski").object-fit-cover
+            .col-6
+                h1.mb-4 #{product.name}
+
+                .d-flex.align-items-center.gap-3
+                    span Options
+                    hr.w-100.m-0
+
+                .d-flex.flex-column.gap-3.pt-4
+                    each [spec, values] of Object.entries(options)
+                        .d-flex.align-items-center.gap-2
+                            strong.me-4 #{spec}
+
+                            each value in Array.from(values)
+                                - const selected = value === selectedOptions[spec]
+                                - const params = new URLSearchParams()
+
+                                - Object.entries(selectedOptions).forEach(([spec, value]) => params.set(spec, value))
+                                - params.set(spec, value)
+
+                                a(href=`?${params.toString()}` class=(selected ? "active" : "") style=(selected ? "pointer-events: none" : "")).btn.btn-outline-dark #{value}
+
+                .mt-4
+                    if isAvailable
+                        button(type="button").btn.btn-dark.px-3.py-2
+                            iconify-icon(icon="mynaui:cart").me-3
+                            span Add to cart
+                    else
+                        button(type="button" disabled).btn.btn-outline-dark.px-3.py-2
+                            iconify-icon(icon="mynaui:sad-circle").me-3
+                            span Item not available

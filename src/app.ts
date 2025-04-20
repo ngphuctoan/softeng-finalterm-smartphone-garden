@@ -17,15 +17,6 @@ app.set("views", "./src/views");
 
 app.use("/public", express.static("./public"));
 
-app.use("/",
-    authMiddleware,
-    authRoutes,
-    userRoutes,
-    productRoutes,
-    itemRoutes,
-    errorHandlingMiddleware
-);
-
 app.get("/", async (req: Request, res: Response) => {
     res.render("store/pages/index", {
         carouselSlides: [
@@ -75,5 +66,19 @@ app.get("/", async (req: Request, res: Response) => {
         bestSellers: await ProductModel.getAll()
     });
 });
+
+app.get("/contact", (req: Request, res: Response) => res.render("store/pages/contact"));
+
+app.get("/404", (req: Request, res: Response) => res.render("store/pages/404"));
+
+app.use("/",
+    authRoutes,
+    userRoutes,
+    productRoutes,
+    itemRoutes,
+    errorHandlingMiddleware
+);
+
+app.use((req: Request, res: Response) => res.redirect("/404"));
 
 export default app;

@@ -9,8 +9,50 @@ const productSchema = z.object({
     baseSpecs: z.record(z.string())
 });
 
-export function renderProductPage(req: Request, res: Response) {
-    res.render("");
+export async function renderProductPage(req: Request, res: Response) {
+    try {
+        const id = req.params.id;
+        const product = await ProductModel.getById(id);
+
+        let options: { [spec: string]: Set<string> } = {};
+        let selectedOptions: { [spec: string]: string } = {};
+
+        for (const item of product.items) {
+            for (const [spec, value] of Object.entries(item.specs)) {
+                if (!options[spec]) {
+                    options[spec] = new Set();
+                }
+
+                options[spec].add(value);
+            }
+        }
+
+        for (const spec of Object.keys(options)) {
+            const queryValue = req.query[spec]?.toString();
+
+            if (queryValue && options[spec].has(queryValue)) {
+                selectedOptions[spec] = queryValue;
+            } else {
+                selectedOptions[spec] = Array.from(options[spec])[0];
+            }
+        }
+
+        const isAvailable = product.items.some(
+            item => Object.entries(selectedOptions).every(
+                ([spec, value]) => item.specs[spec] === value
+            )
+        );
+
+        res.render("store/pages/product", {
+            product,
+            options,
+            selectedOptions,
+            isAvailable
+        });
+    } catch (error) {
+        console.error(error);
+        res.redirect("/404");
+    }
 }
 
 export async function getAll(req: Request, res: Response) {

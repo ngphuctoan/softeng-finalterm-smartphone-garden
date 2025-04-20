@@ -11,7 +11,7 @@ productRoutes.route("/products")
     .post(checker.check("product:add"), ProductController.add);
 
 productRoutes.route("/products/:id")
-    .get(checker.check("product:read"), ProductController.getById);
+    .get(ProductController.renderProductPage);
 
 productRoutes.route("/products/:id/items")
     .get(checker.check("item:read"), ItemController.getForProduct)
