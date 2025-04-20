@@ -1,38 +1,40 @@
 import bcrypt from "bcrypt";
-import prisma from "../src/utils/db.js";
+import { User } from "@interfaces";
+import { ItemModel, ProductModel, UserModel } from "@models";
 import project from "../package.json" with { type: "json" };
+import products from "./products.json" with { type: "json" };
 
-const FALLBACK_USER = {
-    NAME: "fallback",
-    EMAIL: `fallback@${project.name}`,
-    PASSWORD: "nhom11",
-    ROLE: { name: "administrator" }
-} as const;
+const FALLBACK_USER: Omit<User, "id"> & { password: string } = {
+    name: "fallback",
+    email: `fallback@${project.name}`,
+    password: "nhom11",
+    roleName: "administrator"
+};
 
 async function main() {
-    if (
-        await prisma.user.findUnique({
-            where: { email: FALLBACK_USER.EMAIL }
-        })
-    ) {
-        process.exit(0);
-    }
+    try {
+        await UserModel.getByEmail(FALLBACK_USER.email);
+    } catch {
+        const passwordHash = await bcrypt.hash(FALLBACK_USER.password, 10);
+        await UserModel.add({
+            ...FALLBACK_USER,
+            password: passwordHash
+        });
+    } finally {
+        for (const product of products) {
+            try {
+                await ProductModel.getById(product.id);
+            } catch {
+                const { items, ...productData } = product;
+                
+                await ProductModel.add(productData);
 
-    const passwordHash = await bcrypt.hash(FALLBACK_USER.PASSWORD, 10);
-
-    await prisma.user.create({
-        data: {
-            name: FALLBACK_USER.NAME,
-            email: FALLBACK_USER.EMAIL,
-            password: passwordHash,
-            role: {
-                connectOrCreate: {
-                    where: FALLBACK_USER.ROLE,
-                    create: FALLBACK_USER.ROLE
+                for (const item of items) {
+                    await ItemModel.add({ ...item, productId: product.id });
                 }
             }
         }
-    });
+    }
 }
 
 main().catch((error: Error) => {

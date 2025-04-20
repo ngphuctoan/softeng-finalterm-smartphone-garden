@@ -1,0 +1,62 @@
+extends ../layout
+
+block layout-styles
+    style.
+        #promoCarousel img {
+            display: block;
+            width: 100%;
+            height: 25rem;
+            filter: brightness(33%);
+            object-fit: cover;
+        }
+
+        #promoCarousel .carousel-caption {
+            top: 50%;
+            bottom: auto;
+            transform: translateY(-50%);
+        }
+
+        .card {
+            transition: transform .5s;
+            cursor: pointer;
+        }
+
+        .card:hover {
+            transform: scale(1.1);
+        }
+
+block layout-content
+    #promoCarousel(data-bs-ride="carousel").carousel.slide
+        - var i = 0
+        .carousel-indicators
+            each slide in carouselSlides
+                button(type="button" data-bs-target="#promoCarousel" data-bs-slide-to=i aria-current=(slide.active.toString()) class=(slide.active ? "active" : ""))
+                - i++
+
+        .carousel-inner
+            each slide in carouselSlides
+                .carousel-item(class=slide.active ? "active" : "")
+                    img(src=`https://images.unsplash.com/photo-${slide.photo.link}?w=1920&h=1080&fit=crop&fm=jpg` alt=`Photo by https://unplash.com/@${slide.photo.author}`)
+                    
+                    .carousel-caption(class=`text-${slide.align}`)
+                        h1.mb-4 #{slide.title}
+                        h4.fst-italic.mb-5 #{slide.description}
+
+                        a(href=slide.ctaButton.href).btn.btn-lg.btn-outline-light #{slide.ctaButton.label}
+                
+        
+        button(type="button" data-bs-target="#promoCarousel" data-bs-slide="prev").carousel-control-prev
+            .span.carousel-control-prev-icon
+            .span.visually-hidden Previous
+
+        button(type="button" data-bs-target="#promoCarousel" data-bs-slide="next").carousel-control-next
+            .span.carousel-control-next-icon
+            .span.visually-hidden Next
+
+    section#bestSellers.container-sm.py-5
+        h2.text-center.mb-5 Our best sellers! &#9889;
+
+        .row.row-cols-1.row-cols-md-2.row-cols-xl-4.g-4.px-5
+            each product in bestSellers
+                include ../partials/product-card
+                    - var product = product

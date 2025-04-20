@@ -5,9 +5,13 @@ export interface SpecFromDB {
     value: string
 }
 
+const SPECS_ORDER = ["Display", "CPU", "Battery", "RAM", "Storage", "Camera"];
+
 export function arrayToSpecs(specArray: SpecFromDB[]): Specs {
     return Object.fromEntries(
-        specArray.map(_spec => [ _spec.spec.name, _spec.value ])
+        specArray
+            .map(_spec => [ _spec.spec.name, _spec.value ])
+            .sort((specA, specB) => SPECS_ORDER.indexOf(specA[0]) - SPECS_ORDER.indexOf(specB[0]))
     );
 }
 

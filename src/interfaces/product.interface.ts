@@ -1,8 +1,9 @@
 import { Item, Specs } from "@interfaces";
 
 export interface Product {
-    id: number,
+    id: string,
     name: string,
     description: string | null,
-    baseSpecs: Specs
+    baseSpecs: Specs,
+    items: Omit<Item, "productId">[]
 }

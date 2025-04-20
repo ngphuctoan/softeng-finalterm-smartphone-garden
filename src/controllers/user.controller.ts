@@ -1,7 +1,6 @@
 import bcrypt from "bcrypt";
 import { User } from "@interfaces";
 import { UserModel } from "@models";
-import { handleError } from "@utils/errors";
 import { Request, Response } from "express";
 import { passwordSchema, roleSchema, updateSchema } from "@utils/schemas";
 
@@ -18,82 +17,56 @@ export function userToProfile(user: User): Profile {
 }
 
 export async function getMyProfile(req: Request, res: Response) {
-    try {
-        const me = await UserModel.getById(req.auth?.userId);
+    const userId = req.auth?.userId;
+    const me = await UserModel.getById(userId);
 
-        res.json(userToProfile(me));
-    } catch (error) {
-        handleError(error, res);
-    }
+    res.json(userToProfile(me));
 }
 
 export async function updateMyProfile(req: Request, res: Response) {
-    try {
-        const userId = req.auth?.userId;
-        const updateData = updateSchema.parse(req.body);
+    const userId = req.auth?.userId;
+    const updateData = updateSchema.parse(req.body);
 
-        const me = await UserModel.update({
-            id: userId,
-            ...updateData
-        });
+    const me = await UserModel.update({
+        id: userId,
+        ...updateData
+    });
 
-        res.json(userToProfile(me));
-    } catch (error) {
-        handleError(error, res);
-    }
+    res.json(userToProfile(me));
 }
 
 export async function updateMyPassword(req: Request, res: Response) {
-    try {
-        const userId = req.auth?.userId;
-        const { password } = passwordSchema.parse(req.body);
-        const passwordHash = await bcrypt.hash(password, 10);
+    const userId = req.auth?.userId;
+    const { password } = passwordSchema.parse(req.body);
+    const passwordHash = await bcrypt.hash(password, 10);
 
-        await UserModel.update({
-            id: userId,
-            password: passwordHash
-        });
+    await UserModel.update({
+        id: userId,
+        password: passwordHash
+    });
 
-        res.send("Password changed!");
-    } catch (error) {
-        handleError(error, res);
-    }
+    res.send("Password changed!");
 }
 
 export async function getAll(req: Request, res: Response) {
-    try {
-        const users = await UserModel.getAll();
-
-        res.json(users);
-    } catch (error) {
-        handleError(error, res);
-    }
+    const users = await UserModel.getAll();
+    res.json(users);
 }
 
 export async function getById(req: Request, res: Response) {
-    try {
-        const userId = Number(req.params.id);
+    const userId = Number(req.params.id);
+    const user = await UserModel.getById(userId);
 
-        const user = await UserModel.getById(userId);
-
-        res.json(user);
-    } catch (error) {
-        handleError(error, res);
-    }
+    res.json(user);
 }
 
 export async function updateRole(req: Request, res: Response) {
-    try {
-        const userId = Number(req.params.id);
-        const updatedRole = roleSchema.parse(req.body).role;
+    const userId = Number(req.params.id);
+    const updatedRole = roleSchema.parse(req.body).role;
+    const user = await UserModel.update({
+        id: userId,
+        roleName: updatedRole
+    });
 
-        const user = await UserModel.update({
-            id: userId,
-            roleName: updatedRole
-        });
-
-        res.json(user);
-    } catch (error) {
-        handleError(error, res);
-    }
+    res.json(user);
 }

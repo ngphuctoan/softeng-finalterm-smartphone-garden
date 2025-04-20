@@ -34,7 +34,7 @@ model Spec {
 }
 
 model Product {
-    id              Int             @id @default(autoincrement())
+    id              String          @id
     name            String          @unique
     description     String?
 
@@ -46,14 +46,14 @@ model Item {
     id              Int             @id @default(autoincrement())
     price           Int
     stock           Int
-    productId       Int
+    productId       String
 
     product         Product         @relation(fields: [productId], references: [id])
     specs           ItemSpecs[]
 }
 
 model ProductSpecs {
-    productId       Int
+    productId       String
     specId          Int
     value           String
 

@@ -2,7 +2,7 @@ import { Specs } from "@interfaces";
 
 export interface Item {
     id: number,
-    productId: number,
+    productId: string,
     price: number,
     stock: number,
     specs: Specs

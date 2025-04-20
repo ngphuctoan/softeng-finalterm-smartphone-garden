@@ -3,16 +3,16 @@ import { Item } from "@interfaces";
 import { SpecModel } from "@models";
 import { itemSelect } from "@utils/selects";
 
-type ItemFromDB = Omit<Item, "specs"> & { specs: SpecModel.SpecFromDB[] };
+export type ItemFromDB = Omit<Item, "specs"> & { specs: SpecModel.SpecFromDB[] };
 
-function itemToJson(item: ItemFromDB): Item {
+export function itemToJson(item: ItemFromDB): Item {
     return {
         ...item,
         specs: SpecModel.arrayToSpecs(item.specs)
     };
 }
 
-export async function getForProduct(productId: number): Promise<Item[]> {
+export async function getForProduct(productId: string): Promise<Item[]> {
     const items = await prisma.item.findMany({
         where: { productId },
         select: itemSelect

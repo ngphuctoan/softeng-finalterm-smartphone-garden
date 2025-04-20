@@ -9,12 +9,13 @@ interface RoleFromDB {
 export function userToJson(user: Omit<User, "roleName"> & RoleFromDB) {
     return {
         ...user,
+        role: undefined,
         roleName: user.role.name
     };
 }
 
 export async function getAll(): Promise<User[]> {
-    const users = await prisma.product.findMany({
+    const users = await prisma.user.findMany({
         select: userSelect
     });
 

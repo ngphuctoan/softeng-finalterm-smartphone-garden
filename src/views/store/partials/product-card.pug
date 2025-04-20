@@ -1,0 +1,17 @@
+- const prices = product.items.map(item => item.price)
+- const minPrice = Math.min(...prices), maxPrice = Math.max(...prices)
+
+.col
+    .card.border-0.text-center
+        img(src=`/public/images/products/${product.id}/thumb.jpg` height="150").card-img-top.d-block.w-100.object-fit-contain
+        .card-body.mt-3
+            h5.card-title #{product.name}
+
+            .d-flex.justify-content-center.gap-2.mb-2
+                each baseSpecValue in Object.values(product.baseSpecs).slice(0, 2)
+                    span.badge.text-truncate.text-dark.bg-secondary-subtle #{baseSpecValue}
+            
+            div.text-secondary
+                | #{minPrice.toLocaleString("vi-VN")}đ
+                if minPrice !== maxPrice
+                    |  - #{maxPrice.toLocaleString("vi-VN")}đ

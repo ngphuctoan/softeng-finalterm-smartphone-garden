@@ -1,6 +1,5 @@
 import { z } from "zod";
 import { ItemModel } from "@models";
-import { handleError } from "@utils/errors";
 import { Request, Response } from "express";
 
 const itemSchema = z.object({
@@ -17,12 +16,8 @@ export async function getForProduct(req: Request, res: Response) {
         return;
     }
 
-    try {
-        const items = await ItemModel.getForProduct(productId);
-        res.json(items);
-    } catch (error) {
-        handleError(error, res);
-    }
+    const items = await ItemModel.getForProduct(productId);
+    res.json(items);
 }
 
 export async function getById(req: Request, res: Response) {
@@ -33,29 +28,21 @@ export async function getById(req: Request, res: Response) {
         return;
     }
 
-    try {
-        const item = await ItemModel.getById(id);
-        res.json(item);
-    } catch (error) {
-        handleError(error, res);
-    }
+    const item = await ItemModel.getById(id);
+    res.json(item);
 }
 
 export async function add(req: Request, res: Response) {
-    const productId = Number(req.params.id);
+    const productId = req.params.id;
 
-    if (isNaN(productId)) {
+    if (!productId) {
         res.status(400).send("Invalid product ID.");
         return;
     }
 
-    try {
-        const product = await ItemModel.add({
-            productId,
-            ...itemSchema.parse(req.body)
-        });
-        res.json(product);
-    } catch (error) {
-        handleError(error, res);
-    }
+    const product = await ItemModel.add({
+        productId,
+        ...itemSchema.parse(req.body)
+    });
+    res.json(product);
 }

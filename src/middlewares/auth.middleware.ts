@@ -7,8 +7,10 @@ const authMiddleware = jwt({
     getToken: (req: Request): string | undefined => req.cookies?.authToken
 }).unless({
     path: [
-        "/api/v1/login",
-        "/api/v1/register"
+        "/",
+        "/login",
+        "/register",
+        "/logout"
     ]
 });
 
