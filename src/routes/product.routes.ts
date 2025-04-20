@@ -10,7 +10,10 @@ productRoutes.route("/products")
     .get(checker.check("product:read"), ProductController.getAll)
     .post(checker.check("product:add"), ProductController.add);
 
-productRoutes.route("/products/:id")
+productRoutes.route("/:category")
+    .get(ProductController.renderCategoryPage);
+
+productRoutes.route("/:category/:productId")
     .get(ProductController.renderProductPage);
 
 productRoutes.route("/products/:id/items")

@@ -29,16 +29,25 @@ model Spec {
     id              Int             @id @default(autoincrement())
     name            String          @unique
 
-    products        ProductSpecs[]
+    products        ProductBaseSpecs[]
     items           ItemSpecs[]
+}
+
+model Tag {
+    id              String          @id
+
+    products        Product[]       @relation("ProductTags")
 }
 
 model Product {
     id              String          @id
     name            String          @unique
+    brand           String
+    category        String
     description     String?
 
-    baseSpecs       ProductSpecs[]
+    tags            Tag[]           @relation("ProductTags")
+    baseSpecs       ProductBaseSpecs[]
     items           Item[]
 }
 
@@ -52,7 +61,7 @@ model Item {
     specs           ItemSpecs[]
 }
 
-model ProductSpecs {
+model ProductBaseSpecs {
     productId       String
     specId          Int
     value           String

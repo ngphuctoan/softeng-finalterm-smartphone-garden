@@ -16,6 +16,11 @@ export const itemSelect = {
 export const productSelect = {
     id: true,
     name: true,
+    brand: true,
+    category: true,
+    tags: {
+        select: { id: true }
+    },
     description: true,
     baseSpecs: { select: specSelect },
     items: { select: itemSelect }

@@ -5,14 +5,41 @@ import { Request, Response } from "express";
 const productSchema = z.object({
     id: z.string().min(1),
     name: z.string().min(1),
+    brand: z.string().min(1),
+    category: z.string().min(1),
+    tags: z.array(z.string()),
     description: z.string(),
     baseSpecs: z.record(z.string())
 });
 
+export async function renderCategoryPage(req: Request, res: Response) {
+    const category = req.params.category;
+
+    const products = await ProductModel.getAll();
+    
+    res.render("store/pages/category", {
+        category,
+        products,
+        activeNav: `/${category}`,
+        categoryPhotos: {
+            smartphones: {
+                link: "1596742578443-7682ef5251cd",
+                author: "the_average_tech_guy"
+            }
+        }
+    });
+}
+
 export async function renderProductPage(req: Request, res: Response) {
     try {
-        const id = req.params.id;
+        const category = req.params.category;
+        const id = req.params.productId;
         const product = await ProductModel.getById(id);
+
+        if (product.category !== category) {
+            res.redirect("/404");
+            return;
+        }
 
         let options: { [spec: string]: Set<string> } = {};
         let selectedOptions: { [spec: string]: string } = {};
@@ -47,7 +74,8 @@ export async function renderProductPage(req: Request, res: Response) {
             product,
             options,
             selectedOptions,
-            isAvailable
+            isAvailable,
+            activeNav: `/${product.category}`
         });
     } catch (error) {
         console.error(error);

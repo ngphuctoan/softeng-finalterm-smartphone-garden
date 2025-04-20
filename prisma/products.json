@@ -2,10 +2,13 @@
     {
         "id": "iphone-16-pro-max",
         "name": "iPhone 16 Pro Max",
+        "brand": "Apple",
+        "category": "smartphones",
+        "tags": ["flagship"],
         "description": "Experience the pinnacle of innovation with the iPhone 16 Pro Max, Apple's most advanced smartphone yet. Crafted with aerospace-grade titanium and featuring a stunning 6.9-inch Super Retina XDR display, the iPhone 16 Pro Max delivers unmatched clarity, brightness, and true-to-life colours in every frame. Powered by the cutting-edge A18 Pro chip, this device redefines performance and efficiency, making multitasking, mobile gaming, and video editing smoother than ever. The iPhone 16 Pro Max also introduces Apple's next-gen ProCamera system, combining a 48MP main sensor with Ultra Wide and Telephoto lenses—perfect for everything from low-light portraits to professional-grade 8K video recording. With up to 33 hours of battery life, 1TB of storage, Wi-Fi 7, and iOS 18, this phone is built to keep up with the future. Whether you're a content creator, tech enthusiast, or casual user, the iPhone 16 Pro Max is designed to elevate your experience in every way.",
         "baseSpecs": {
             "CPU": "Apple A18 Pro",
-            "Display": "6.9\"",
+            "Display": "6.9\" Super Retina XDR",
             "RAM": "8GB",
             "Battery": "33 hours",
             "Camera": "Fusion 48MP, Ultra Wide 48MP, Telephoto"
@@ -23,13 +26,16 @@
     }, {
         "id": "galaxy-a55-5g",
         "name": "Samsung Galaxy A55 5G",
+        "brand": "Samsung",
+        "tags": ["mid-range"],
+        "category": "smartphones",
         "description": "The Samsung Galaxy A55 5G combines sleek design with solid performance for everyday users. Featuring a vibrant 6.6-inch Super AMOLED display, 8GB of RAM, and a powerful Exynos chipset, it’s built to handle multitasking, media consumption, and social media like a champ. With support for 5G, you’ll enjoy fast downloads and smoother streaming on the go.",
         "baseSpecs": {
             "CPU": "Exynos 1480",
             "Display": "6.6\" Super AMOLED",
             "RAM": "8GB",
             "Battery": "5000mAh",
-            "Camera": "50MP Main + 12MP Ultra Wide + 5MP Macro"
+            "Camera": "50MP Main, 12MP Ultra Wide, 5MP Macro"
         },
         "items": [
             {
@@ -58,6 +64,9 @@
     }, {
         "id": "galaxy-s23-fe",
         "name": "Samsung Galaxy S23 FE 5G",
+        "brand": "Samsung",
+        "category": "smartphones",
+        "tags": ["mid-range"],
         "description": "The Galaxy S23 FE is a fan-favorite flagship with premium features at a more accessible price. It comes equipped with a flagship-grade Snapdragon 8 Gen 1 processor, a stunning AMOLED 120Hz display, and a triple camera system designed for quality photography day and night.",
         "baseSpecs": {
             "CPU": "Snapdragon 8 Gen 1",
@@ -93,6 +102,9 @@
     }, {
         "id": "redmi-note-13-pro-5g",
         "name": "Xiaomi Redmi Note 13 Pro 5G",
+        "brand": "Xiaomi",
+        "category": "smartphones",
+        "tags": ["mid-range"],
         "description": "A budget-friendly beast, the Redmi Note 13 Pro 5G features a smooth 120Hz AMOLED display, a powerful Snapdragon 7s Gen 2 processor, and a 200MP main camera for sharp and detailed shots. It’s perfect for users who want flagship-like features without the hefty price.",
         "baseSpecs": {
             "CPU": "Snapdragon 7s Gen 2",

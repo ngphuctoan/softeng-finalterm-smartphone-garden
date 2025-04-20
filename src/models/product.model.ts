@@ -4,11 +4,16 @@ import { Item, Product } from "@interfaces";
 import { productSelect } from "@utils/selects";
 import { itemToJson } from "./item.model.js";
 
-type ProductFromDB = Omit<Product, "baseSpecs" | "items"> & { baseSpecs: SpecModel.SpecFromDB[], items: ItemModel.ItemFromDB[] };
+type ProductFromDB = Omit<Product, "tags" | "baseSpecs" | "items"> & {
+    tags: { id: string }[],
+    baseSpecs: SpecModel.SpecFromDB[],
+    items: ItemModel.ItemFromDB[]
+};
 
 function productToJson(product: ProductFromDB): Product {
     return {
         ...product,
+        tags: product.tags.map(tag => tag.id),
         baseSpecs: SpecModel.arrayToSpecs(product.baseSpecs),
         items: product.items.map(itemToJson).map(
             item => Object.fromEntries(
@@ -39,11 +44,19 @@ export async function getById(id: string): Promise<Product> {
     return productToJson(product);
 }
 
-export async function add({ id, name, description, baseSpecs }: Omit<Product, "items">): Promise<Product> {
+export async function add({ id, name, brand, category, tags, description, baseSpecs }: Omit<Product, "items">): Promise<Product> {
     const product = await prisma.product.create({
         data: {
             id,
             name,
+            brand,
+            category,
+            tags: {
+                connectOrCreate: tags.map(tag => ({
+                    where: { id: tag },
+                    create: { id: tag }
+                }))
+            },
             description,
             baseSpecs: {
                 create: SpecModel.specsToConnect(baseSpecs)

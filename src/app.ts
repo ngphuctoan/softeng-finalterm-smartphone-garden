@@ -19,6 +19,7 @@ app.use("/public", express.static("./public"));
 
 app.get("/", async (req: Request, res: Response) => {
     res.render("store/pages/index", {
+        activeNav: "/",
         carouselSlides: [
             {
                 photo: {
@@ -67,7 +68,7 @@ app.get("/", async (req: Request, res: Response) => {
     });
 });
 
-app.get("/contact", (req: Request, res: Response) => res.render("store/pages/contact"));
+app.get("/contact", (req: Request, res: Response) => res.render("store/pages/contact", { activeNav: "/contact" }));
 
 app.get("/404", (req: Request, res: Response) => res.render("store/pages/404"));
 
