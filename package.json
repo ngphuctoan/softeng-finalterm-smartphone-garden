@@ -4,7 +4,7 @@
     "type": "module",
     "main": "server.ts",
     "scripts": {
-        "build": "prisma generate && prisma migrate deploy",
+        "build": "prisma generate && prisma migrate deploy && prisma db seed",
         "start": "tsx server.ts"
     },
     "prisma": {
