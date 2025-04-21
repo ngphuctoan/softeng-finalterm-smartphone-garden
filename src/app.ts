@@ -70,6 +70,8 @@ app.get("/", async (req: Request, res: Response) => {
 
 app.get("/contact", (req: Request, res: Response) => res.render("store/pages/contact", { activeNav: "/contact" }));
 
+app.get("/dashboard", (req: Request, res: Response) => res.render("dashboard/pages/index"));
+
 app.get("/404", (req: Request, res: Response) => res.render("store/pages/404"));
 
 app.use("/",

@@ -1,0 +1,29 @@
+.col-0.col-md-4.col-lg-3.d-flex.flex-column.border-end
+    #sidebar(style="--bs-offcanvas-width: 20rem").offcanvas-md.offcanvas-start.flex-md-fill
+        .offcanvas-header.mb-3
+            h5.offcanvas-title Menu
+            button(type="button" data-bs-dismiss="offcanvas").btn-close
+        
+        .offcanvas-body.p-0
+            ul(
+                style=`
+                    --bs-nav-link-padding-y: .75rem;
+                    --bs-nav-link-color: var(--bs-secondary);
+                    --bs-nav-pills-link-active-bg: var(--bs-dark);
+                `).nav.nav-pills.nav-fill.w-100
+                li.nav-item.text-start
+                    a(href="#").nav-link.active
+                        iconify-icon(icon="mynaui:home")
+                        span.ms-3 Dashboard
+
+                    a(href="#").nav-link
+                        iconify-icon(icon="mynaui:shopping-bag")
+                        span.ms-3 Orders
+
+                    a(href="#").nav-link
+                        iconify-icon(icon="mynaui:archive")
+                        span.ms-3 Products
+
+                    a(href="#").nav-link
+                        iconify-icon(icon="mynaui:user")
+                        span.ms-3 Users
