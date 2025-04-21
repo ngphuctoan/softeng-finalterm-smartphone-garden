@@ -3,7 +3,7 @@ import cookieParser from "cookie-parser";
 import express, { Request, Response } from "express";
 import authMiddleware from "@middlewares/auth.middleware";
 import errorHandlingMiddleware from "@middlewares/error.middleware";
-import { authRoutes, userRoutes, productRoutes, itemRoutes } from "@routes";
+import { authRoutes, userRoutes, productRoutes, itemRoutes, dashboardRoutes } from "@routes";
 import { ProductModel } from "@models";
 
 const app = express();
@@ -70,12 +70,11 @@ app.get("/", async (req: Request, res: Response) => {
 
 app.get("/contact", (req: Request, res: Response) => res.render("store/pages/contact", { activeNav: "/contact" }));
 
-app.get("/dashboard", (req: Request, res: Response) => res.render("dashboard/pages/index"));
-
 app.get("/404", (req: Request, res: Response) => res.render("store/pages/404"));
 
 app.use("/",
     authRoutes,
+    dashboardRoutes,
     userRoutes,
     productRoutes,
     itemRoutes,

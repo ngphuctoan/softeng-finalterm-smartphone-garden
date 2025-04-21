@@ -1,3 +1,5 @@
+import fs from "fs";
+import path from "path";
 import { z } from "zod";
 import { ProductModel } from "@models";
 import { Request, Response } from "express";
@@ -41,6 +43,9 @@ export async function renderProductPage(req: Request, res: Response) {
             return;
         }
 
+        const previewDir = path.join(".", "public", "images", "products", id, "previews");
+        const slides = fs.readdirSync(previewDir).filter(name => name.startsWith("slide-"));
+
         let options: { [spec: string]: Set<string> } = {};
         let selectedOptions: { [spec: string]: string } = {};
 
@@ -72,6 +77,7 @@ export async function renderProductPage(req: Request, res: Response) {
 
         res.render("store/pages/product", {
             product,
+            slides,
             options,
             selectedOptions,
             isAvailable,

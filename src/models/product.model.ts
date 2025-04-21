@@ -67,3 +67,27 @@ export async function add({ id, name, brand, category, tags, description, baseSp
 
     return productToJson(product);
 }
+
+export async function update({ id, name, brand, category, tags, description, baseSpecs }: Omit<Product, "items">): Promise<Product> {
+    const product = await prisma.product.update({
+        where: { id },
+        data: {
+            name,
+            brand,
+            category,
+            tags: {
+                connectOrCreate: tags.map(tag => ({
+                    where: { id: tag },
+                    create: { id: tag }
+                }))
+            },
+            description,
+            baseSpecs: {
+                create: SpecModel.specsToConnect(baseSpecs)
+            }
+        },
+        select: productSelect
+    });
+
+    return productToJson(product);
+}

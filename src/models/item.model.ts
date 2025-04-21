@@ -51,3 +51,24 @@ export async function add({ productId, price, stock, specs }: Omit<Item, "id">):
 
     return itemToJson(item);
 }
+
+export async function update({ id, productId, price, stock, specs }: any): Promise<Item> {
+    console.log(id);
+    
+    const item = await prisma.item.update({
+        where: { id },
+        data: {
+            product: productId ? {
+                connect: { id: productId }
+            } : undefined,
+            price,
+            stock,
+            specs: specs ? {
+                create: SpecModel.specsToConnect(specs)
+            } : undefined
+        },
+        select: itemSelect
+    });
+
+    return itemToJson(item);
+}
