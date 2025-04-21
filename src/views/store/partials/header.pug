@@ -12,9 +12,29 @@ header.navbar.navbar-expand-lg.sticky-top.pb-0.bg-body.shadow
                 button(type="button").btn
                     iconify-icon(icon="mynaui:shopping-bag")
                 
-                button(type="button").btn
-                    iconify-icon(icon="mynaui:user-circle")
-                    span.ms-3 User
+                .dropdown
+                    button(type="button" data-bs-toggle="dropdown" aria-expanded="false").btn
+                        iconify-icon(icon="mynaui:user-circle")
+                        span.ms-3 #{userName || "Guest"}
+
+                    ul.dropdown-menu.dropdown-menu-end
+                        if showDashboard
+                            li
+                                a(href="/dashboard").dropdown-item
+                                    iconify-icon(icon="mynaui:cog-three")
+                                    span.ms-2.me-4 Go to dashboard
+
+                        if userName
+                            li
+                                form(method="POST" action="/logout")
+                                    button(type="submit").dropdown-item.text-danger
+                                        iconify-icon(icon="mynaui:logout")
+                                        span.ms-2.me-4 Logout
+                        else
+                            li
+                                a(href="/login").dropdown-item
+                                    iconify-icon(icon="mynaui:login")
+                                    span.ms-2.me-4 Login
 
         ul#navs(style="--bs-nav-link-color: var(--bs-secondary)").collapse.navbar-collapse.nav.nav-underline.flex-column.flex-md-row.nav-justified.w-100.pt-2.border-top
             each [key, value] of Object.entries(navs)

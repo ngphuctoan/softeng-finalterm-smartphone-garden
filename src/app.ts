@@ -1,8 +1,9 @@
 import cookieParser from "cookie-parser";
 import express, { Request, Response } from "express";
-import authMiddleware from "@middlewares/auth.middleware";
 import errorHandlingMiddleware from "@middlewares/error.middleware";
-import { dashboardRoutes, storeRoutes } from "@routes";
+import { authRoutes, dashboardRoutes, storeRoutes } from "@routes";
+import authMiddleware from "@middlewares/auth.middleware";
+import { checkForRoles } from "@middlewares/roles.middleware";
 
 const app = express();
 
@@ -17,13 +18,19 @@ app.use("/public", express.static("./public"));
 
 app.use("/",
     storeRoutes,
-    // authMiddleware,
-    dashboardRoutes,
-    errorHandlingMiddleware
+    authRoutes
 );
 
-app.get("/404", (req: Request, res: Response) =>
-    res.render("store/pages/404")
+app.use(authMiddleware);
+
+app.use("/protected",
+    checkForRoles("administrator", "manager"),
+    express.static("./protected")
+);
+
+app.use("/",
+    dashboardRoutes,
+    errorHandlingMiddleware
 );
 
 app.use((req: Request, res: Response) =>

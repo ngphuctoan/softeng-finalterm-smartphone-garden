@@ -52,26 +52,26 @@ block layout-content
                 .modal-body
                     .row.gx-3.mb-3
                         .col-3
-                            label(for="id").col-form-label Item ID:
+                            label(for="id").col-form-label Item ID
                             input(type="text" name="id" readonly disabled value="-").form-control.font-monospace
 
                         .col
-                            label(for="productId").col-form-label Product ID:
+                            label(for="productId").col-form-label Product ID
                             input(type="text" name="productId" readonly disabled required).form-control.font-monospace
                     
                     .row.gx-3.mb-3
                         .col
-                            label(for="price").col-form-label Price:
+                            label(for="price").col-form-label Price
                             .input-group
                                 input(type="text" name="price" inputmode="numeric" pattern="[0-9]*" required).form-control
                                 span.input-group-text đ
                             
                         .col
-                            label(for="stock").col-form-label Stock:
+                            label(for="stock").col-form-label Stock
                             input(type="text" name="stock" inputmode="numeric" pattern="[0-9]*" required).form-control
 
                     div#itemSpecTable(x-data="{ specs: {}, newSpecNames: {} }")
-                        span Specs:
+                        span Specs
                         table.table.table-striped.table-hover
                             caption
                                 button(
@@ -110,30 +110,5 @@ block layout-content
                     button(type="button" data-bs-dismiss="modal").btn.btn-secondary Close
                     button(type="submit").btn.btn-primary Send message
 
-    script.
-        document.addEventListener("alpine:init", () => {
-            const itemModal = document.getElementById("itemModal");
-            const itemForm = document.forms.itemForm;
-
-            const itemSpecTable = document.getElementById("itemSpecTable");
-
-            if (itemModal) {
-                itemModal.addEventListener("show.bs.modal", event => {
-                    const button = event.relatedTarget;
-
-                    const itemData = JSON.parse(button.getAttribute("data-bs-item"));
-                    const { specs, ...newItemData } = itemData;
-
-                    for (const [itemInfo, value] of Object.entries(newItemData)) {
-                        itemForm[itemInfo].value = value;
-                    }
-
-                    Alpine.$data(itemSpecTable).specs = specs;
-                    Alpine.$data(itemSpecTable).newSpecKeys = Object.keys(specs)
-                        .reduce((newSpecKeys, spec) => {
-                            newSpecKeys[spec] = spec;
-                            return newSpecKeys;
-                        }, {});
-                });
-            }
-        });
+block js-imports
+    script(src="/protected/dashboard/products.js")

@@ -1,35 +1,13 @@
 doctype html
 html
     head
+        meta(charset="utf8")
         meta(name="viewport" content="width=device-width, initial-scale=1")
 
+        title Dashboard | Smartphone Store
+
         link(rel="stylesheet" href="https://unpkg.com/bootstrap@5.3.5/dist/css/bootstrap.min.css")
-        link(rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins")
-
-        style.
-            *:not(.badge) {
-                border-radius: 0 !important;
-            }
-
-            body {
-                font-family: Poppins;
-            }
-
-            iconify-icon {
-                font-size: 1.5rem;
-                vertical-align: -.3125rem;
-            }
-
-            #editStock .input-group {
-                flex-wrap: nowrap;
-                width: max-content;
-            }
-
-            #editStock .input-group .form-control {
-                max-width: 5rem;
-            }
-
-        block layout-styles
+        link(rel="stylesheet" href="/public/css/styles.css")
     
     body.d-flex.flex-column.min-vh-100
         include partials/header
@@ -44,14 +22,6 @@ html
 
         script(src="https://unpkg.com/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js")
         script(src="https://unpkg.com/alpinejs@3.x.x")
-        //- script(src="https://unpkg.com/lodash/lodash.min.js")
-        //- script(src="https://unpkg.com/jquery")
         script(src="https://unpkg.com/iconify-icon")
 
-        //- script.
-        //-     async function initializeInputSpinners() {
-        //-         const { InputSpinner } = await import("https://unpkg.com/bootstrap-input-spinner/src/InputSpinner.js");
-        //-         $("input[type=number]").each((i, numberInput) => new InputSpinner(numberInput));
-        //-     }
-
-        //-     initializeInputSpinners();
+        block js-imports

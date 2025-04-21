@@ -5,10 +5,13 @@ header.navbar.flex-nowrap.sticky-top.p-0.bg-body.shadow
         
         a(href="/dashboard").d-none.d-sm-block.navbar-brand.fs-6.text-truncate.w-100.p-3.m-0.link-light.bg-secondary Smartphone Garden
 
-    a(href="/").btn.btn-lg.ms-auto
-        iconify-icon(icon="mynaui:external-link")
-        span.d-none.d-sm-inline.fs-6.ms-3 Return to store
+    .dropdown
+        button(type="button" data-bs-toggle="dropdown" aria-expanded="false").btn.btn-lg.me-2
+            iconify-icon(icon="mynaui:user-circle")
+            span.d-none.d-sm-inline.fs-6.ms-3.me-2 #{userName || "undefined"}
 
-    button(type="button").btn.btn-lg.ms-2
-        iconify-icon(icon="mynaui:user-circle")
-        span.d-none.d-sm-inline.fs-6.ms-3.me-2 User
+        ul.dropdown-menu.dropdown-menu-end.me-2
+            li
+                a(href="/").dropdown-item
+                    iconify-icon(icon="mynaui:external-link")
+                    span.ms-2.me-4 Return to store
