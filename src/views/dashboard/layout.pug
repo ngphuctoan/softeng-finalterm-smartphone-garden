@@ -37,19 +37,21 @@ html
         section.d-flex.flex-fill
             include partials/sidebar
 
-            main.container.m-5
+            main.container-fluid.px-4.px-lg-5.my-5
                 h2.pb-2.mb-4.border-bottom #{navs[activeNav].title}
 
                 block layout-content
 
         script(src="https://unpkg.com/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js")
-        script(src="https://unpkg.com/jquery")
+        script(src="https://unpkg.com/alpinejs@3.x.x")
+        //- script(src="https://unpkg.com/lodash/lodash.min.js")
+        //- script(src="https://unpkg.com/jquery")
         script(src="https://unpkg.com/iconify-icon")
 
-        script.
-            async function initializeInputSpinners() {
-                const { InputSpinner } = await import("https://unpkg.com/bootstrap-input-spinner/src/InputSpinner.js");
-                $("input[type=number]").each((i, numberInput) => new InputSpinner(numberInput));
-            }
+        //- script.
+        //-     async function initializeInputSpinners() {
+        //-         const { InputSpinner } = await import("https://unpkg.com/bootstrap-input-spinner/src/InputSpinner.js");
+        //-         $("input[type=number]").each((i, numberInput) => new InputSpinner(numberInput));
+        //-     }
 
-            initializeInputSpinners();
+        //-     initializeInputSpinners();

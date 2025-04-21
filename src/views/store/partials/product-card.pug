@@ -2,7 +2,7 @@
 - const minPrice = Math.min(...prices), maxPrice = Math.max(...prices)
 
 .col
-    a(href=`/${product.category}/${product.id}`).card.border-0.text-center.text-decoration-none
+    a(href=`/products/${product.category}/${product.id}`).card.border-0.text-center.text-decoration-none
         img(src=`/public/images/products/${product.id}/thumb.jpg` height="150").card-img-top.d-block.w-100.object-fit-contain
         .card-body.mt-3
             strong.card-title #{product.name}

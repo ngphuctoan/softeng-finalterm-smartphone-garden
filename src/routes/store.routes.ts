@@ -21,8 +21,7 @@ storeRoutes.get("/", async (req: Request, res: Response) => {
                 href: "#bestSellers",
                 label: "Our best-sellers!"
             }
-        },
-        {
+        }, {
             photo: {
                 link: "1600340048140-909329c17ac1",
                 author: "itsomidarmin"
@@ -35,8 +34,7 @@ storeRoutes.get("/", async (req: Request, res: Response) => {
                 href: "/smartphones",
                 label: "Browse for products"
             }
-        },
-        {
+        }, {
             photo: {
                 link: "1648553847712-b32cf94e7bd1?",
                 author: "radoslavbali"
@@ -59,7 +57,7 @@ storeRoutes.get("/", async (req: Request, res: Response) => {
     });
 });
 
-storeRoutes.get("/:category", async (req: Request, res: Response) => {
+storeRoutes.get("/products/:category", async (req: Request, res: Response) => {
     const category = req.params.category;
     const categoryPhotos = {
         smartphones: {
@@ -74,11 +72,11 @@ storeRoutes.get("/:category", async (req: Request, res: Response) => {
         category,
         products,
         categoryPhotos,
-        activeNav: `/${category}`
+        activeNav: `/products/${category}`
     });
 });
 
-storeRoutes.get("/:category/:productId", async (req: Request, res: Response) => {
+storeRoutes.get("/products/:category/:productId", async (req: Request, res: Response) => {
     const category = req.params.category;
     const id = req.params.productId;
     const product = await ProductModel.getById(id);
@@ -126,7 +124,7 @@ storeRoutes.get("/:category/:productId", async (req: Request, res: Response) => 
         options,
         selectedOptions,
         isAvailable,
-        activeNav: `/${product.category}`
+        activeNav: `/products/${product.category}`
     });
 });
 

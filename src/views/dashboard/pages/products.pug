@@ -11,27 +11,129 @@ block layout-content
                 
                 .accordion-collapse.collapse(id=`productAccordion_${product.id}`)
                     .accordion-body.p-0
+                        .table-responsive
+                            table.table.table-striped.table-hover.m-0
+                                caption.px-2.ms-2
+                                    span(style="line-height: 2.5rem") #{product.items.length} item(s)
+
+                                    button(type="button").btn.btn-outline-dark.float-end
+                                        iconify-icon(icon="mynaui:plus")
+                                        span.ms-3 Add item
+
+                                thead
+                                    each header in [...Object.keys(product.items[0].specs), "Price", "Stock", ""]
+                                        th(scope="col").col-1 #{header}
+
+                                tbody.align-middle
+                                    each item in product.items
+                                        tr
+                                            each value in Object.values(item.specs)
+                                                td #{value}
+
+                                            td #{item.price.toLocaleString("vi-VN") + "đ"}
+
+                                            td #{item.stock}
+
+                                            td
+                                                .d-flex.flex-nowrap.gap-2
+                                                    button(type="button" data-bs-toggle="modal" data-bs-target="#itemModal" data-bs-item={ productId: product.id, ...item }).btn.p-2
+                                                        iconify-icon(icon="mynaui:pencil")
+
+                                                    button(type="button").btn.p-2.text-danger
+                                                        iconify-icon(icon="mynaui:trash")
+
+    #itemModal(aria-hidden="true" aria-labelledby="itemModalLabel" tabindex="-1").modal.fade
+        .modal-dialog
+            form(x-data @submit.prevent="console.log(new FormData(event.target))")#itemForm.modal-content
+                .modal-header
+                    h5#itemModalLabel.modal-title Edit item
+                    button(type="button" data-bs-dismiss="modal" aria-label="Close").btn-close
+        
+                .modal-body
+                    .row.gx-3.mb-3
+                        .col-3
+                            label(for="id").col-form-label Item ID:
+                            input(type="text" name="id" readonly disabled value="-").form-control.font-monospace
+
+                        .col
+                            label(for="productId").col-form-label Product ID:
+                            input(type="text" name="productId" readonly disabled required).form-control.font-monospace
+                    
+                    .row.gx-3.mb-3
+                        .col
+                            label(for="price").col-form-label Price:
+                            .input-group
+                                input(type="text" name="price" inputmode="numeric" pattern="[0-9]*" required).form-control
+                                span.input-group-text đ
+                            
+                        .col
+                            label(for="stock").col-form-label Stock:
+                            input(type="text" name="stock" inputmode="numeric" pattern="[0-9]*" required).form-control
+
+                    div#itemSpecTable(x-data="{ specs: {}, newSpecNames: {} }")
+                        span Specs:
                         table.table.table-striped.table-hover
+                            caption
+                                button(
+                                    type="button"
+                                    @click=""
+                                ).btn.btn-outline-dark.float-end
+                                    iconify-icon(icon="mynaui:plus")
+                                    span.ms-3 Add spec
                             thead
-                                each header in [...Object.keys(product.items[0].specs), "Stock", "Actions"]
-                                    th(scope="col").col-1 #{header}
-
+                                tr
+                                    th Key
+                                    th Value
+                                    th
                             tbody
-                                each item in product.items
+                                template(x-for="[spec, value] in Object.entries(specs)" :key="spec")
                                     tr
-                                        each value in Object.values(item.specs)
-                                            td #{value}
-
                                         td
-                                            form#editStock(method="POST" action=`/dashboard/products/update-item/${item.id}`).d-flex.gap-2
-                                                input(type="number" name="stock" value=item.stock min=0)
+                                            input(type="text" :value="spec" @input=`
+                                                const specMap = Object.fromEntries([[spec, $event.target.value]])
 
-                                                button(type="submit").btn.btn-dark.p-2
-                                                    iconify-icon(icon="mynaui:check")
-
+                                                specs = Object.fromEntries(
+                                                    Object.entries(specs).map(
+                                                        ([spec, value]) => [specMap[spec] || spec, value]
+                                                    )
+                                                )
+                                            ` placeholder="Name").form-control
                                         td
-                                            button(type="button").btn.p-2
-                                                iconify-icon(icon="mynaui:pencil")
-
+                                            input(type="text" x-model="specs[spec]" placeholder="Value").form-control
+                                        td
                                             button(type="button").btn.p-2.text-danger
                                                 iconify-icon(icon="mynaui:trash")
+
+                        input(type="hidden" name="specs" :value="JSON.stringify(specs)")
+        
+                .modal-footer
+                    button(type="button" data-bs-dismiss="modal").btn.btn-secondary Close
+                    button(type="submit").btn.btn-primary Send message
+
+    script.
+        document.addEventListener("alpine:init", () => {
+            const itemModal = document.getElementById("itemModal");
+            const itemForm = document.forms.itemForm;
+
+            const itemSpecTable = document.getElementById("itemSpecTable");
+
+            if (itemModal) {
+                itemModal.addEventListener("show.bs.modal", event => {
+                    const button = event.relatedTarget;
+
+                    const itemData = JSON.parse(button.getAttribute("data-bs-item"));
+                    const { specs, ...newItemData } = itemData;
+
+                    for (const [itemInfo, value] of Object.entries(newItemData)) {
+                        itemForm[itemInfo].value = value;
+                    }
+
+                    Alpine.$data(itemSpecTable).specs = specs;
+                    Alpine.$data(itemSpecTable).newSpecKeys = Object.keys(specs)
+                        .reduce((newSpecKeys, spec) => {
+                            newSpecKeys[spec] = spec;
+                            return newSpecKeys;
+                        }, {});
+                });
+            }
+        });

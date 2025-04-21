@@ -1,14 +1,14 @@
-header.navbar.sticky-top.p-0.pe-2.bg-body.shadow
-    .col-5.col-md-4.col-lg-3.d-flex.align-items-center.bg-secondary
-        button(type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebar").d-md-none.btn.btn-lg.btn-dark.p-3
+header.navbar.flex-nowrap.sticky-top.p-0.bg-body.shadow
+    .col-5.col-lg-4.col-xl-3.d-flex
+        button(type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebar").d-lg-none.btn.btn-lg.btn-dark.px-3.py-2
             iconify-icon(icon="mynaui:sort")
         
-        a(href="/dashboard" style="height: 1.5rem; margin: 1.25rem 0").navbar-brand.fs-6.text-truncate.p-0.mx-4.link-light Smartphone Garden
+        a(href="/dashboard").d-none.d-sm-block.navbar-brand.fs-6.text-truncate.w-100.p-3.m-0.link-light.bg-secondary Smartphone Garden
 
     a(href="/").btn.btn-lg.ms-auto
         iconify-icon(icon="mynaui:external-link")
-        span.fs-6.ms-3 Return to store
+        span.d-none.d-sm-inline.fs-6.ms-3 Return to store
 
     button(type="button").btn.btn-lg.ms-2
         iconify-icon(icon="mynaui:user-circle")
-        span.fs-6.ms-3 User
+        span.d-none.d-sm-inline.fs-6.ms-3.me-2 User
