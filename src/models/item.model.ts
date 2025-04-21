@@ -34,7 +34,7 @@ export async function getById(id: number): Promise<Item> {
     return itemToJson(item);
 }
 
-export async function add({ productId, price, stock, specs }: Omit<Item, "id">): Promise<Item> {
+export async function add({ productId, price, stock = 0, specs }: Omit<Item, "id">): Promise<Item> {
     const item = await prisma.item.create({
         data: {
             product: {
@@ -52,21 +52,24 @@ export async function add({ productId, price, stock, specs }: Omit<Item, "id">):
     return itemToJson(item);
 }
 
-export async function update({ id, productId, price, stock, specs }: any): Promise<Item> {
-    console.log(id);
-    
+export async function update(id: number, { productId, price, stock, specs }: Partial<Omit<Item, "id">>): Promise<Item> {
+    const updateData: any = { price, stock };
+
+    if (productId) {
+        updateData.product = {
+            connect: { id: productId }
+        };
+    }
+
+    if (specs) {
+        updateData.specs = {
+            create: SpecModel.specsToConnect(specs)
+        };
+    }
+
     const item = await prisma.item.update({
         where: { id },
-        data: {
-            product: productId ? {
-                connect: { id: productId }
-            } : undefined,
-            price,
-            stock,
-            specs: specs ? {
-                create: SpecModel.specsToConnect(specs)
-            } : undefined
-        },
+        data: updateData,
         select: itemSelect
     });
 

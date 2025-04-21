@@ -17,17 +17,18 @@ export const roleSchema = z.object({
 });
 
 export const productSchema = z.object({
-    name: z.string(),
-    brand: z.string(),
-    category: z.string(),
-    tags: z.array(z.string()),
+    id: z.string().min(1),
+    name: z.string().min(1),
+    brand: z.string().min(1),
+    category: z.string().min(1),
+    tags: z.array(z.string().min(1)),
     description: z.string(),
-    baseSpecs: z.record(z.string())
+    baseSpecs: z.record(z.string().min(1))
 });
 
 export const itemSchema = z.object({
-    productId: z.string(),
-    price: z.coerce.number(),
-    stock: z.coerce.number(),
-    specs: z.record(z.string())
+    productId: z.string().min(1),
+    price: z.coerce.number().min(0),
+    stock: z.coerce.number().min(0),
+    specs: z.record(z.string().min(1))
 });

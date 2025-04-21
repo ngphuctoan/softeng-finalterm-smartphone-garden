@@ -73,7 +73,7 @@ export async function register(req: Request, res: Response, next: NextFunction) 
             res.status(409).send("Email was already taken.");
             return;
         }
-    } catch (error) {}
+    } catch {}
 
     const passwordHash = await bcrypt.hash(password, 10);
     const defaultRole = "customer";

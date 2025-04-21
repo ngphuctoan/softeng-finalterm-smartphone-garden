@@ -68,24 +68,27 @@ export async function add({ id, name, brand, category, tags, description, baseSp
     return productToJson(product);
 }
 
-export async function update({ id, name, brand, category, tags, description, baseSpecs }: Omit<Product, "items">): Promise<Product> {
+export async function update(id: string, { name, brand, category, tags, description, baseSpecs }: Partial<Omit<Product, "id" | "items">>): Promise<Product> {
+    const updateData: any = { name, brand, category, description };
+
+    if (tags) {
+        updateData.tags = {
+            connectOrCreate: tags.map(tag => ({
+                where: { id: tag },
+                create: { id: tag }
+            }))
+        };
+    }
+
+    if (baseSpecs) {
+        updateData.baseSpecs = {
+            create: SpecModel.specsToConnect(baseSpecs)
+        };
+    }
+    
     const product = await prisma.product.update({
         where: { id },
-        data: {
-            name,
-            brand,
-            category,
-            tags: {
-                connectOrCreate: tags.map(tag => ({
-                    where: { id: tag },
-                    create: { id: tag }
-                }))
-            },
-            description,
-            baseSpecs: {
-                create: SpecModel.specsToConnect(baseSpecs)
-            }
-        },
+        data: updateData,
         select: productSelect
     });
 

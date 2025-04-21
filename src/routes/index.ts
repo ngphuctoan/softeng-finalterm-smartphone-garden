@@ -1,7 +1,6 @@
-import productRoutes from "./product.routes.js";
-import itemRoutes from "./item.routes.js";
 import authRoutes from "./auth.routes.js";
-import userRoutes from "./user.routes.js";
+import profileRoutes from "./profile.routes.js";
 import dashboardRoutes from "./dashboard.routes.js";
+import storeRoutes from "./store.routes.js";
 
-export { productRoutes, itemRoutes, authRoutes, userRoutes, dashboardRoutes };
+export { authRoutes, profileRoutes, dashboardRoutes, storeRoutes };
