@@ -99,8 +99,15 @@ storeRoutes.get("/products/:category/:productId",
             return;
         }
 
+        let slides = ["/public/images/products/slide-notfound.jpg"];
+
         const previewDir = path.join(".", "public", "images", "products", id, "previews");
-        const slides = fs.readdirSync(previewDir).filter(name => name.startsWith("slide-"));
+
+        try {
+            slides = fs.readdirSync(previewDir)
+                .filter(name => name.startsWith("slide-"))
+                .map(name => "/" + path.join(previewDir, name));
+        } catch {}
 
         let options: { [spec: string]: Set<string> } = {};
         let selectedOptions: { [spec: string]: string } = {};
@@ -149,7 +156,8 @@ storeRoutes.get("/contact",
     (req: Request, res: Response) =>
         res.render("store/pages/contact", {
             activeNav: "/contact",
-            userName: res.locals.userName
+            userName: res.locals.userName,
+            showDashboard: ["administrator", "manager"].includes(res.locals.roleName)
         })
 );
 
