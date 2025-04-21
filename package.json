@@ -5,7 +5,7 @@
     "main": "server.ts",
     "scripts": {
         "build": "prisma generate && prisma migrate deploy",
-        "start": "tsx --env-file=.env server.ts"
+        "start": "tsx server.ts"
     },
     "prisma": {
         "seed": "tsx prisma/seed.ts"
