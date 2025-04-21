@@ -20,15 +20,36 @@ html
                 vertical-align: -.3125rem;
             }
 
+            #editStock .input-group {
+                flex-wrap: nowrap;
+                width: max-content;
+            }
+
+            #editStock .input-group .form-control {
+                max-width: 5rem;
+            }
+
         block layout-styles
+    
     body.d-flex.flex-column.min-vh-100
         include partials/header
 
         section.d-flex.flex-fill
             include partials/sidebar
 
-            main
+            main.container.m-5
+                h2.pb-2.mb-4.border-bottom #{navs[activeNav].title}
+
                 block layout-content
 
         script(src="https://unpkg.com/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js")
+        script(src="https://unpkg.com/jquery")
         script(src="https://unpkg.com/iconify-icon")
+
+        script.
+            async function initializeInputSpinners() {
+                const { InputSpinner } = await import("https://unpkg.com/bootstrap-input-spinner/src/InputSpinner.js");
+                $("input[type=number]").each((i, numberInput) => new InputSpinner(numberInput));
+            }
+
+            initializeInputSpinners();

@@ -1,6 +1,8 @@
+- const navs = { "/": { title: "Dashboard", icon: "home" }, "/products": { title: "Products", icon: "archive" } }
+
 .col-0.col-md-4.col-lg-3.d-flex.flex-column.border-end
     #sidebar(style="--bs-offcanvas-width: 20rem").offcanvas-md.offcanvas-start.flex-md-fill
-        .offcanvas-header.mb-3
+        .offcanvas-header
             h5.offcanvas-title Menu
             button(type="button" data-bs-dismiss="offcanvas").btn-close
         
@@ -12,18 +14,7 @@
                     --bs-nav-pills-link-active-bg: var(--bs-dark);
                 `).nav.nav-pills.nav-fill.w-100
                 li.nav-item.text-start
-                    a(href="#").nav-link.active
-                        iconify-icon(icon="mynaui:home")
-                        span.ms-3 Dashboard
-
-                    a(href="#").nav-link
-                        iconify-icon(icon="mynaui:shopping-bag")
-                        span.ms-3 Orders
-
-                    a(href="#").nav-link
-                        iconify-icon(icon="mynaui:archive")
-                        span.ms-3 Products
-
-                    a(href="#").nav-link
-                        iconify-icon(icon="mynaui:user")
-                        span.ms-3 Users
+                    each [href, nav] of Object.entries(navs)
+                        a(href=`/dashboard${href}` class=(activeNav === href ? "active" : "")).nav-link
+                            iconify-icon(icon=`mynaui:${nav.icon}`)
+                            span.ms-3 #{nav.title}

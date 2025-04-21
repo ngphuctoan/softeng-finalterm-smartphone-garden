@@ -4,8 +4,28 @@ block layout-content
     .container-sm.py-5
         .row.gx-5.gy-4.justify-content-center
             .col-12.col-md-5
-                div
-                    img(src="https://images.unsplash.com/photo-1650580809796-39361e4d77f6" alt="Photo by https://unsplash.com/@karolsmoczynski").img-fluid.object-fit-cover
+                #previewCarousel(data-bs-ride="carousel").carousel.slide.h-100
+                    - var i = 0
+                    .carousel-indicators.px-2.bg-dark.bg-opacity-50
+                        each slide in slides
+                            - const active = i < 1
+                            button(type="button" data-bs-target="#previewCarousel" data-bs-slide-to=i aria-current=(active.toString()) class=(active ? "active" : ""))
+                            - i++
+
+                    .carousel-inner.h-100
+                        each slide in slides
+                            .carousel-item(class=slides.indexOf(slide) < 1 ? "active" : "").h-100
+                                img(
+                                    src=`/public/images/products/${product.id}/previews/${slide}`
+                                ).d-block.w-100.h-100.object-fit-cover
+
+                    button(type="button" data-bs-target="#previewCarousel" data-bs-slide="prev").carousel-control-prev
+                        span(style="background-size: 75%").carousel-control-prev-icon.p-4.bg-dark.shadow
+                        span.visually-hidden Previous
+
+                    button(type="button" data-bs-target="#previewCarousel" data-bs-slide="next").carousel-control-next
+                        span(style="background-size: 75%").carousel-control-next-icon.p-4.bg-dark.shadow
+                        span.visually-hidden Next
             
             .col-12.col-md
                 h1.mb-2 #{product.name}

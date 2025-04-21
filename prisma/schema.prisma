@@ -54,7 +54,7 @@ model Product {
 model Item {
     id              Int             @id @default(autoincrement())
     price           Int
-    stock           Int
+    stock           Int             @default(0)
     productId       String
 
     product         Product         @relation(fields: [productId], references: [id])

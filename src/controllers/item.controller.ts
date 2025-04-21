@@ -9,9 +9,9 @@ const itemSchema = z.object({
 });
 
 export async function getForProduct(req: Request, res: Response) {
-    const productId = Number(req.params.id);
+    const productId = req.params.id;
 
-    if (isNaN(productId)) {
+    if (!productId) {
         res.status(400).send("Invalid product ID.");
         return;
     }

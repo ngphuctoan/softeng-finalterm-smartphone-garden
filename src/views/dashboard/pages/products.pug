@@ -1,0 +1,37 @@
+extends ../layout
+
+block layout-content
+    #productAccordion(style="--bs-accordion-active-bg: var(--bs-body)").accordion
+        each product in products
+            .accordion-item
+                .accordion-header
+                    button(type="button" data-bs-toggle="collapse" data-bs-target=`#productAccordion_${product.id}` aria-expanded="false").accordion-button.collapsed
+                        img(src=`/public/images/products/${product.id}/thumb.jpg` width="40" height="40").object-fit-cover
+                        span.ms-4 #{product.name}
+                
+                .accordion-collapse.collapse(id=`productAccordion_${product.id}`)
+                    .accordion-body.p-0
+                        table.table.table-striped.table-hover
+                            thead
+                                each header in [...Object.keys(product.items[0].specs), "Stock", "Actions"]
+                                    th(scope="col").col-1 #{header}
+
+                            tbody
+                                each item in product.items
+                                    tr
+                                        each value in Object.values(item.specs)
+                                            td #{value}
+
+                                        td
+                                            form#editStock(method="POST" action=`/dashboard/products/update-item/${item.id}`).d-flex.gap-2
+                                                input(type="number" name="stock" value=item.stock min=0)
+
+                                                button(type="submit").btn.btn-dark.p-2
+                                                    iconify-icon(icon="mynaui:check")
+
+                                        td
+                                            button(type="button").btn.p-2
+                                                iconify-icon(icon="mynaui:pencil")
+
+                                            button(type="button").btn.p-2.text-danger
+                                                iconify-icon(icon="mynaui:trash")
