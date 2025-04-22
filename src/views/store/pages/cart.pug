@@ -1,0 +1,47 @@
+extends ../layout
+
+block layout-content
+    .container-sm.py-5
+        h1.mb-5 Your cart
+
+        table.table
+            - const totalPrice = cart.reduce((totalPrice, item) => totalPrice + item.price, 0)
+
+            caption.table-caption.p-3
+                span(style="line-height: 2.5rem").text-dark Item(s): #{cart.length}&emsp;&bull;&ensp; Total price: #{totalPrice.toLocaleString("vi-VN")}đ
+
+                button(type="button").btn.btn-dark.float-end
+                    iconify-icon(icon="mynaui:credit-card")
+                    span.ms-3 Proceed to checkout
+
+            thead
+                th
+                th Product name
+                th Specs
+                th Price
+                th
+            
+            tbody.align-middle
+                each item in cart
+                    tr
+                        td
+                            img(
+                                src=`/public/images/products/${item.productId}/thumb.jpg`
+                                onerror="this.onerror = null; this.src='/public/images/products/thumb-notfound.jpg'"
+                                width="80" height="80"
+                            )
+
+                        td #{item.productName}
+
+                        td
+                            ul.m-0
+                                each [spec, value] of Object.entries(item.specs)
+                                    li #{spec}: #{value}
+
+                        td #{item.price.toLocaleString("vi-VN")}đ
+
+                        td
+                            form(method="POST" action=`/cart/remove-item?id=${item.id}`)
+                                button(type="submit").btn.btn-outline-danger
+                                    iconify-icon(icon="mynaui:trash")
+                                    span.ms-2 Remove

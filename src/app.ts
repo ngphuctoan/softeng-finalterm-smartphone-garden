@@ -1,4 +1,5 @@
 import cookieParser from "cookie-parser";
+import session from "express-session";
 import express, { Request, Response } from "express";
 import errorHandlingMiddleware from "@middlewares/error.middleware";
 import { authRoutes, dashboardRoutes, storeRoutes } from "@routes";
@@ -8,8 +9,15 @@ import { checkForRoles } from "@middlewares/roles.middleware";
 const app = express();
 
 app.use(express.json());
-app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
+
+app.use(cookieParser());
+app.use(session({
+    secret: process.env.SESSION_SECRET as string,
+    resave: false,
+    saveUninitialized: true,
+    cookie: { maxAge: 2592000000 }
+}));
 
 app.set("view engine", "pug");
 app.set("views", "./src/views");

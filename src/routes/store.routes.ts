@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-import { ProductModel, UserModel } from "@models";
+import { ItemModel, ProductModel, UserModel } from "@models";
 import { Router } from "express";
 import { Request, Response } from "express";
 import { UserController } from "@controllers";
@@ -122,7 +122,7 @@ storeRoutes.get("/products/:category/:productId",
             }
         }
 
-        const isAvailable = product.items.some(
+        const availableItem = product.items.find(
             item => Object.entries(selectedOptions).every(
                 ([spec, value]) => item.specs[spec] === value
             )
@@ -133,13 +133,60 @@ storeRoutes.get("/products/:category/:productId",
             slides,
             options,
             selectedOptions,
-            isAvailable,
+            availableItemId: availableItem?.id,
             activeNav: `/products/${product.category}`,
+            cart: req.session.cart || [],
             userName: res.locals.userName,
             showDashboard: ["administrator", "manager"].includes(res.locals.roleName)
         });
     }
 );
+
+storeRoutes.get("/cart",
+    UserController.getUserNameAndRoleName,
+    async (req: Request, res: Response) => {
+        res.render("store/pages/cart", {
+            cart: req.session.cart
+                ? await Promise.all(
+                    req.session.cart.map(itemId =>
+                        ItemModel.getById(itemId).then(async item => ({
+                            ...item,
+                            productName: (await ProductModel.getById(item.productId)).name
+                        }))
+                    )
+                )
+                : [],
+            userName: res.locals.userName,
+            showDashboard: ["administrator", "manager"].includes(res.locals.roleName)
+        });
+    }
+);
+
+storeRoutes.post("/cart/add-item", (req: Request, res: Response) => {
+    const itemId = Number(req.query?.id);
+
+    if (!req.session.cart) {
+        req.session.cart = [];
+    }
+
+    if (!req.session.cart.includes(itemId)) {
+        req.session.cart.push(itemId);
+    }
+
+    res.redirect("/cart");
+});
+
+storeRoutes.post("/cart/remove-item", (req: Request, res: Response) => {
+    const itemId = Number(req.query?.id);
+
+    if (!req.session.cart) {
+        req.session.cart = [];
+    } else {
+        req.session.cart = req.session.cart.filter(_itemId => _itemId !== itemId);
+    }
+
+    res.redirect("/cart");
+});
 
 storeRoutes.get("/contact",
     UserController.getUserNameAndRoleName,
