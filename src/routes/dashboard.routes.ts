@@ -1,8 +1,8 @@
 import { ItemController, UserController } from "@controllers";
-import { Item } from "@interfaces";
+import { Item, Product } from "@interfaces";
 import { checkForRoles } from "@middlewares/roles.middleware";
 import { ItemModel, ProductModel } from "@models";
-import { itemSchema } from "@utils/schemas";
+import { itemSchema, productSchema } from "@utils/schemas";
 import { Request, Response } from "express";
 import { Router } from "express";
 
@@ -34,8 +34,6 @@ dashboardRoutes.get("/dashboard/products",
 );
 
 dashboardRoutes.post("/dashboard/products/add-item", async (req: Request, res: Response) => {
-    console.log(req.body);
-    
     const addData = itemSchema.parse(req.body) as Omit<Item, "id">;
 
     await ItemModel.add(addData);
@@ -48,6 +46,25 @@ dashboardRoutes.post("/dashboard/products/update-item", async (req: Request, res
     const updateData = itemSchema.partial().parse(req.body);
 
     await ItemModel.update(id, updateData);
+
+    res.redirect("/dashboard/products");
+});
+
+dashboardRoutes.post("/dashboard/products/add-product", async (req: Request, res: Response) => {
+    const addData = productSchema.parse(req.body) as Omit<Product, "items">;
+
+    await ProductModel.add(addData);
+
+    res.redirect("/dashboard/products");
+});
+
+
+dashboardRoutes.post("/dashboard/products/update-product", async (req: Request, res: Response) => {
+    const { id, ...updateData } = productSchema.partial().parse(req.body);
+
+    if (id) {
+        await ProductModel.update(id, updateData);
+    }
 
     res.redirect("/dashboard/products");
 });

@@ -21,9 +21,9 @@ export const productSchema = z.object({
     name: z.string().min(1),
     brand: z.string().min(1),
     category: z.string().min(1),
-    tags: z.array(z.string().min(1)),
+    tags: z.string().min(1).transform(val => JSON.parse(val)),
     description: z.string(),
-    baseSpecs: z.record(z.string().min(1))
+    baseSpecs: z.string().min(1).transform(val => JSON.parse(val))
 });
 
 export const itemSchema = z.object({

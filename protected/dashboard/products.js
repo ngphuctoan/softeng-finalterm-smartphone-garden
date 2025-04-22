@@ -18,26 +18,31 @@ document.addEventListener("alpine:init", () => {
 
             const button = event.relatedTarget;
 
-            const itemData = JSON.parse(button.getAttribute("data-bs-item"));
-            const { specs, ...newItemData } = itemData;
+            if (button.getAttribute("data-bs-item")) {
+                const itemData = JSON.parse(button.getAttribute("data-bs-item"));
+                const { specs, ...newItemData } = itemData;
 
-            itemForm.action = `/dashboard/products/update-item?id=${itemData.id}`;
+                itemForm.action = `/dashboard/products/update-item?id=${itemData.id}`;
 
-            for (const [itemInfo, value] of Object.entries(newItemData)) {
-                itemForm[itemInfo].value = value;
+                for (const [itemInfo, value] of Object.entries(newItemData)) {
+                    itemForm[itemInfo].value = value;
+                }
+
+                Alpine.$data(itemSpecTable).specs = specs;
+                Alpine.$data(itemSpecTable).specMap = Object.fromEntries(
+                    Object.keys(specs).map(spec => [spec, spec])
+                );
+            } else {
+                itemForm.action = "/dashboard/products/add-item";
+                itemForm.productId.value = button.getAttribute("data-bs-new-from");
             }
-
-            Alpine.$data(itemSpecTable).specs = specs;
-            Alpine.$data(itemSpecTable).specMap = Object.fromEntries(
-                Object.keys(specs).map(spec => [spec, spec])
-            );
         });
     }
 
     const productModal = document.getElementById("productModal");
     const productForm = document.forms.productForm;
 
-    const productBaseSpecTable = document.getElementById("productBaseSpecTable");
+    const productEditDetails = document.getElementById("productEditDetails");
 
     if (productModal) {
         productModal.addEventListener("show.bs.modal", event => {
@@ -47,18 +52,21 @@ document.addEventListener("alpine:init", () => {
 
             if (button.getAttribute("data-bs-product")) {
                 const productData = JSON.parse(button.getAttribute("data-bs-product"));
-                const { baseSpecs, items, ...newProductData } = productData;
+                const { tags, baseSpecs, items, ...newProductData } = productData;
 
-                console.log(newProductData);
+                productForm.action = `/dashboard/products/update-product?id=${productData.id}`;
 
                 for (const [productInfo, value] of Object.entries(newProductData)) {
                     productForm[productInfo].value = value;
                 }
 
-                Alpine.$data(productBaseSpecTable).specs = baseSpecs;
-                Alpine.$data(productBaseSpecTable).specMap = Object.fromEntries(
+                Alpine.$data(productEditDetails).tagsStr = tags.join();
+                Alpine.$data(productEditDetails).specs = baseSpecs;
+                Alpine.$data(productEditDetails).specMap = Object.fromEntries(
                     Object.keys(baseSpecs).map(spec => [spec, spec])
                 );
+            } else {
+                productForm.action = "/dashboard/products/add-product";
             }
         });
     }

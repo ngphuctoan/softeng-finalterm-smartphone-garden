@@ -1,12 +1,20 @@
 extends ../layout
 
 block layout-content
+    button(type="button" data-bs-toggle="modal" data-bs-target="#productModal").btn.btn-outline-dark.mb-3
+        iconify-icon(icon="mynaui:plus")
+        span.ms-3 New product
+    
     #productAccordion(style="--bs-accordion-active-bg: var(--bs-body)").accordion
         each product in products
             .accordion-item
                 .accordion-header
                     button(type="button" data-bs-toggle="collapse" data-bs-target=`#productAccordion_${product.id}` aria-expanded="false").accordion-button.collapsed
-                        img(src=`/public/images/products/${product.id}/thumb.jpg` width="40" height="40").object-fit-cover
+                        img(
+                            src=`/public/images/products/${product.id}/thumb.jpg`
+                            onerror="this.onerror = null; this.src='/public/images/products/thumb-notfound.jpg'"
+                            width="40" height="40"
+                        ).object-fit-cover
                         span.ms-4 #{product.name}
                 
                 .accordion-collapse.collapse(id=`productAccordion_${product.id}`)
@@ -124,28 +132,41 @@ block layout-content
                     button(type="submit").btn.btn-dark Confirm
 
     #productModal(aria-hidden="true" aria-labelledby="productModalLabel" tabindex="-1").modal.fade
-        .modal-dialog
+        .modal-dialog.modal-lg
             form(x-data method="POST" action="#")#productForm.modal-content
                 .modal-header
                     h5#itemModalLabel.modal-title Product details
                     button(type="button" data-bs-dismiss="modal" aria-label="Close").btn-close
 
-                .modal-body
+                .modal-body#productEditDetails(x-data="{ specs: {}, specMap: {}, tagsStr: '' }")
                     .row.gx-2.mb-3
                         .col
                             label(for="id").form-label ID
-                            input(type="text" name="id" required).form-control.font-monospace
+                            input(type="text" name="id" required pattern="[a-z0-9\\-]*").form-control.font-monospace
                         
                         .col
                             label(for="name").form-label Name
                             input(type="text" name="name" required).form-control
 
+                    .row.gx-2.mb-3
+                        .col
+                            label(for="brand").form-label Brand
+                            input(type="text" name="brand" required).form-control
+                        
+                        .col
+                            label(for="category").form-label Category
+                            input(type="text" name="category" required pattern="[a-z\\-]*").form-control
+
+                    .mb-3
+                        label.form-label Tags
+                        input(type="text" x-model="tagsStr" required pattern="[a-z0-9,\\-]*").form-control
+
                     .mb-3
                         label(for="description").form-label Description
                         textarea(name="description" rows="8" style="resize: none").form-control
 
-                    div#productBaseSpecTable(x-data="{ specs: {}, specMap: {} }")
-                        span Specs
+                    div
+                        span Base specs
                         table.table.table-striped.table-hover
                             caption
                                 button(
@@ -178,6 +199,8 @@ block layout-content
                                             ).btn.p-2.text-danger
                                                 iconify-icon(icon="mynaui:trash")
 
+                        input(type="hidden" name="tags" :value=`JSON.stringify(tagsStr.split(","))`)
+
                         input(type="hidden" name="baseSpecs" :value=`JSON.stringify(
                             Object.fromEntries(
                                 Object.entries(renameKeys(specs, specMap))
@@ -186,7 +209,7 @@ block layout-content
                         )`)
                     
                 .modal-footer
-                    button(type="button" data-bs-dismiss="Close").btn.btn-outline-dark Close
+                    button(type="button" data-bs-dismiss="modal").btn.btn-outline-dark Close
                     button(type="submit").btn.btn-dark Confirm
 
 block js-imports

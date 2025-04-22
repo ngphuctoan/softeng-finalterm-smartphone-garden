@@ -82,6 +82,7 @@ export async function update(id: string, { name, brand, category, tags, descript
 
     if (baseSpecs) {
         updateData.baseSpecs = {
+            deleteMany: {},
             create: SpecModel.specsToConnect(baseSpecs)
         };
     }
