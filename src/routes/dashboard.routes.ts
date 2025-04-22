@@ -1,4 +1,5 @@
-import { UserController } from "@controllers";
+import { ItemController, UserController } from "@controllers";
+import { Item } from "@interfaces";
 import { checkForRoles } from "@middlewares/roles.middleware";
 import { ItemModel, ProductModel } from "@models";
 import { itemSchema } from "@utils/schemas";
@@ -26,10 +27,21 @@ dashboardRoutes.get("/dashboard/products",
         res.render("dashboard/pages/products", {
             products,
             activeNav: "/products",
-            userName: res.locals.userName
+            userName: res.locals.userName,
+            getAllItemSpecsFromProduct: ProductModel.getAllItemSpecs
         });
     }
 );
+
+dashboardRoutes.post("/dashboard/products/add-item", async (req: Request, res: Response) => {
+    console.log(req.body);
+    
+    const addData = itemSchema.parse(req.body) as Omit<Item, "id">;
+
+    await ItemModel.add(addData);
+
+    res.redirect("/dashboard/products");
+});
 
 dashboardRoutes.post("/dashboard/products/update-item", async (req: Request, res: Response) => {
     const id = Number(req.query?.id);

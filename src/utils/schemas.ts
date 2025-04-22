@@ -30,5 +30,5 @@ export const itemSchema = z.object({
     productId: z.string().min(1),
     price: z.coerce.number().min(0),
     stock: z.coerce.number().min(0),
-    specs: z.record(z.string().min(1))
+    specs: z.string().min(1).transform(val => JSON.parse(val))
 });

@@ -109,18 +109,8 @@ storeRoutes.get("/products/:category/:productId",
                 .map(name => "/" + path.join(previewDir, name));
         } catch {}
 
-        let options: { [spec: string]: Set<string> } = {};
+        let options: { [spec: string]: Set<string> } = ProductModel.getAllItemSpecs(product);
         let selectedOptions: { [spec: string]: string } = {};
-
-        for (const item of product.items) {
-            for (const [spec, value] of Object.entries(item.specs)) {
-                if (!options[spec]) {
-                    options[spec] = new Set();
-                }
-
-                options[spec].add(value);
-            }
-        }
 
         for (const spec of Object.keys(options)) {
             const queryValue = req.query[spec]?.toString();
