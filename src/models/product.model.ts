@@ -82,6 +82,7 @@ export async function update(id: string, { name, brand, category, tags, descript
 
     if (baseSpecs) {
         updateData.baseSpecs = {
+            deleteMany: {},
             create: SpecModel.specsToConnect(baseSpecs)
         };
     }
@@ -93,4 +94,20 @@ export async function update(id: string, { name, brand, category, tags, descript
     });
 
     return productToJson(product);
+}
+
+export function getAllItemSpecs(product: Product) {
+    let specs: { [spec: string]: Set<string> } = {};
+
+    for (const item of product.items) {
+        for (const [spec, value] of Object.entries(item.specs)) {
+            if (!specs[spec]) {
+                specs[spec] = new Set();
+            }
+
+            specs[spec].add(value);
+        }
+    }
+
+    return specs;
 }

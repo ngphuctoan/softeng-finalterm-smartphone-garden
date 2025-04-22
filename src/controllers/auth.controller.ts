@@ -2,9 +2,8 @@ import { z } from "zod";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import prisma from "@utils/db";
-import roles from "@utils/roles";
 import { v4 as uuidv4 } from "uuid";
-import { ProfileModel, UserModel } from "@models";
+import { UserModel } from "@models";
 import { NextFunction, Request, Response } from "express";
 
 const loginSchema = z.object({
@@ -17,18 +16,6 @@ const registerSchema = z.object({
     email: z.string().email("Invalid email.").min(1),
     password: z.string().min(8, "Password too short.")
 });
-
-export async function showLoginPage(req: Request, res: Response) {
-    if (req.cookies.authToken) {
-        res.redirect("/");
-    } else {
-        res.render("auth/login");
-    }
-}
-
-export async function showRegisterPage(req: Request, res: Response) {
-    res.render("auth/register");
-}
 
 export async function login(req: Request, res: Response, next: NextFunction) {
     const { email, password } = loginSchema.parse(req.body);
@@ -45,7 +32,7 @@ export async function login(req: Request, res: Response, next: NextFunction) {
         {
             jti: uuidv4(),
             userId: user.id,
-            permissions: roles[user.roleName]
+            roleName: user.roleName
         },
         process.env.JWT_SECRET as string,
         { expiresIn: "1w" }

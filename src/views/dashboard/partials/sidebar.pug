@@ -1,10 +1,10 @@
 - const navs = { "/": { title: "Dashboard", icon: "home" }, "/products": { title: "Products", icon: "archive" } }
 
-.col-0.col-md-4.col-lg-3.d-flex.flex-column.border-end
-    #sidebar(style="--bs-offcanvas-width: 20rem").offcanvas-md.offcanvas-start.flex-md-fill
+.col-0.col-lg-4.col-xl-3.d-flex.flex-column.border-end
+    #sidebar(tabindex="-1" style="--bs-offcanvas-width: 20rem").offcanvas-lg.offcanvas-start.flex-md-fill
         .offcanvas-header
             h5.offcanvas-title Menu
-            button(type="button" data-bs-dismiss="offcanvas").btn-close
+            //- button(type="button" data-bs-dismiss="offcanvas").btn-close
         
         .offcanvas-body.p-0
             ul(

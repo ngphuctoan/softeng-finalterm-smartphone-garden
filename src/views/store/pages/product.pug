@@ -5,35 +5,40 @@ block layout-content
         .row.gx-5.gy-4.justify-content-center
             .col-12.col-md-5
                 #previewCarousel(data-bs-ride="carousel").carousel.slide.h-100
-                    - var i = 0
-                    .carousel-indicators.px-2.bg-dark.bg-opacity-50
-                        each slide in slides
-                            - const active = i < 1
-                            button(type="button" data-bs-target="#previewCarousel" data-bs-slide-to=i aria-current=(active.toString()) class=(active ? "active" : ""))
-                            - i++
+                    if slides.length > 1
+                        - var i = 0
+                        .carousel-indicators.px-2.bg-dark.bg-opacity-50
+                            each slide in slides
+                                - const active = i < 1
+                                button(type="button" data-bs-target="#previewCarousel" data-bs-slide-to=i aria-current=(active.toString()) class=(active ? "active" : ""))
+                                - i++
 
                     .carousel-inner.h-100
                         each slide in slides
                             .carousel-item(class=slides.indexOf(slide) < 1 ? "active" : "").h-100
-                                img(
-                                    src=`/public/images/products/${product.id}/previews/${slide}`
-                                ).d-block.w-100.h-100.object-fit-cover
+                                img(src=slide).d-block.w-100.h-100.object-fit-cover
 
-                    button(type="button" data-bs-target="#previewCarousel" data-bs-slide="prev").carousel-control-prev
-                        span(style="background-size: 75%").carousel-control-prev-icon.p-4.bg-dark.shadow
-                        span.visually-hidden Previous
+                    if slides.length > 1
+                        button(type="button" data-bs-target="#previewCarousel" data-bs-slide="prev").carousel-control-prev
+                            span(style="background-size: 75%").carousel-control-prev-icon.p-4.bg-dark.shadow
+                            span.visually-hidden Previous
 
-                    button(type="button" data-bs-target="#previewCarousel" data-bs-slide="next").carousel-control-next
-                        span(style="background-size: 75%").carousel-control-next-icon.p-4.bg-dark.shadow
-                        span.visually-hidden Next
+                        button(type="button" data-bs-target="#previewCarousel" data-bs-slide="next").carousel-control-next
+                            span(style="background-size: 75%").carousel-control-next-icon.p-4.bg-dark.shadow
+                            span.visually-hidden Next
             
             .col-12.col-md
                 h1.mb-2 #{product.name}
 
-                .mb-4
-                    strong.me-4 Tags:
+                .d-flex.gap-2.mb-4
+                    strong.me-3 Tags:
+
                     each tag in product.tags
                         span.fs-6.badge.text-dark.bg-secondary-subtle.rounded-0 #{tag}
+
+                    strong.me-3 &ensp;&bull;&emsp;Brand:
+
+                    span #{product.brand}
 
                 .d-flex.align-items-center.gap-3
                     span Options
@@ -68,4 +73,4 @@ block layout-content
             h5.text-nowrap PRODUCT DESCRIPTION
             hr.w-100.m-0
 
-        p.mt-3 #{product.description}
+        p(style="text-align: justify").mt-3 #{product.description}

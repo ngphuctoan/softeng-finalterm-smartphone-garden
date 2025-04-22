@@ -1,0 +1,17 @@
+extends ../layout
+
+block layout-content
+    h3.text-center Login
+
+    form(method="POST" action="/login")
+        .mb-3
+            label(for="email").form-label Email
+            input(type="text" name="email" placeholder="example@domain.com").form-control
+
+        .mb-5
+            label(for="password").form-label Password
+            input(type="password" name="password" placeholder="********").form-control
+
+        .d-flex.flex-wrap.gap-2
+            button(type="reset").flex-fill.btn.btn-outline-dark.px-5 Reset
+            button(type="submit").flex-fill.btn.btn-dark.px-5 Login

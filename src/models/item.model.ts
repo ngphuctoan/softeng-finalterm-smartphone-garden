@@ -1,7 +1,7 @@
 import prisma from "@utils/db";
 import { Item } from "@interfaces";
 import { SpecModel } from "@models";
-import { itemSelect } from "@utils/selects";
+import { itemSelect, specSelect } from "@utils/selects";
 
 export type ItemFromDB = Omit<Item, "specs"> & { specs: SpecModel.SpecFromDB[] };
 
@@ -63,6 +63,7 @@ export async function update(id: number, { productId, price, stock, specs }: Par
 
     if (specs) {
         updateData.specs = {
+            deleteMany: {},
             create: SpecModel.specsToConnect(specs)
         };
     }

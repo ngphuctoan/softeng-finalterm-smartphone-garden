@@ -31,31 +31,36 @@ block layout-content
         ).w-100.h-100.position-absolute.top-0.start-0.object-fit-cover
 
     .container-sm.py-5
-        .row.g-4
-            .col-12.col-md-6.col-lg-4.col-xl-3
-                .d-flex.align-items-center.gap-3.mb-4
-                    span Filters
-                    hr.w-100.m-0
+        .col
+            .row.row-cols-1.row-cols-md-2.row-cols-xl-4.g-4
+                each product in products
+                    include ../partials/product-card
+                        - var product = product
+        //- .row.g-4
+        //-     .col-12.col-md-6.col-lg-4.col-xl-3
+        //-         .d-flex.align-items-center.gap-3.mb-4
+        //-             span Filters
+        //-             hr.w-100.m-0
 
-                #filtersAccordion.accordion
-                    .accordion-item
-                        .accordion-header
-                            button(type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true").accordion-button Accordion Item #1
+        //-         #filtersAccordion.accordion
+        //-             .accordion-item
+        //-                 .accordion-header
+        //-                     button(type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true").accordion-button Accordion Item #1
 
-                            #collapseOne(data-bs-parent="#filtersAccordion").accordion-collapse.collapse.show
-                                .accordion-body
-                                    span Test
+        //-                     #collapseOne(data-bs-parent="#filtersAccordion").accordion-collapse.collapse.show
+        //-                         .accordion-body
+        //-                             span Test
 
-                    .accordion-item
-                        .accordion-header
-                            button(type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false").accordion-button.collapsed Accordion Item #1
+        //-             .accordion-item
+        //-                 .accordion-header
+        //-                     button(type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false").accordion-button.collapsed Accordion Item #1
 
-                            #collapseTwo(data-bs-parent="#filtersAccordion").accordion-collapse.collapse
-                                .accordion-body
-                                    span Test
+        //-                     #collapseTwo(data-bs-parent="#filtersAccordion").accordion-collapse.collapse
+        //-                         .accordion-body
+        //-                             span Test
 
-            .col
-                .row.row-cols-lg-2.row-cols-xl-3.g-4
-                    each product in products
-                        include ../partials/product-card
-                            - var product = product
+        //-     .col
+        //-         .row.row-cols-lg-2.row-cols-xl-3.g-4
+        //-             each product in products
+        //-                 include ../partials/product-card
+        //-                     - var product = product

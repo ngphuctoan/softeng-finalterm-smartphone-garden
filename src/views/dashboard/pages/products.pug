@@ -1,37 +1,216 @@
 extends ../layout
 
 block layout-content
+    button(type="button" data-bs-toggle="modal" data-bs-target="#productModal").btn.btn-outline-dark.mb-3
+        iconify-icon(icon="mynaui:plus")
+        span.ms-3 New product
+    
     #productAccordion(style="--bs-accordion-active-bg: var(--bs-body)").accordion
         each product in products
             .accordion-item
                 .accordion-header
                     button(type="button" data-bs-toggle="collapse" data-bs-target=`#productAccordion_${product.id}` aria-expanded="false").accordion-button.collapsed
-                        img(src=`/public/images/products/${product.id}/thumb.jpg` width="40" height="40").object-fit-cover
+                        img(
+                            src=`/public/images/products/${product.id}/thumb.jpg`
+                            onerror="this.onerror = null; this.src='/public/images/products/thumb-notfound.jpg'"
+                            width="40" height="40"
+                        ).object-fit-cover
                         span.ms-4 #{product.name}
                 
                 .accordion-collapse.collapse(id=`productAccordion_${product.id}`)
                     .accordion-body.p-0
+                        .table-responsive
+                            table.table.table-striped.table-hover.m-0
+                                - const allSpecs = getAllItemSpecsFromProduct(product)
+
+                                caption.px-2.ms-2
+                                    span(style="line-height: 2.5rem") #{product.items.length} item(s)
+
+                                    .d-flex.gap-2.float-end
+                                        button(type="button" data-bs-toggle="modal" data-bs-target="#productModal" data-bs-product=product).btn.btn-outline-dark
+                                            iconify-icon(icon="mynaui:pencil")
+                                            span.ms-3 Edit product
+
+                                        div.vr.mx-1
+
+                                        button(type="button" data-bs-toggle="modal" data-bs-target="#itemModal" data-bs-new-from=product.id).btn.btn-outline-dark
+                                            iconify-icon(icon="mynaui:plus")
+                                            span.ms-3 Add item
+
+                                thead
+                                    each header in ["ID", "Price", "Stock", ...Object.keys(allSpecs), ""]
+                                        th(scope="col").col-1 #{header}
+
+                                tbody.align-middle
+                                    each item in product.items
+                                        tr
+                                            td #{item.id}
+
+                                            td #{item.price.toLocaleString("vi-VN") + "đ"}
+
+                                            td #{item.stock}
+                                            
+                                            each key in Object.keys(allSpecs)
+                                                td #{item.specs[key] || "-"}
+
+                                            td
+                                                .d-flex.flex-nowrap.gap-2
+                                                    button(type="button" data-bs-toggle="modal" data-bs-target="#itemModal" data-bs-item={ productId: product.id, ...item }).btn.p-2
+                                                        iconify-icon(icon="mynaui:pencil")
+
+    #itemModal(aria-hidden="true" aria-labelledby="itemModalLabel" tabindex="-1").modal.fade
+        .modal-dialog
+            form(x-data method="POST" action="#")#itemForm.modal-content
+                .modal-header
+                    h5#itemModalLabel.modal-title Item details
+                    button(type="button" data-bs-dismiss="modal" aria-label="Close").btn-close
+        
+                .modal-body
+                    .row.gx-3.mb-3
+                        .col-3
+                            label(for="id").col-form-label Item ID
+                            input(type="text" name="id" readonly disabled value="-").form-control.font-monospace
+
+                        .col
+                            label(for="productId").col-form-label Product ID
+                            input(type="text" name="productId" readonly required).form-control.disabled.font-monospace
+                    
+                    .row.gx-3.mb-3
+                        .col
+                            label(for="price").col-form-label Price
+                            .input-group
+                                input(type="text" name="price" inputmode="numeric" pattern="[0-9]*" required).form-control
+                                span.input-group-text đ
+                            
+                        .col
+                            label(for="stock").col-form-label Stock
+                            input(type="text" name="stock" inputmode="numeric" pattern="[0-9]*" required).form-control
+
+                    div#itemSpecTable(x-data="{ specs: {}, specMap: {} }")
+                        span Specs
                         table.table.table-striped.table-hover
+                            caption
+                                button(
+                                    type="button"
+                                    @click=`
+                                        const timestamp = Date.now();
+                                        if (!specs[timestamp]) {
+                                            specs[timestamp] = specMap[timestamp] = "";
+                                        }
+                                    `
+                                ).btn.btn-outline-dark.float-end
+                                    iconify-icon(icon="mynaui:plus")
+                                    span.ms-3 Add spec
                             thead
-                                each header in [...Object.keys(product.items[0].specs), "Stock", "Actions"]
-                                    th(scope="col").col-1 #{header}
-
+                                tr
+                                    th Key
+                                    th Value
+                                    th
                             tbody
-                                each item in product.items
+                                template(x-for="[spec, value] in Object.entries(specs)" :key="spec")
                                     tr
-                                        each value in Object.values(item.specs)
-                                            td #{value}
-
                                         td
-                                            form#editStock(method="POST" action=`/dashboard/products/update-item/${item.id}`).d-flex.gap-2
-                                                input(type="number" name="stock" value=item.stock min=0)
-
-                                                button(type="submit").btn.btn-dark.p-2
-                                                    iconify-icon(icon="mynaui:check")
-
+                                            input(type="text" x-model="specMap[spec]" placeholder="Name").form-control
                                         td
-                                            button(type="button").btn.p-2
-                                                iconify-icon(icon="mynaui:pencil")
-
-                                            button(type="button").btn.p-2.text-danger
+                                            input(type="text" x-model="specs[spec]" placeholder="Value").form-control
+                                        td
+                                            button(
+                                                type="button"
+                                                @click="delete specs[spec]; delete specMap[spec]"
+                                            ).btn.p-2.text-danger
                                                 iconify-icon(icon="mynaui:trash")
+
+                        input(type="hidden" name="specs" :value=`JSON.stringify(
+                            Object.fromEntries(
+                                Object.entries(renameKeys(specs, specMap))
+                                    .filter(([key, value]) => value !== "")
+                            )
+                        )`)
+        
+                .modal-footer
+                    button(type="button" data-bs-dismiss="modal").btn.btn-outline-dark Close
+                    button(type="submit").btn.btn-dark Confirm
+
+    #productModal(aria-hidden="true" aria-labelledby="productModalLabel" tabindex="-1").modal.fade
+        .modal-dialog.modal-lg
+            form(x-data method="POST" action="#")#productForm.modal-content
+                .modal-header
+                    h5#itemModalLabel.modal-title Product details
+                    button(type="button" data-bs-dismiss="modal" aria-label="Close").btn-close
+
+                .modal-body#productEditDetails(x-data="{ specs: {}, specMap: {}, tagsStr: '' }")
+                    .row.gx-2.mb-3
+                        .col
+                            label(for="id").form-label ID
+                            input(type="text" name="id" required pattern="[a-z0-9\\-]*").form-control.font-monospace
+                        
+                        .col
+                            label(for="name").form-label Name
+                            input(type="text" name="name" required).form-control
+
+                    .row.gx-2.mb-3
+                        .col
+                            label(for="brand").form-label Brand
+                            input(type="text" name="brand" required).form-control
+                        
+                        .col
+                            label(for="category").form-label Category
+                            input(type="text" name="category" required pattern="[a-z\\-]*").form-control
+
+                    .mb-3
+                        label.form-label Tags
+                        input(type="text" x-model="tagsStr" required pattern="[a-z0-9,\\-]*").form-control
+
+                    .mb-3
+                        label(for="description").form-label Description
+                        textarea(name="description" rows="8" style="resize: none").form-control
+
+                    div
+                        span Base specs
+                        table.table.table-striped.table-hover
+                            caption
+                                button(
+                                    type="button"
+                                    @click=`
+                                        const timestamp = Date.now();
+                                        if (!specs[timestamp]) {
+                                            specs[timestamp] = specMap[timestamp] = "";
+                                        }
+                                    `
+                                ).btn.btn-outline-dark.float-end
+                                    iconify-icon(icon="mynaui:plus")
+                                    span.ms-3 Add spec
+                            thead
+                                tr
+                                    th Key
+                                    th Value
+                                    th
+                            tbody
+                                template(x-for="[spec, value] in Object.entries(specs)" :key="spec")
+                                    tr
+                                        td
+                                            input(type="text" x-model="specMap[spec]" placeholder="Name").form-control
+                                        td
+                                            input(type="text" x-model="specs[spec]" placeholder="Value").form-control
+                                        td
+                                            button(
+                                                type="button"
+                                                @click="delete specs[spec]; delete specMap[spec]"
+                                            ).btn.p-2.text-danger
+                                                iconify-icon(icon="mynaui:trash")
+
+                        input(type="hidden" name="tags" :value=`JSON.stringify(tagsStr.split(","))`)
+
+                        input(type="hidden" name="baseSpecs" :value=`JSON.stringify(
+                            Object.fromEntries(
+                                Object.entries(renameKeys(specs, specMap))
+                                    .filter(([key, value]) => value !== "")
+                            )
+                        )`)
+                    
+                .modal-footer
+                    button(type="button" data-bs-dismiss="modal").btn.btn-outline-dark Close
+                    button(type="submit").btn.btn-dark Confirm
+
+block js-imports
+    script(src="/protected/dashboard/products.js")

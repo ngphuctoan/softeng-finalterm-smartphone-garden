@@ -1,7 +1,8 @@
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 import { User } from "@interfaces";
 import { UserModel } from "@models";
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { passwordSchema, roleSchema, updateSchema } from "@utils/schemas";
 
 export interface Profile {
@@ -58,6 +59,23 @@ export async function getById(req: Request, res: Response) {
     const user = await UserModel.getById(userId);
 
     res.json(user);
+}
+
+export async function getUserNameAndRoleName(req: Request, res: Response, next: NextFunction) {
+    try {
+        const decoded = jwt.decode(req.cookies.authToken);
+
+        if (!decoded || typeof decoded === "string") {
+            throw new Error();
+        }
+
+        const user = await UserModel.getById(decoded.userId);
+
+        res.locals.userName = user.name;
+        res.locals.roleName = user.roleName;
+    } catch {} finally {
+        next();
+    }
 }
 
 export async function updateRole(req: Request, res: Response) {

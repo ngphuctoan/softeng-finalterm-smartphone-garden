@@ -23,6 +23,7 @@ model User {
     roleId          Int
 
     role            Role            @relation(fields: [roleId], references: [id])
+    records         Record[]
 }
 
 model Spec {
@@ -59,6 +60,7 @@ model Item {
 
     product         Product         @relation(fields: [productId], references: [id])
     specs           ItemSpecs[]
+    records         RecordItems[]
 }
 
 model ProductBaseSpecs {
@@ -77,10 +79,30 @@ model ItemSpecs {
     specId          Int
     value           String
 
-    Item            Item            @relation(fields: [itemId], references: [id])
+    Item            Item            @relation(fields: [itemId], references: [id], onDelete: Cascade)
     spec            Spec            @relation(fields: [specId], references: [id])
 
     @@id([itemId, specId])
+}
+
+model Record {
+    id              Int             @id @default(autoincrement())
+    userId          Int
+    createdAt       DateTime        @default(now())
+
+    user            User            @relation(fields: [userId], references: [id])
+    items           RecordItems[]
+}
+
+model RecordItems {
+    recordId        Int
+    itemId          Int
+    amount          Int
+
+    record          Record          @relation(fields: [recordId], references: [id])
+    item            Item            @relation(fields: [itemId], references: [id])
+
+    @@id([recordId, itemId])
 }
 
 model RevokedToken {
