@@ -17,11 +17,12 @@ export function userToProfile(user: User): Profile {
     };
 }
 
-export async function getMyProfile(req: Request, res: Response) {
+export async function getMyProfile(req: Request, res: Response, next: NextFunction) {
     const userId = req.auth?.userId;
     const me = await UserModel.getById(userId);
 
-    res.json(userToProfile(me));
+    res.locals.userProfile = userToProfile(me);
+    next();
 }
 
 export async function updateMyProfile(req: Request, res: Response) {
@@ -46,7 +47,7 @@ export async function updateMyPassword(req: Request, res: Response) {
         password: passwordHash
     });
 
-    res.send("Password changed!");
+    res.redirect("/profile");
 }
 
 export async function getAll(req: Request, res: Response) {

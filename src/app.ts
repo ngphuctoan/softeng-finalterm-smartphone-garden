@@ -2,7 +2,7 @@ import cookieParser from "cookie-parser";
 import session from "express-session";
 import express, { Request, Response } from "express";
 import errorHandlingMiddleware from "@middlewares/error.middleware";
-import { authRoutes, dashboardRoutes, storeRoutes } from "@routes";
+import { authRoutes, dashboardRoutes, profileRoutes, storeRoutes } from "@routes";
 import authMiddleware from "@middlewares/auth.middleware";
 import { checkForRoles } from "@middlewares/roles.middleware";
 
@@ -37,6 +37,7 @@ app.use("/protected",
 );
 
 app.use("/",
+    profileRoutes,
     dashboardRoutes,
     errorHandlingMiddleware
 );
