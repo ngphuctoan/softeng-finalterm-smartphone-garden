@@ -28,13 +28,20 @@ document.addEventListener("alpine:init", () => {
                     itemForm[itemInfo].value = value;
                 }
 
-                Alpine.$data(itemSpecTable).specs = specs;
-                Alpine.$data(itemSpecTable).specMap = Object.fromEntries(
-                    Object.keys(specs).map(spec => [spec, spec])
-                );
+                setTimeout(() => {
+                    Alpine.$data(itemSpecTable).specs = specs;
+                    Alpine.$data(itemSpecTable).specMap = Object.fromEntries(
+                        Object.keys(specs).map(spec => [spec, spec])
+                    );
+                }, 100);
             } else {
                 itemForm.action = "/dashboard/products/add-item";
                 itemForm.productId.value = button.getAttribute("data-bs-new-from");
+
+                setTimeout(() => {
+                    Alpine.$data(itemSpecTable).specs = {};
+                    Alpine.$data(itemSpecTable).specMap = {};
+                }, 100);
             }
         });
     }
@@ -52,7 +59,7 @@ document.addEventListener("alpine:init", () => {
 
             if (button.getAttribute("data-bs-product")) {
                 const productData = JSON.parse(button.getAttribute("data-bs-product"));
-                const { tags, baseSpecs, items, ...newProductData } = productData;
+                const { tags, baseSpecs, items, createdAt, ...newProductData } = productData;
 
                 productForm.action = `/dashboard/products/update-product?id=${productData.id}`;
 
@@ -60,13 +67,21 @@ document.addEventListener("alpine:init", () => {
                     productForm[productInfo].value = value;
                 }
 
-                Alpine.$data(productEditDetails).tagsStr = tags.join();
-                Alpine.$data(productEditDetails).specs = baseSpecs;
-                Alpine.$data(productEditDetails).specMap = Object.fromEntries(
-                    Object.keys(baseSpecs).map(spec => [spec, spec])
-                );
+                setTimeout(() => {
+                    Alpine.$data(productEditDetails).tagsStr = tags.join();
+                    Alpine.$data(productEditDetails).specs = baseSpecs;
+                    Alpine.$data(productEditDetails).specMap = Object.fromEntries(
+                        Object.keys(baseSpecs).map(spec => [spec, spec])
+                    );
+                }, 100);
             } else {
                 productForm.action = "/dashboard/products/add-product";
+
+                setTimeout(() => {
+                    Alpine.$data(productEditDetails).tagsStr = "";
+                    Alpine.$data(productEditDetails).specs = {};
+                    Alpine.$data(productEditDetails).specMap = {};
+                }, 100);
             }
         });
     }
