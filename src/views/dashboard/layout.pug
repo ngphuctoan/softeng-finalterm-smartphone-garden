@@ -8,7 +8,24 @@ html
 
         link(rel="stylesheet" href="https://unpkg.com/bootstrap@5.3.5/dist/css/bootstrap.min.css")
         link(rel="stylesheet" href="/public/css/styles.css")
-    
+
+        style.
+            .pagination-theme .page-link {
+                background-color: #fff;
+                border: 1px solid #000;
+                color: #000;
+            }
+            .pagination-theme .page-link:hover,
+            .pagination-theme .page-link:focus {
+                border-color: #888;
+                box-shadow: none;
+            }
+            .pagination-theme .page-item.active .page-link {
+                background-color: #fff;
+                border: 1px solid #666;
+                color: #000;
+            }
+            
     body.d-flex.flex-column.min-vh-100
         include partials/header
 

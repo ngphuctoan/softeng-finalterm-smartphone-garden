@@ -1,0 +1,65 @@
+extends ../layout
+
+block layout-content 
+  div.table-responsive.d-flex
+    table.table.table-striped.table-hover.text-center
+      thead.text-center
+        tr                   
+          th(scope="col") Name
+          th(scope="col" class="d-none d-sm-table-cell") Email
+          th(scope="col" class="d-none d-md-table-cell") Role
+          th(scope="col") Actions
+      tbody#userTableBody
+
+  div.row.align-items-center.mt-3.d-flex.flex-column-reverse.flex-row-reverse.col-12
+      nav(aria-label="User pagination").p-0
+        ul.pagination.pagination-sm.justify-content-center.justify-content-sm-end.mb-0.pagination-theme#userPagination
+
+  //- User Edit/Create Modal
+  #userModal.modal.fade(tabindex="-1" aria-hidden="true")
+    .modal-dialog.modal-dialog-centered.modal-dialog-scrollable.modal-sm
+      .modal-content
+        .modal-header
+          h5.modal-title User Information
+          button.btn-close(type="button" data-bs-dismiss="modal")
+        form#userForm
+          .modal-body
+            input(type="hidden" name="id" id="userId")
+            .mb-3
+              label.form-label(for="userName") Name
+              input.form-control(type="text" name="name" id="userName" readonly)
+            .mb-3
+              label.form-label(for="userEmail") Email
+              input.form-control(type="email" name="email" id="userEmail" readonly)
+            .mb-3
+              label.form-label(for="userRole") Role
+              select.form-select(name="role" id="userRole")
+                option(value="administrator") Administrator
+                option(value="user") User
+          .modal-footer
+            button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cancel
+            button.btn.btn-primary(type="submit") Save
+
+  //- Delete Confirmation Modal
+  #deleteUserModal.modal.fade(tabindex="-1" aria-hidden="true")
+    .modal-dialog.modal-dialog-centered.modal-sm
+      .modal-content
+        .modal-header
+          h5.modal-title Confirm Delete
+          button.btn-close(type="button" data-bs-dismiss="modal")
+        .modal-body
+          p Are you sure you want to delete this user?
+          ul
+            li Name: strong#deleteUserName
+            li Email: strong#deleteUserEmail
+            li Role: strong#deleteUserRole
+        .modal-footer
+          button.btn.btn-outline-secondary(type="button" data-bs-dismiss="modal") Cancel
+          form#deleteForm(method="POST")
+            input(type="hidden" name="id" id="deleteUserId")
+            button.btn.btn-danger(type="submit") Delete
+
+block js-imports 
+  script.
+    const usersData = !{JSON.stringify(users.map(u => ({ id: u.id, name: u.name, email: u.email, roleName: u.roleName })))}; 
+  script(src="/protected/dashboard/users.js" defer)

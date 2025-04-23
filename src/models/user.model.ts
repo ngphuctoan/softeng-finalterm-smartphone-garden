@@ -96,3 +96,12 @@ export async function update({ id, name, email, password, roleName }: Partial<Om
 
     return userToJson(user);
 }
+
+export async function remove(id: number): Promise<User> {
+    const user = await prisma.user.delete({
+        where: { id },
+        select: userSelect
+    });
+
+    return userToJson(user);
+}
