@@ -3,8 +3,8 @@ extends ../layout
 block layout-content
     .container-sm.py-5
         .row.gx-5.gy-4.justify-content-center
-            .col-12.col-md-5
-                #previewCarousel(data-bs-ride="carousel").carousel.slide.h-100
+            .col-12.col-lg
+                #previewCarousel(data-bs-ride="carousel").carousel.slide.carousel-fade.h-100
                     if slides.length > 1
                         - var i = 0
                         .carousel-indicators.px-2.bg-dark.bg-opacity-50
@@ -30,15 +30,17 @@ block layout-content
             .col-12.col-md
                 h1.mb-2 #{product.name}
 
-                .d-flex.gap-2.mb-4
-                    strong.me-3 Tags:
+                .d-flex.flex-wrap.gap-2.mb-4
+                    .d-flex.gap-2.me-4
+                        strong.me-3 Tags:
 
-                    each tag in product.tags
-                        span.fs-6.badge.text-dark.bg-secondary-subtle.rounded-0 #{tag}
+                        each tag in product.tags
+                            span.fs-6.badge.text-dark.bg-secondary-subtle.rounded-0 #{tag}
 
-                    strong.me-3 &emsp;&bull;&emsp;Brand:
+                    .d-flex.gap-2
+                        strong.me-3 Brand:
 
-                    span #{product.brand}
+                        span #{product.brand}
 
                 .d-flex.align-items-center.gap-3
                     span Options

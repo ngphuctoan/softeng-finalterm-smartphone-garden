@@ -44,12 +44,13 @@ export async function getById(id: string): Promise<Product> {
     return productToJson(product);
 }
 
-export async function add({ id, name, brand, category, tags, description, baseSpecs }: Omit<Product, "items" | "createdAt">): Promise<Product> {
+export async function add({ id, name, brand, os, category, tags, description, baseSpecs }: Omit<Product, "items" | "createdAt">): Promise<Product> {
     const product = await prisma.product.create({
         data: {
             id,
             name,
             brand,
+            os,
             category,
             tags: {
                 connectOrCreate: tags.map(tag => ({

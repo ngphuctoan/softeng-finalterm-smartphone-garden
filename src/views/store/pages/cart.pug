@@ -1,10 +1,10 @@
 extends ../layout
 
 block layout-content
-    .container-sm.py-5
+    .container-sm.py-5.table-responsive.flex-fill
         h1.mb-5 Your cart
 
-        table.table
+        table.table.text-nowrap
             - const totalPrice = cart.reduce((totalPrice, item) => totalPrice + item.price, 0)
 
             caption.table-caption.p-3
@@ -44,4 +44,4 @@ block layout-content
                             form(method="POST" action=`/cart/remove-item?id=${item.id}`)
                                 button(type="submit").btn.btn-outline-danger
                                     iconify-icon(icon="mynaui:trash")
-                                    span.ms-2 Remove
+                                    span.d-none.d-lg-inline.ms-2 Remove

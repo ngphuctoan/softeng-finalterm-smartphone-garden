@@ -17,6 +17,7 @@ export const productSelect = {
     id: true,
     name: true,
     brand: true,
+    os: true,
     category: true,
     tags: {
         select: { id: true }

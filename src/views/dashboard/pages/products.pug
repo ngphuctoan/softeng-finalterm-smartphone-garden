@@ -152,6 +152,10 @@ block layout-content
                         .col
                             label(for="brand").form-label Brand
                             input(type="text" name="brand" required).form-control
+
+                        .col
+                            label(for="os").form-label Operating System
+                            input(type="text" name="os" required).form-control
                         
                         .col
                             label(for="category").form-label Category
@@ -160,6 +164,7 @@ block layout-content
                     .mb-3
                         label.form-label Tags
                         input(type="text" x-model="tagsStr" required pattern="[a-z0-9,\\-]*").form-control
+
 
                     .mb-3
                         label(for="description").form-label Description
