@@ -7,6 +7,7 @@ export interface Product {
     category: string,
     tags: string[],
     description: string | null,
+    createdAt: Date,
     baseSpecs: Specs,
     items: Omit<Item, "productId">[]
 }

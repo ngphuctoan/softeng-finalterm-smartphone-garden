@@ -13,3 +13,7 @@ iconify-icon {
     font-size: 1.5rem;
     vertical-align: -.3125rem;
 }
+
+.dropdown-item:active {
+    color: var(--bs-dropdown-link-active-color) !important;
+}

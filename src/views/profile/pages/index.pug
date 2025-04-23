@@ -6,6 +6,10 @@ block layout-content
     - const profilePicWidth = "7.5rem"
     - const profilePicHue = Math.floor(Math.random() * 360)
 
+    a(href="/" style="width: max-content; margin-bottom: -1.75rem").btn
+        iconify-icon(icon="mynaui:arrow-left")
+        span.ms-3 Return to store
+
     h1.text-center.m-0 My profile
 
     .position-relative.mx-auto.text-light(style=`
@@ -72,6 +76,9 @@ block layout-content
                     button(type="button" data-bs-dismiss="modal").btn.btn-outline-dark Close
                     button(type="submit").btn.btn-dark Confirm
 
+    if error
+        .alert.alert-danger(role="alert" style="margin: -1.75rem 0 -.25rem 0") #{error}
+
     script.
         const editForm = document.forms.editForm;
 
@@ -79,13 +86,4 @@ block layout-content
             editForm.querySelector("[type=submit]").disabled =
                 editForm["name"].value === editForm["name"].defaultValue &&
                 editForm["email"].value === editForm["email"].defaultValue;
-        }
-
-        const passwordForm = document.forms.passwordForm;
-
-        passwordForm.onsubmit = event => {
-            if (passwordForm.password.value !== passwordForm.confirmPassword.value) {
-                alert("Passwords don't match. Please try again.");
-                event.preventDefault();
-            }
         }

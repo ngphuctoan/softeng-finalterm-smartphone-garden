@@ -22,6 +22,7 @@ export const productSelect = {
         select: { id: true }
     },
     description: true,
+    createdAt: true,
     baseSpecs: { select: specSelect },
     items: { select: itemSelect }
 };

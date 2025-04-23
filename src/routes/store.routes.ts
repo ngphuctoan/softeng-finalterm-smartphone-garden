@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-import { ItemModel, ProductModel, UserModel } from "@models";
+import { ItemModel, ProductModel } from "@models";
 import { Router } from "express";
 import { Request, Response } from "express";
 import { UserController } from "@controllers";
@@ -34,7 +34,7 @@ storeRoutes.get("/",
                 align: "end",
                 active: false,
                 ctaButton: {
-                    href: "/smartphones",
+                    href: "/products/smartphones",
                     label: "Browse for products"
                 }
             }, {
@@ -58,7 +58,9 @@ storeRoutes.get("/",
             activeNav: "/",
             userName: res.locals.userName,
             showDashboard: ["administrator", "manager"].includes(res.locals.roleName),
-            bestSellers: await ProductModel.getAll()
+            bestSellers: await ProductModel.getMostSales(4),
+            newestArrivals: await ProductModel.getNewest(4),
+            cartCount: req.session.cart ? req.session.cart.length : 0
         });
     }
 );
@@ -82,7 +84,8 @@ storeRoutes.get("/products/:category",
             categoryPhotos,
             activeNav: `/products/${category}`,
             userName: res.locals.userName,
-            showDashboard: ["administrator", "manager"].includes(res.locals.roleName)
+            showDashboard: ["administrator", "manager"].includes(res.locals.roleName),
+            cartCount: req.session.cart ? req.session.cart.length : 0
         });
     }
 );
@@ -137,7 +140,8 @@ storeRoutes.get("/products/:category/:productId",
             activeNav: `/products/${product.category}`,
             cart: req.session.cart || [],
             userName: res.locals.userName,
-            showDashboard: ["administrator", "manager"].includes(res.locals.roleName)
+            showDashboard: ["administrator", "manager"].includes(res.locals.roleName),
+            cartCount: req.session.cart ? req.session.cart.length : 0
         });
     }
 );
@@ -157,7 +161,8 @@ storeRoutes.get("/cart",
                 )
                 : [],
             userName: res.locals.userName,
-            showDashboard: ["administrator", "manager"].includes(res.locals.roleName)
+            showDashboard: ["administrator", "manager"].includes(res.locals.roleName),
+            cartCount: req.session.cart ? req.session.cart.length : 0
         });
     }
 );
@@ -194,7 +199,8 @@ storeRoutes.get("/contact",
         res.render("store/pages/contact", {
             activeNav: "/contact",
             userName: res.locals.userName,
-            showDashboard: ["administrator", "manager"].includes(res.locals.roleName)
+            showDashboard: ["administrator", "manager"].includes(res.locals.roleName),
+            cartCount: req.session.cart ? req.session.cart.length : 0
         })
 );
 
@@ -203,7 +209,8 @@ storeRoutes.get("/404",
     (req: Request, res: Response) =>
         res.render("store/pages/404", {
             userName: res.locals.userName,
-            showDashboard: ["administrator", "manager"].includes(res.locals.roleName)
+            showDashboard: ["administrator", "manager"].includes(res.locals.roleName),
+            cartCount: req.session.cart ? req.session.cart.length : 0
         })
 );
 

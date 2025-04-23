@@ -46,6 +46,7 @@ model Product {
     brand           String
     category        String
     description     String?
+    createdAt       DateTime        @default(now())
 
     tags            Tag[]           @relation("ProductTags")
     baseSpecs       ProductBaseSpecs[]

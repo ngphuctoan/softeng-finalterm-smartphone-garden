@@ -1,7 +1,7 @@
 import prisma from "@utils/db";
 import { ItemModel, SpecModel } from "@models";
 import { Item, Product } from "@interfaces";
-import { productSelect } from "@utils/selects";
+import { itemSelect, productSelect } from "@utils/selects";
 import { itemToJson } from "./item.model.js";
 
 type ProductFromDB = Omit<Product, "tags" | "baseSpecs" | "items"> & {
@@ -44,7 +44,7 @@ export async function getById(id: string): Promise<Product> {
     return productToJson(product);
 }
 
-export async function add({ id, name, brand, category, tags, description, baseSpecs }: Omit<Product, "items">): Promise<Product> {
+export async function add({ id, name, brand, category, tags, description, baseSpecs }: Omit<Product, "items" | "createdAt">): Promise<Product> {
     const product = await prisma.product.create({
         data: {
             id,
@@ -94,6 +94,43 @@ export async function update(id: string, { name, brand, category, tags, descript
     });
 
     return productToJson(product);
+}
+
+export async function getNewest(take: number) {
+    const products = await prisma.product.findMany({
+        orderBy: { createdAt: "desc" },
+        take,
+        select: productSelect
+    });
+
+    return products.map(productToJson);
+}
+
+export async function getMostSales(take: number) {
+    const products = await prisma.product.findMany({
+        select: {
+            ...productSelect,
+            items: {
+                select: {
+                    ...itemSelect,
+                    _count: {
+                        select: { records: true }
+                    }
+                }
+            }
+        }
+    });
+
+    return products
+        .map(product => ({
+            ...product,
+            salesCount: product.items.reduce(
+                (sales, item) => sales + item._count.records
+            , 0)
+        }))
+        .sort((a, b) => b.salesCount - a.salesCount)
+        .slice(0, take)
+        .map(productToJson);
 }
 
 export function getAllItemSpecs(product: Product) {
