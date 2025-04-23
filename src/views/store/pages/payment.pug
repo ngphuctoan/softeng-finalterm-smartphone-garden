@@ -1,0 +1,39 @@
+extends ../layout
+
+block layout-content
+    .text-center.m-auto
+        if code === "00"
+            h1.mb-3 ･:*+.\(( °ω° ))/.:+
+            h4.mb-5 Payment successful
+
+            .p-4.text-start.text-nowrap.border(style="width: 50vw")
+                .row.mb-3
+                    strong.col Order ID
+                    code.fs-5.col 12345678
+
+                .row.mb-3
+                    strong.col Transaction ID
+                    code.fs-5.col 1234567812345678
+
+                .row.mb-3
+                    strong.col Amount
+                    span.col 12.345.678đ
+
+                .row
+                    strong.col Date of purchase
+                    span.col 23/04/2025
+        else
+            h1.mb-3 (╥﹏╥)
+            h4.mb-5 Something went wrong
+
+            p
+                | Sorry, we can't process the payment.
+                | <br>
+                | Please contact the managers with the info below.
+
+            .p-4.border
+                strong Response code:
+                code.fs-5.ms-2 #{code}
+                span.ms-2 (Order not found)
+
+        a(href="/").btn.btn-lg.btn-outline-dark.mt-5 Return to store

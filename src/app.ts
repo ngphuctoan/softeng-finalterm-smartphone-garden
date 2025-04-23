@@ -5,6 +5,7 @@ import errorHandlingMiddleware from "@middlewares/error.middleware";
 import { authRoutes, dashboardRoutes, profileRoutes, storeRoutes } from "@routes";
 import authMiddleware from "@middlewares/auth.middleware";
 import { checkForRoles } from "@middlewares/roles.middleware";
+import vnpayRoutes from "@routes/vnpay.routes";
 
 const app = express();
 
@@ -37,6 +38,7 @@ app.use("/protected",
 );
 
 app.use("/",
+    vnpayRoutes,
     profileRoutes,
     dashboardRoutes,
     errorHandlingMiddleware

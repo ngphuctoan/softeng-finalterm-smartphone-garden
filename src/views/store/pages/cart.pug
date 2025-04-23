@@ -10,9 +10,14 @@ block layout-content
             caption.table-caption.p-3
                 span(style="line-height: 2.5rem").text-dark Item(s): #{cart.length}&emsp;&bull;&ensp; Total price: #{totalPrice.toLocaleString("vi-VN")}đ
 
-                button(type="button").btn.btn-dark.float-end
-                    iconify-icon(icon="mynaui:credit-card")
-                    span.ms-3 Proceed to checkout
+                form(method="POST" action="/payment/create")
+                    input(type="hidden" name="items" value=JSON.stringify(cart))
+
+                    input(type="hidden" name="totalAmount" value=totalPrice)
+
+                    button(type="submit" disabled=(cart.length === 0)).btn.btn-dark.float-end
+                        iconify-icon(icon="mynaui:credit-card")
+                        span.ms-3 Proceed to checkout
 
             thead
                 th

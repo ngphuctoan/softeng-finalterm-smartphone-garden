@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { ItemModel, ProductModel } from "@models";
-import { Router } from "express";
+import { NextFunction, Router } from "express";
 import { Request, Response } from "express";
 import { UserController } from "@controllers";
 
@@ -147,6 +147,14 @@ storeRoutes.get("/products/:category/:productId",
 );
 
 storeRoutes.get("/cart",
+    (req: Request, res: Response, next: NextFunction) => {
+        if (!req.cookies.authToken) {
+            res.redirect("/login");
+            return;
+        }
+
+        next();
+    },
     UserController.getUserNameAndRoleName,
     async (req: Request, res: Response) => {
         res.render("store/pages/cart", {
