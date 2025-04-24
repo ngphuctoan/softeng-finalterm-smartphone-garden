@@ -5,6 +5,8 @@ import { ItemModel, ProductModel, UserModel } from "@models";
 import { itemSchema, productSchema } from "@utils/schemas";
 import { Request, Response, NextFunction } from "express";
 import { Router } from "express";
+import { z } from "zod";
+import { roleSchema } from "@utils/schemas";
 
 const dashboardRoutes = Router();
 
@@ -69,8 +71,9 @@ dashboardRoutes.post("/dashboard/products/update-product", async (req: Request, 
 });
 
 dashboardRoutes.get("/dashboard/users", async (req: Request, res: Response) => {
-  const users = await UserModel.getAll();
-
+  let users = await UserModel.getAll();
+  //  Fixed if you want to further revolution the code, add a column in the database with the name "is_backup" and filter in the model
+  users = users.filter((user) => user.name != "fallback" && user.email != "fallback@smartphone-store");
   res.render("dashboard/pages/users", {
     users,
     activeNav: "/users",
@@ -78,4 +81,7 @@ dashboardRoutes.get("/dashboard/users", async (req: Request, res: Response) => {
   });
 });
 
+dashboardRoutes.post("/dashboard/users/:id/update-role",
+  UserController.updateRole
+);
 export default dashboardRoutes;

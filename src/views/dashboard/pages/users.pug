@@ -1,6 +1,9 @@
 extends ../layout
 
 block layout-content 
+  .row.justify-content-end.align-items-center.mb-1
+    .col-12.col-md-6
+      input#searchUser(type="text" class="form-control" placeholder="Search user by name or email")
   div.table-responsive.d-flex
     table.table.table-striped.table-hover.text-center
       thead.text-center
@@ -10,14 +13,14 @@ block layout-content
           th(scope="col" class="d-none d-md-table-cell") Role
           th(scope="col") Actions
       tbody#userTableBody
+  div#whiteRegion.d-flex
+  div.row.align-items-center.d-flex.flex-column-reverse.flex-row-reverse.col-12
+      nav(aria-label="User pagination").p-0 
+        ul.pagination.pagination-sm.justify-content-center.justify-content-sm-end.mb-0#userPagination
 
-  div.row.align-items-center.mt-3.d-flex.flex-column-reverse.flex-row-reverse.col-12
-      nav(aria-label="User pagination").p-0
-        ul.pagination.pagination-sm.justify-content-center.justify-content-sm-end.mb-0.pagination-theme#userPagination
-
-  //- User Edit/Create Modal
+  //- User Edit Modal
   #userModal.modal.fade(tabindex="-1" aria-hidden="true")
-    .modal-dialog.modal-dialog-centered.modal-dialog-scrollable.modal-sm
+    .modal-dialog.modal-dialog-centered.modal-dialog-scrollable.modal-m
       .modal-content
         .modal-header
           h5.modal-title User Information
@@ -37,27 +40,8 @@ block layout-content
                 option(value="administrator") Administrator
                 option(value="user") User
           .modal-footer
-            button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cancel
             button.btn.btn-primary(type="submit") Save
-
-  //- Delete Confirmation Modal
-  #deleteUserModal.modal.fade(tabindex="-1" aria-hidden="true")
-    .modal-dialog.modal-dialog-centered.modal-sm
-      .modal-content
-        .modal-header
-          h5.modal-title Confirm Delete
-          button.btn-close(type="button" data-bs-dismiss="modal")
-        .modal-body
-          p Are you sure you want to delete this user?
-          ul
-            li Name: strong#deleteUserName
-            li Email: strong#deleteUserEmail
-            li Role: strong#deleteUserRole
-        .modal-footer
-          button.btn.btn-outline-secondary(type="button" data-bs-dismiss="modal") Cancel
-          form#deleteForm(method="POST")
-            input(type="hidden" name="id" id="deleteUserId")
-            button.btn.btn-danger(type="submit") Delete
+            button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cancel
 
 block js-imports 
   script.
