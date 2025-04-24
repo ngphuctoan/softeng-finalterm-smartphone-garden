@@ -1,11 +1,9 @@
-import express, { NextFunction, Request, Response } from "express";
+import express, { Request, Response } from "express";
 import moment from "moment";
 import crypto from "crypto";
 import qs from "qs";
-import jwt from "jsonwebtoken";
 import prisma from "@utils/db";
 import { Item } from "@interfaces";
-import { UserController } from "@controllers";
 
 const vnpayRoutes = express.Router();
 
