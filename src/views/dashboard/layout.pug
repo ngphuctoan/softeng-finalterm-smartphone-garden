@@ -8,14 +8,41 @@ html
 
         link(rel="stylesheet" href="https://unpkg.com/bootstrap@5.3.5/dist/css/bootstrap.min.css")
         link(rel="stylesheet" href="/public/css/styles.css")
-    
+
+        style.
+            #userPagination .page-link {
+                transition: transform .15s ease, background-color .15s ease;
+                color: #000;
+            }
+            #userPagination .page-link:hover {
+                transform: scale(1.1);
+                background-color: rgba(0,0,0,0.05);
+            }
+
+            #userPagination .page-item.active .page-link {
+                background-color: #464448;  
+                border-color:#423f44;
+                color: #fff;
+            }
+            #userPagination .page-item.active .page-link:hover {
+                background-color:#3d3a40;
+            }
+            
+            #userPagination .page-link iconify-icon {
+                vertical-align: middle;
+                font-size: 1rem;     
+                line-height: 1;     
+                padding: 0;          
+                margin: 0;           
+                display: inline-block;
+            }
     body.d-flex.flex-column.min-vh-100
         include partials/header
 
         section.d-flex.flex-fill
             include partials/sidebar
-
-            main.container-fluid.px-4.px-lg-5.my-5
+            // Xin phep giam my-5 thanh my-4 de cho dep hon nha <3
+            main.container-fluid.px-4.px-lg-5.my-4
                 h2.pb-2.mb-4.border-bottom #{navs[activeNav].title}
 
                 block layout-content
