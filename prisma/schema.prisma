@@ -88,16 +88,21 @@ model ItemSpecs {
 }
 
 model Record {
-    id              Int             @id @default(autoincrement())
+    id              String          @id
     userId          Int
     createdAt       DateTime        @default(now())
+    vnpayParams     Json
+    totalAmount     BigInt
+    status          String          @default("pending")
 
     user            User            @relation(fields: [userId], references: [id])
     items           RecordItems[]
+
+    @@index([userId])
 }
 
 model RecordItems {
-    recordId        Int
+    recordId        String
     itemId          Int
     amount          Int
 

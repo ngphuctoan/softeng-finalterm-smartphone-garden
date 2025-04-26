@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { ItemModel, ProductModel } from "@models";
-import { Router } from "express";
+import { NextFunction, Router } from "express";
 import { Request, Response } from "express";
 import { UserController } from "@controllers";
 
@@ -60,7 +60,7 @@ storeRoutes.get("/",
             showDashboard: ["administrator", "manager"].includes(res.locals.roleName),
             bestSellers: await ProductModel.getMostSales(4),
             newestArrivals: await ProductModel.getNewest(4),
-            cartCount: req.session.cart ? req.session.cart.length : 0
+            cartCount: getCartItemsCount(req.session.cart)
         });
     }
 );
@@ -85,7 +85,7 @@ storeRoutes.get("/products/:category",
             activeNav: `/products/${category}`,
             userName: res.locals.userName,
             showDashboard: ["administrator", "manager"].includes(res.locals.roleName),
-            cartCount: req.session.cart ? req.session.cart.length : 0
+            cartCount: getCartItemsCount(req.session.cart)
         });
     }
 );
@@ -138,23 +138,31 @@ storeRoutes.get("/products/:category/:productId",
             selectedOptions,
             availableItemId: availableItem?.id,
             activeNav: `/products/${product.category}`,
-            cart: req.session.cart || [],
             userName: res.locals.userName,
             showDashboard: ["administrator", "manager"].includes(res.locals.roleName),
-            cartCount: req.session.cart ? req.session.cart.length : 0
+            cartCount: getCartItemsCount(req.session.cart)
         });
     }
 );
 
 storeRoutes.get("/cart",
+    (req: Request, res: Response, next: NextFunction) => {
+        if (!req.cookies.authToken) {
+            res.redirect("/login");
+            return;
+        }
+
+        next();
+    },
     UserController.getUserNameAndRoleName,
     async (req: Request, res: Response) => {
         res.render("store/pages/cart", {
             cart: req.session.cart
                 ? await Promise.all(
-                    req.session.cart.map(itemId =>
-                        ItemModel.getById(itemId).then(async item => ({
+                    Object.entries(req.session.cart).map(([itemId, amount]) =>
+                        ItemModel.getById(Number(itemId)).then(async item => ({
                             ...item,
+                            amount,
                             productName: (await ProductModel.getById(item.productId)).name
                         }))
                     )
@@ -162,20 +170,36 @@ storeRoutes.get("/cart",
                 : [],
             userName: res.locals.userName,
             showDashboard: ["administrator", "manager"].includes(res.locals.roleName),
-            cartCount: req.session.cart ? req.session.cart.length : 0
+            cartCount: getCartItemsCount(req.session.cart)
         });
     }
 );
 
-storeRoutes.post("/cart/add-item", (req: Request, res: Response) => {
+storeRoutes.post("/cart/add-item", async (req: Request, res: Response) => {
     const itemId = Number(req.query?.id);
 
+    const item = await ItemModel.getById(itemId);
+
     if (!req.session.cart) {
-        req.session.cart = [];
+        req.session.cart = {};
     }
 
-    if (!req.session.cart.includes(itemId)) {
-        req.session.cart.push(itemId);
+    if (itemId in req.session.cart) {
+        req.session.cart[itemId] = Math.min(req.session.cart[itemId] + 1, item.stock);
+    } else {
+        req.session.cart[itemId] = 1;
+    }
+
+    res.redirect("/cart");
+});
+
+storeRoutes.post("/cart/subtract-item", (req: Request, res: Response) => {
+    const itemId = Number(req.query?.id);
+
+    if (req.session.cart && itemId in req.session.cart) {
+        req.session.cart[itemId] = Math.max(req.session.cart[itemId] - 1, 1);
+
+        res.send(req.session.cart[itemId]);
     }
 
     res.redirect("/cart");
@@ -184,10 +208,8 @@ storeRoutes.post("/cart/add-item", (req: Request, res: Response) => {
 storeRoutes.post("/cart/remove-item", (req: Request, res: Response) => {
     const itemId = Number(req.query?.id);
 
-    if (!req.session.cart) {
-        req.session.cart = [];
-    } else {
-        req.session.cart = req.session.cart.filter(_itemId => _itemId !== itemId);
+    if (req.session.cart) {
+        delete req.session.cart[itemId];
     }
 
     res.redirect("/cart");
@@ -200,7 +222,7 @@ storeRoutes.get("/contact",
             activeNav: "/contact",
             userName: res.locals.userName,
             showDashboard: ["administrator", "manager"].includes(res.locals.roleName),
-            cartCount: req.session.cart ? req.session.cart.length : 0
+            cartCount: getCartItemsCount(req.session.cart)
         })
 );
 
@@ -210,8 +232,12 @@ storeRoutes.get("/404",
         res.render("store/pages/404", {
             userName: res.locals.userName,
             showDashboard: ["administrator", "manager"].includes(res.locals.roleName),
-            cartCount: req.session.cart ? req.session.cart.length : 0
+            cartCount: getCartItemsCount(req.session.cart)
         })
 );
+
+function getCartItemsCount(cart: Record<number, number> | undefined): number {
+    return cart ? Object.keys(cart).length : 0;
+}
 
 export default storeRoutes;
