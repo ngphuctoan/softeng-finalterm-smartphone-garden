@@ -11,6 +11,6 @@ declare global {
 
 declare module "express-session" {
     interface SessionData {
-        cart: number[]
+        cart: Record<number, number>
     }
 }

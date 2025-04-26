@@ -63,15 +63,10 @@ block layout-content
 
                 .mt-4
                     if availableItemId !== undefined
-                        if cart.includes(availableItemId)
-                            button(type="button" disabled).btn.btn-dark.px-3.py-2
+                        form(method="POST" action=`/cart/add-item?id=${availableItemId}`)
+                            button(type="submit").btn.btn-dark.px-3.py-2
                                 iconify-icon(icon="mynaui:cart").me-3
-                                span Already in cart
-                        else
-                            form(method="POST" action=`/cart/add-item?id=${availableItemId}`)
-                                button(type="submit").btn.btn-dark.px-3.py-2
-                                    iconify-icon(icon="mynaui:cart").me-3
-                                    span Add to cart
+                                span Add to cart
                     else
                         button(type="button" disabled).btn.btn-outline-dark.px-3.py-2
                             iconify-icon(icon="mynaui:sad-circle").me-3

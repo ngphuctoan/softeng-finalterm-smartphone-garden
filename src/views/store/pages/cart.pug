@@ -5,7 +5,7 @@ block layout-content
         h1.mb-5 Your cart
 
         table.table.text-nowrap
-            - const totalPrice = cart.reduce((totalPrice, item) => totalPrice + item.price, 0)
+            - const totalPrice = cart.reduce((totalPrice, item) => totalPrice + item.price * item.amount, 0)
 
             caption.table-caption.p-3
                 span(style="line-height: 2.5rem").text-dark Item(s): #{cart.length}&emsp;&bull;&ensp; Total price: #{totalPrice.toLocaleString("vi-VN")}đ
@@ -24,11 +24,12 @@ block layout-content
                 th Product name
                 th Specs
                 th Price
+                th Amount
                 th
             
             tbody.align-middle
                 each item in cart
-                    tr
+                    tr(id=item.id)
                         td
                             img(
                                 src=`/public/images/products/${item.productId}/thumb.jpg`
@@ -45,8 +46,59 @@ block layout-content
 
                         td #{item.price.toLocaleString("vi-VN")}đ
 
+                        td.amount #{item.amount}
+
                         td
-                            form(method="POST" action=`/cart/remove-item?id=${item.id}`)
-                                button(type="submit").btn.btn-outline-danger
-                                    iconify-icon(icon="mynaui:trash")
-                                    span.d-none.d-lg-inline.ms-2 Remove
+                            .d-flex.align-items-center.gap-2
+                                button(type="button" data-bs-item=item.id).cart-minus.btn.btn-outline-dark.px-1
+                                    iconify-icon(icon="mynaui:minus")
+                                button(type="button" data-bs-item=item.id).cart-plus.btn.btn-outline-dark.px-1
+                                    iconify-icon(icon="mynaui:plus")
+
+                                form(method="POST" action=`/cart/remove-item?id=${item.id}`)
+                                    button(type="submit").btn.btn-outline-danger
+                                        iconify-icon(icon="mynaui:trash")
+
+                                #requestSpinner.spinner-border.spinner-border-sm.ms-4.opacity-0(role="status")
+                                    span.visually-hidden Sending requests...
+
+    script.
+        const spinner = document.getElementById("requestSpinner");
+
+        for (const button of document.getElementsByClassName("cart-plus")) {
+            button.onclick = async (event) => {
+                const id = button.dataset.bsItem;
+
+                spinner.classList.remove("opacity-0");
+
+                await fetch(`/cart/add-item?id=${id}`, {
+                    method: "POST"
+                });
+
+                const row = document.getElementById(id)
+                    .getElementsByClassName("amount")[0];
+
+                row.textContent = parseInt(row.textContent) + 1;
+
+                spinner.classList.add("opacity-0");
+            }
+        }
+
+        for (const button of document.getElementsByClassName("cart-minus")) {
+            button.onclick = async (event) => {
+                const id = button.dataset.bsItem;
+
+                spinner.classList.remove("opacity-0");
+
+                await fetch(`/cart/subtract-item?id=${id}`, {
+                    method: "POST"
+                });
+
+                const row = document.getElementById(id)
+                    .getElementsByClassName("amount")[0];
+
+                row.textContent = Math.max(parseInt(row.textContent) - 1, 1);
+
+                spinner.classList.add("opacity-0");
+            }
+        }
