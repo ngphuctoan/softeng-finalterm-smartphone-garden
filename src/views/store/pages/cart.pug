@@ -4,11 +4,11 @@ block layout-content
     .container-sm.py-5.table-responsive.flex-fill
         h1.mb-5 Your cart
 
-        table.table.text-nowrap
+        table#cartTable.table.text-nowrap
             - const totalPrice = cart.reduce((totalPrice, item) => totalPrice + item.price * item.amount, 0)
 
             caption.table-caption.p-3
-                span(style="line-height: 2.5rem").text-dark Item(s): #{cart.length}&emsp;&bull;&ensp; Total price: #{totalPrice.toLocaleString("vi-VN")}đ
+                span(style="line-height: 2.5rem").total-price.text-dark Total price: #{totalPrice.toLocaleString("vi-VN")}đ
 
                 form(method="POST" action="/payment/create")
                     input(type="hidden" name="items" value=JSON.stringify(cart))
@@ -44,15 +44,15 @@ block layout-content
                                 each [spec, value] of Object.entries(item.specs)
                                     li #{spec}: #{value}
 
-                        td #{item.price.toLocaleString("vi-VN")}đ
+                        td(data-price=item.price).price #{item.price.toLocaleString("vi-VN")}đ
 
                         td.amount #{item.amount}
 
                         td
                             .d-flex.align-items-center.gap-2
-                                button(type="button" data-bs-item=item.id).cart-minus.btn.btn-outline-dark.px-1
+                                button(type="button" data-bs-item=item).cart-minus.btn.btn-outline-dark.px-1
                                     iconify-icon(icon="mynaui:minus")
-                                button(type="button" data-bs-item=item.id).cart-plus.btn.btn-outline-dark.px-1
+                                button(type="button" data-bs-item=item).cart-plus.btn.btn-outline-dark.px-1
                                     iconify-icon(icon="mynaui:plus")
 
                                 form(method="POST" action=`/cart/remove-item?id=${item.id}`)
@@ -63,22 +63,25 @@ block layout-content
                                     span.visually-hidden Sending requests...
 
     script.
+        const table = document.getElementById("cartTable");
         const spinner = document.getElementById("requestSpinner");
 
         for (const button of document.getElementsByClassName("cart-plus")) {
             button.onclick = async (event) => {
-                const id = button.dataset.bsItem;
+                const item = JSON.parse(button.dataset.bsItem);
 
                 spinner.classList.remove("opacity-0");
 
-                await fetch(`/cart/add-item?id=${id}`, {
+                await fetch(`/cart/add-item?id=${item.id}`, {
                     method: "POST"
                 });
 
-                const row = document.getElementById(id)
+                const row = document.getElementById(item.id)
                     .getElementsByClassName("amount")[0];
 
-                row.textContent = parseInt(row.textContent) + 1;
+                row.textContent = Math.min(parseInt(row.textContent) + 1, item.stock);
+
+                updateTotalPrice();
 
                 spinner.classList.add("opacity-0");
             }
@@ -86,19 +89,35 @@ block layout-content
 
         for (const button of document.getElementsByClassName("cart-minus")) {
             button.onclick = async (event) => {
-                const id = button.dataset.bsItem;
+                const item = JSON.parse(button.dataset.bsItem);
 
                 spinner.classList.remove("opacity-0");
 
-                await fetch(`/cart/subtract-item?id=${id}`, {
+                await fetch(`/cart/subtract-item?id=${item.id}`, {
                     method: "POST"
                 });
 
-                const row = document.getElementById(id)
+                const row = document.getElementById(item.id)
                     .getElementsByClassName("amount")[0];
 
                 row.textContent = Math.max(parseInt(row.textContent) - 1, 1);
 
+                updateTotalPrice();
+
                 spinner.classList.add("opacity-0");
             }
+        }
+
+        function updateTotalPrice() {
+            let totalPrice = 0;
+
+            for (const row of table.querySelectorAll("tbody tr")) {
+                const price = parseInt(row.getElementsByClassName("price")[0].dataset.price);
+                const amount = parseInt(row.getElementsByClassName("amount")[0].textContent);
+
+                totalPrice += price * amount;
+            }
+
+            table.getElementsByClassName("total-price")[0]
+                .textContent = `Total price: ${totalPrice.toLocaleString("vi-VN")}đ`;
         }

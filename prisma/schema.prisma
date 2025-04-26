@@ -88,7 +88,7 @@ model ItemSpecs {
 }
 
 model Record {
-    id              Int             @id @default(autoincrement())
+    id              String          @id
     userId          Int
     createdAt       DateTime        @default(now())
     vnpayParams     Json
@@ -102,7 +102,7 @@ model Record {
 }
 
 model RecordItems {
-    recordId        Int
+    recordId        String
     itemId          Int
     amount          Int
 

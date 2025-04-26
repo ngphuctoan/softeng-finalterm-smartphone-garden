@@ -175,15 +175,17 @@ storeRoutes.get("/cart",
     }
 );
 
-storeRoutes.post("/cart/add-item", (req: Request, res: Response) => {
+storeRoutes.post("/cart/add-item", async (req: Request, res: Response) => {
     const itemId = Number(req.query?.id);
+
+    const item = await ItemModel.getById(itemId);
 
     if (!req.session.cart) {
         req.session.cart = {};
     }
 
     if (itemId in req.session.cart) {
-        req.session.cart[itemId]++;
+        req.session.cart[itemId] = Math.min(req.session.cart[itemId] + 1, item.stock);
     } else {
         req.session.cart[itemId] = 1;
     }
@@ -196,6 +198,8 @@ storeRoutes.post("/cart/subtract-item", (req: Request, res: Response) => {
 
     if (req.session.cart && itemId in req.session.cart) {
         req.session.cart[itemId] = Math.max(req.session.cart[itemId] - 1, 1);
+
+        res.send(req.session.cart[itemId]);
     }
 
     res.redirect("/cart");

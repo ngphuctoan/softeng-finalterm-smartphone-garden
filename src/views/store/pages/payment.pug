@@ -9,19 +9,27 @@ block layout-content
             .p-4.text-start.text-nowrap.border(style="width: 50vw")
                 .row.mb-3
                     strong.col Order ID
-                    code.fs-5.col 12345678
+                    code.fs-5.col= vnp_Params.vnp_TxnRef
 
                 .row.mb-3
-                    strong.col Transaction ID
-                    code.fs-5.col 1234567812345678
+                    strong.col Transaction no.
+                    code.fs-5.col= vnp_Params.vnp_TransactionNo
+
+                .row.mb-3
+                    strong.col Bank code
+                    span.col= vnp_Params.vnp_BankCode
+
+                .row.mb-3
+                    strong.col Card type
+                    span.col= vnp_Params.vnp_CardType
 
                 .row.mb-3
                     strong.col Amount
-                    span.col 12.345.678đ
+                    span.col= `${(parseInt(vnp_Params.vnp_Amount) / 100).toLocaleString("vi-VN")}đ`
 
                 .row
                     strong.col Date of purchase
-                    span.col 23/04/2025
+                    span.col= payDate
         else
             h1.mb-3 (╥﹏╥)
             h4.mb-5 Something went wrong
@@ -34,6 +42,11 @@ block layout-content
             .p-4.border
                 strong Response code:
                 code.fs-5.ms-2 #{code}
-                span.ms-2 (Order not found)
+                span.ms-2 (#{message})
 
         a(href="/").btn.btn-lg.btn-outline-dark.mt-5 Return to store
+
+    script.
+        fetch(window.location.href.replace("result", "vnpay-ipn"))
+            .then(res => res.json())
+            .then(data => console.log(data));
