@@ -1,6 +1,6 @@
 datasource db {
     provider = "sqlite"
-    url      = env("DATABASE_URL")
+    url      = "file:../data/database.sqlite"
 }
 
 generator client {
@@ -9,37 +9,110 @@ generator client {
 }
 
 model Role {
-    id          Int         @id @default(autoincrement())
-    name        String      @unique
-    users       User[]
+    id              Int             @id @default(autoincrement())
+    name            String          @unique
+
+    users           User[]
 }
 
 model User {
-    id          Int         @id @default(autoincrement())
-    name        String
-    email       String      @unique
-    password    String
-    roleName    String
-    role        Role        @relation(fields: [roleName], references: [name])
+    id              Int             @id @default(autoincrement())
+    name            String
+    email           String          @unique
+    password        String
+    roleId          Int
+
+    role            Role            @relation(fields: [roleId], references: [id])
+    records         Record[]
 }
 
 model Spec {
-    id          Int         @id @default(autoincrement())
-    name        String      @unique
-    value       String
-    items       Item[]
+    id              Int             @id @default(autoincrement())
+    name            String          @unique
+
+    products        ProductBaseSpecs[]
+    items           ItemSpecs[]
+}
+
+model Tag {
+    id              String          @id
+
+    products        Product[]       @relation("ProductTags")
+}
+
+model Product {
+    id              String          @id
+    name            String          @unique
+    brand           String
+    os              String
+    category        String
+    description     String?
+    createdAt       DateTime        @default(now())
+
+    tags            Tag[]           @relation("ProductTags")
+    baseSpecs       ProductBaseSpecs[]
+    items           Item[]
 }
 
 model Item {
-    id          Int         @id @default(autoincrement())
-    name        String      @unique
-    price       Int
-    description String?
-    specs       Spec[]
+    id              Int             @id @default(autoincrement())
+    price           Int
+    stock           Int             @default(0)
+    productId       String
+
+    product         Product         @relation(fields: [productId], references: [id])
+    specs           ItemSpecs[]
+    records         RecordItems[]
 }
 
-model AuthTokenLogout {
-    id          Int         @id @default(autoincrement())
-    jti         String      @unique
-    expiresAt   DateTime
+model ProductBaseSpecs {
+    productId       String
+    specId          Int
+    value           String
+
+    product         Product         @relation(fields: [productId], references: [id])
+    spec            Spec            @relation(fields: [specId], references: [id])
+
+    @@id([productId, specId])
+}
+
+model ItemSpecs {
+    itemId          Int
+    specId          Int
+    value           String
+
+    Item            Item            @relation(fields: [itemId], references: [id], onDelete: Cascade)
+    spec            Spec            @relation(fields: [specId], references: [id])
+
+    @@id([itemId, specId])
+}
+
+model Record {
+    id              String          @id
+    userId          Int
+    createdAt       DateTime        @default(now())
+    vnpayParams     Json
+    totalAmount     BigInt
+    status          String          @default("pending")
+
+    user            User            @relation(fields: [userId], references: [id])
+    items           RecordItems[]
+
+    @@index([userId])
+}
+
+model RecordItems {
+    recordId        String
+    itemId          Int
+    amount          Int
+
+    record          Record          @relation(fields: [recordId], references: [id])
+    item            Item            @relation(fields: [itemId], references: [id])
+
+    @@id([recordId, itemId])
+}
+
+model RevokedToken {
+    jti             String          @id
+    expiresAt       DateTime
 }

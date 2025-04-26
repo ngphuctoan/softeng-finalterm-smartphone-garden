@@ -1,0 +1,19 @@
+doctype html
+html
+    head
+        meta(name="viewport" content="width=device-width, initial-scale=1")
+
+        link(rel="stylesheet" href="https://unpkg.com/bootstrap@5.3.5/dist/css/bootstrap.min.css")
+        link(rel="stylesheet" href="/public/css/styles.css")
+
+        block layout-styles
+    body.d-flex.flex-column.min-vh-100
+        include partials/header
+
+        main.flex-fill.d-flex.flex-column
+            block layout-content
+
+        include partials/footer
+
+        script(src="https://unpkg.com/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js")
+        script(src="https://unpkg.com/iconify-icon")

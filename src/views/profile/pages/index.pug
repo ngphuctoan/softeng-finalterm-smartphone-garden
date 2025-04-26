@@ -1,0 +1,89 @@
+extends ../layout
+
+block layout-content
+    - const isFallbackUser = profile.name === "fallback"
+
+    - const profilePicWidth = "7.5rem"
+    - const profilePicHue = Math.floor(Math.random() * 360)
+
+    a(href="/" style="width: max-content; margin-bottom: -1.75rem").btn
+        iconify-icon(icon="mynaui:arrow-left")
+        span.ms-3 Return to store
+
+    h1.text-center.m-0 My profile
+
+    .position-relative.mx-auto.text-light(style=`
+        font-family: Comfortaa;
+        width: ${profilePicWidth}; height: ${profilePicWidth};
+        background: linear-gradient(
+            to bottom,
+            hsl(${profilePicHue}, 50%, 50%),
+            hsl(${profilePicHue}, 25%, 75%)
+        );
+    `)
+        .position-absolute.start-50.translate-middle-x(style=`
+            font-size: 6rem;
+            top: -3.5rem;
+        `) .&ensp;.
+        .position-absolute(style=`
+            font-size: 3rem;
+            transform: rotate(90deg);
+            top: 2rem; right: 2.5rem;
+        `) )
+
+    form#editForm(method="POST" action="#").w-100.position-relative.p-4.border
+        span(style="margin: -.75rem 0 0 -.5rem").position-absolute.top-0.px-2.bg-body Profile info
+
+        .row.mb-3
+            .col-2
+                .d-flex.align-items-center.h-100
+                    label(for="name") Name
+            .col
+                input(type="text" name="name" value=profile.name readonly=isFallbackUser disabled=isFallbackUser required).form-control
+
+        .row.mb-3
+            .col-2
+                .d-flex.align-items-center.h-100
+                    label(for="email") Email
+            .col
+                input(type="email" name="email" value=profile.email readonly=isFallbackUser disabled=isFallbackUser required).form-control
+
+        .d-flex.gap-2.float-end
+            button(type="button" data-bs-toggle="modal" data-bs-target="#passwordModal" disabled=isFallbackUser).btn.btn-outline-dark Change password
+            button(type="submit" disabled).btn.btn-dark Confirm
+
+    #passwordModal(aria-hidden="true" aria-labelledby="passwordModalLabel" tabindex="-1").modal.fade
+        .modal-dialog
+            form#passwordForm(method="POST" action="/profile/change-password").modal-content
+                .modal-header
+                    h1#passwordModalLabel.modal-title.fs-5 Change password
+                    button(type="button" aria-label="Close" data-bs-dismiss="modal").btn-close
+                
+                .modal-body
+                    .mb-3
+                        label(for="oldPassword").form-label Old password
+                        input(type="password" name="oldPassword" required).form-control
+
+                    .mb-3
+                        label(for="password").form-label New password
+                        input(type="password" name="password" required minlength="8").form-control
+
+                    .mb-3
+                        label(for="confirmPassword").form-label Confirm password
+                        input(type="password" name="confirmPassword" required).form-control
+                
+                .modal-footer
+                    button(type="button" data-bs-dismiss="modal").btn.btn-outline-dark Close
+                    button(type="submit").btn.btn-dark Confirm
+
+    if error
+        .alert.alert-danger(role="alert" style="margin: -1.75rem 0 -.25rem 0") #{error}
+
+    script.
+        const editForm = document.forms.editForm;
+
+        editForm.oninput = event => {
+            editForm.querySelector("[type=submit]").disabled =
+                editForm["name"].value === editForm["name"].defaultValue &&
+                editForm["email"].value === editForm["email"].defaultValue;
+        }

@@ -1,0 +1,49 @@
+extends ../layout
+
+block layout-content 
+  .row.justify-content-end.align-items-center.mb-1
+    .col-12.col-md-6
+      input#searchUser(type="text" class="form-control" placeholder="Search user by name or email")
+  div.table-responsive.d-flex
+    table.table.table-striped.table-hover.text-center
+      thead.text-center
+        tr                   
+          th(scope="col") Name
+          th(scope="col" class="d-none d-sm-table-cell") Email
+          th(scope="col" class="d-none d-md-table-cell") Role
+          th(scope="col") Actions
+      tbody#userTableBody
+  div#whiteRegion.d-flex
+  div.row.align-items-center.d-flex.flex-column-reverse.flex-row-reverse.col-12
+      nav(aria-label="User pagination").p-0 
+        ul.pagination.pagination-sm.justify-content-center.justify-content-sm-end.mb-0#userPagination
+
+  //- User Edit Modal
+  #userModal.modal.fade(tabindex="-1" aria-hidden="true")
+    .modal-dialog.modal-dialog-centered.modal-dialog-scrollable.modal-m
+      .modal-content
+        .modal-header
+          h5.modal-title User Information
+          button.btn-close(type="button" data-bs-dismiss="modal")
+        form#userForm
+          .modal-body
+            input(type="hidden" name="id" id="userId")
+            .mb-3
+              label.form-label(for="userName") Name
+              input.form-control(type="text" name="name" id="userName" readonly)
+            .mb-3
+              label.form-label(for="userEmail") Email
+              input.form-control(type="email" name="email" id="userEmail" readonly)
+            .mb-3
+              label.form-label(for="userRole") Role
+              select.form-select(name="role" id="userRole")
+                option(value="administrator") Administrator
+                option(value="user") User
+          .modal-footer
+            button.btn.btn-primary(type="submit") Save
+            button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cancel
+
+block js-imports 
+  script.
+    const usersData = !{JSON.stringify(users.map(u => ({ id: u.id, name: u.name, email: u.email, roleName: u.roleName })))}; 
+  script(src="/protected/dashboard/users.js" defer)

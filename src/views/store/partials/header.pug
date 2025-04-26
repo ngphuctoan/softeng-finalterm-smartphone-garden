@@ -1,0 +1,53 @@
+- const navs = { "/": "HOME", "/products/smartphones": "SMARTPHONES", "/about": "ABOUT US", "/contact": "CONTACT" }
+
+header.navbar.navbar-expand-lg.sticky-top.pb-0.bg-body.shadow
+    .container-md.d-flex.flex-column
+        .row.flex-column.flex-md-row.w-100.pb-2
+            .col
+                a(href="/").d-inline-block.navbar-brand.fw-bold.text-center.text-md-start.link-body-emphasis SMARTPHONE GARDEN
+            
+            .col-auto.d-flex.justify-content-center.justify-content-md-start.gap-2
+                button(type="button" data-bs-toggle="collapse" data-bs-target="#navs" aria-controls="navs" aria-expanded="false").navbar-toggler
+                    span.navbar-toggler-icon
+
+                if vnp_Params === undefined
+                    a(href="/cart").btn.position-relative
+                        iconify-icon(icon="mynaui:shopping-bag")
+                        if cartCount > 0
+                            span(style="margin-top: -.3rem").badge.position-absolute.top-50.start-50.text-light.bg-dark.border.border-2.border-light.rounded-pill #{cartCount}
+                    
+                    .dropdown
+                        button(type="button" data-bs-toggle="dropdown" aria-expanded="false").btn
+                            iconify-icon(icon="mynaui:user-circle")
+                            span.ms-3 #{userName || "Guest"}
+
+                        ul(style="--bs-dropdown-link-active-bg: var(--bs-dark)").dropdown-menu.dropdown-menu-end
+                            if showDashboard
+                                li
+                                    a(href="/dashboard").dropdown-item
+                                        iconify-icon(icon="mynaui:cog-three")
+                                        span.ms-2.me-4 Go to dashboard
+
+                            if userName
+                                li
+                                    a(href="/profile").dropdown-item
+                                            iconify-icon(icon="mynaui:user-square")
+                                            span.ms-2.me-4 Profile
+                                
+                                li(style="--bs-dropdown-link-active-bg: var(--bs-danger)")
+                                    form(method="POST" action="/logout")
+                                        button(type="submit").dropdown-item.text-danger
+                                            iconify-icon(icon="mynaui:logout")
+                                            span.ms-2.me-4 Logout
+                            else
+                                li
+                                    a(href="/login").dropdown-item
+                                        iconify-icon(icon="mynaui:login")
+                                        span.ms-2.me-4 Login
+
+        ul#navs(style="--bs-nav-link-color: var(--bs-secondary)").collapse.navbar-collapse.nav.nav-underline.flex-column.flex-md-row.nav-justified.w-100.pt-2.border-top
+            each [key, value] of Object.entries(navs)
+                - const active = key === activeNav
+
+                li(style="--bs-nav-link-hover-color: var(--bs-dark)").nav-item.w-100
+                    a(href=`${key}` aria-current=(active ? "page" : "") class=(active ? "active" : "")).nav-link.px-4 #{value}

@@ -1,0 +1,19 @@
+@import "https://fonts.googleapis.com/css2?family=Poppins";
+@import "https://fonts.googleapis.com/css2?family=Comfortaa";
+
+*:not(.badge):not(.spinner-border) {
+    border-radius: 0 !important;
+}
+
+body {
+    font-family: Poppins, sans-serif;
+}
+
+iconify-icon {
+    font-size: 1.5rem;
+    vertical-align: -.3125rem;
+}
+
+.dropdown-item:active {
+    color: var(--bs-dropdown-link-active-color) !important;
+}

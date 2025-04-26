@@ -1,0 +1,20 @@
+- const navs = { "/": { title: "Dashboard", icon: "home" }, "/products": { title: "Products", icon: "archive" }, "/users": {title: "Users", icon: "user"} }
+
+.col-0.col-lg-4.col-xl-3.d-flex.flex-column.border-end
+    #sidebar(tabindex="-1" style="--bs-offcanvas-width: 20rem").offcanvas-lg.offcanvas-start.flex-md-fill
+        .offcanvas-header
+            h5.offcanvas-title Menu
+            //- button(type="button" data-bs-dismiss="offcanvas").btn-close
+        
+        .offcanvas-body.p-0
+            ul(
+                style=`
+                    --bs-nav-link-padding-y: .75rem;
+                    --bs-nav-link-color: var(--bs-secondary);
+                    --bs-nav-pills-link-active-bg: var(--bs-dark);
+                `).nav.nav-pills.nav-fill.w-100
+                li.nav-item.text-start
+                    each [href, nav] of Object.entries(navs)
+                        a(href=`/dashboard${href}` class=(activeNav === href ? "active" : "")).nav-link
+                            iconify-icon(icon=`mynaui:${nav.icon}`)
+                            span.ms-3 #{nav.title}

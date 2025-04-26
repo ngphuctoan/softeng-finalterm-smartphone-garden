@@ -1,0 +1,79 @@
+extends ../layout
+
+block layout-content
+    .container-sm.py-5
+        .row.gx-5.gy-4.justify-content-center
+            .col-12.col-lg
+                #previewCarousel(data-bs-ride="carousel").carousel.slide.carousel-fade.h-100
+                    if slides.length > 1
+                        - var i = 0
+                        .carousel-indicators.px-2.bg-dark.bg-opacity-50
+                            each slide in slides
+                                - const active = i < 1
+                                button(type="button" data-bs-target="#previewCarousel" data-bs-slide-to=i aria-current=(active.toString()) class=(active ? "active" : ""))
+                                - i++
+
+                    .carousel-inner.h-100
+                        each slide in slides
+                            .carousel-item(class=slides.indexOf(slide) < 1 ? "active" : "").h-100
+                                img(src=slide).d-block.w-100.h-100.object-fit-cover
+
+                    if slides.length > 1
+                        button(type="button" data-bs-target="#previewCarousel" data-bs-slide="prev").carousel-control-prev
+                            span(style="background-size: 75%").carousel-control-prev-icon.p-4.bg-dark.shadow
+                            span.visually-hidden Previous
+
+                        button(type="button" data-bs-target="#previewCarousel" data-bs-slide="next").carousel-control-next
+                            span(style="background-size: 75%").carousel-control-next-icon.p-4.bg-dark.shadow
+                            span.visually-hidden Next
+            
+            .col-12.col-md
+                h1.mb-2 #{product.name}
+
+                .d-flex.flex-wrap.gap-2.mb-4
+                    .d-flex.gap-2.me-4
+                        strong.me-3 Tags:
+
+                        each tag in product.tags
+                            span.fs-6.badge.text-dark.bg-secondary-subtle.rounded-0 #{tag}
+
+                    .d-flex.gap-2
+                        strong.me-3 Brand:
+
+                        span #{product.brand}
+
+                .d-flex.align-items-center.gap-3
+                    span Options
+                    hr.w-100.m-0
+
+                .d-flex.flex-column.gap-3.pt-4
+                    each [spec, values] of Object.entries(options)
+                        .row.d-flex.align-items-center.gap-2
+                            .col-2.strong.me-4 #{spec}
+
+                            .col.d-flex.gap-2
+                                each value in Array.from(values)
+                                    - const selected = value === selectedOptions[spec]
+                                    - const params = new URLSearchParams()
+
+                                    - Object.entries(selectedOptions).forEach(([spec, value]) => params.set(spec, value))
+                                    - params.set(spec, value)
+
+                                    a(href=`?${params.toString()}` class=(selected ? "active" : "") style=(selected ? "pointer-events: none" : "")).btn.btn-outline-dark #{value}
+
+                .mt-4
+                    if availableItemId !== undefined
+                        form(method="POST" action=`/cart/add-item?id=${availableItemId}`)
+                            button(type="submit").btn.btn-dark.px-3.py-2
+                                iconify-icon(icon="mynaui:cart").me-3
+                                span Add to cart
+                    else
+                        button(type="button" disabled).btn.btn-outline-dark.px-3.py-2
+                            iconify-icon(icon="mynaui:sad-circle").me-3
+                            span Item not available
+        
+        .d-flex.align-items-center.gap-3.mt-5
+            h5.text-nowrap PRODUCT DESCRIPTION
+            hr.w-100.m-0
+
+        p(style="text-align: justify").mt-3 #{product.description}

@@ -1,0 +1,66 @@
+extends ../layout
+
+block layout-styles
+    style.
+        .card {
+            transition: transform .5s;
+        }
+
+        .card:hover {
+            transform: scale(1.1);
+        }
+
+        #categoryBannerImg {
+            transition: transform .5s;
+        }
+
+        #categoryBannerImg:hover {
+            transform: scale(1.1);
+        }
+
+block layout-content
+    - const photo = categoryPhotos[category]
+
+    .overflow-hidden.d-flex.justify-content-center.align-items-center.position-relative(style="height: 20rem")
+        h1.text-center.text-light.z-1 #{category.charAt(0).toUpperCase() + category.slice(1)}
+
+        img#categoryBannerImg(
+            src=`https://images.unsplash.com/photo-${photo.link}?w=1920&h=1080&fit=crop&fm=jpg`
+            alt=`Photo by https://unplash.com/@${photo.author}`
+            style="filter: brightness(33%)"
+        ).w-100.h-100.position-absolute.top-0.start-0.object-fit-cover
+
+    .container-sm.py-5
+        .col
+            .row.row-cols-1.row-cols-md-2.row-cols-xl-4.g-4
+                each product in products
+                    include ../partials/product-card
+                        - var product = product
+        //- .row.g-4
+        //-     .col-12.col-md-6.col-lg-4.col-xl-3
+        //-         .d-flex.align-items-center.gap-3.mb-4
+        //-             span Filters
+        //-             hr.w-100.m-0
+
+        //-         #filtersAccordion.accordion
+        //-             .accordion-item
+        //-                 .accordion-header
+        //-                     button(type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true").accordion-button Accordion Item #1
+
+        //-                     #collapseOne(data-bs-parent="#filtersAccordion").accordion-collapse.collapse.show
+        //-                         .accordion-body
+        //-                             span Test
+
+        //-             .accordion-item
+        //-                 .accordion-header
+        //-                     button(type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false").accordion-button.collapsed Accordion Item #1
+
+        //-                     #collapseTwo(data-bs-parent="#filtersAccordion").accordion-collapse.collapse
+        //-                         .accordion-body
+        //-                             span Test
+
+        //-     .col
+        //-         .row.row-cols-lg-2.row-cols-xl-3.g-4
+        //-             each product in products
+        //-                 include ../partials/product-card
+        //-                     - var product = product

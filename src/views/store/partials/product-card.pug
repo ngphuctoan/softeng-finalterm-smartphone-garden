@@ -1,0 +1,21 @@
+- const prices = product.items.map(item => item.price)
+- const minPrice = Math.min(...prices), maxPrice = Math.max(...prices)
+
+.col
+    a(href=`/products/${product.category}/${product.id}`).card.border-0.text-center.text-decoration-none
+        img(
+            src=`/public/images/products/${product.id}/thumb.jpg`
+            onerror="this.onerror = null; this.src='/public/images/products/thumb-notfound.jpg'"
+            height="150"
+        ).card-img-top.d-block.w-100.object-fit-contain
+        .card-body.mt-3
+            strong.card-title #{product.name}
+
+            .d-flex.justify-content-center.gap-2.my-2
+                each tag in product.tags.slice(0, 4)
+                    span.badge.text-truncate.text-dark.bg-secondary-subtle #{tag}
+            
+            div.text-secondary
+                | #{minPrice.toLocaleString("vi-VN")}đ
+                if minPrice !== maxPrice
+                    |  - #{maxPrice.toLocaleString("vi-VN")}đ

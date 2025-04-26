@@ -1,0 +1,384 @@
+[
+    {
+        "id": "iphone-15-pro-max",
+        "name": "iPhone 15 Pro Max",
+        "brand": "Apple",
+        "category": "smartphones",
+        "os": "ios 18",
+        "tags": [
+            "ios",
+            "flagship",
+            "camera",
+            "5G"
+        ],
+        "description": "The ultimate iPhone experience with the A17 Pro chip and a titanium frame.",
+        "baseSpecs": {
+            "display": "6.7\" OLED",
+            "chipset": "A17 Pro",
+            "battery": "4422mAh",
+            "camera": "Triple 48MP"
+        },
+        "items": [
+            {
+                "price": 33990000,
+                "stock": 10,
+                "specs": {
+                    "Color": "Natural Titanium",
+                    "Storage": "256GB"
+                }
+            },
+            {
+                "price": 36990000,
+                "stock": 5,
+                "specs": {
+                    "Color": "Blue Titanium",
+                    "Storage": "512GB"
+                }
+            },
+            {
+                "price": 42990000,
+                "stock": 2,
+                "specs": {
+                    "Color": "White Titanium",
+                    "Storage": "1TB"
+                }
+            }
+        ]
+    },
+    {
+        "id": "galaxy-s24-ultra",
+        "name": "Samsung Galaxy S24 Ultra",
+        "brand": "Samsung",
+        "category": "smartphones",
+        "os": "Android 14 (One UI 7)",
+        "tags": [
+            "android",
+            "s-pen",
+            "5G",
+            "flagship"
+        ],
+        "description": "Samsung's top-tier flagship with a massive camera upgrade and S Pen.",
+        "baseSpecs": {
+            "display": "6.8\" AMOLED",
+            "chipset": "Snapdragon 8 Gen 3",
+            "battery": "5000mAh",
+            "camera": "200MP Quad Cam"
+        },
+        "items": [
+            {
+                "price": 31990000,
+                "stock": 8,
+                "specs": {
+                    "Color": "Titanium Gray",
+                    "Storage": "256GB"
+                }
+            },
+            {
+                "price": 35990000,
+                "stock": 6,
+                "specs": {
+                    "Color": "Titanium Violet",
+                    "Storage": "512GB"
+                }
+            }
+        ]
+    },
+    {
+        "id": "reno10-5g",
+        "name": "OPPO Reno10 5G",
+        "brand": "OPPO",
+        "category": "smartphones",
+        "os": "Android 13 (Coloros 13)",
+        "tags": [
+            "android",
+            "selfie",
+            "budget"
+        ],
+        "description": "A stylish mid-range phone with great camera and performance.",
+        "baseSpecs": {
+            "display": "6.7\" AMOLED",
+            "chipset": "Dimensity 7050",
+            "battery": "5000mAh",
+            "camera": "64MP + 32MP Telephoto"
+        },
+        "items": [
+            {
+                "price": 10990000,
+                "stock": 20,
+                "specs": {
+                    "Color": "Cosmic Black",
+                    "Storage": "256GB"
+                }
+            },
+            {
+                "price": 11990000,
+                "stock": 12,
+                "specs": {
+                    "Color": "Glowing Gold",
+                    "Storage": "256GB"
+                }
+            }
+        ]
+    },
+    {
+        "id": "mi-13-pro",
+        "name": "Xiaomi Mi 13 Pro",
+        "brand": "Xiaomi",
+        "category": "smartphones",
+        "os": "Android 13 (MIUI 15)",
+        "tags": [
+            "android",
+            "camera",
+            "flagship"
+        ],
+        "description": "Xiaomi's flagship with Leica optics and fast charging.",
+        "baseSpecs": {
+            "display": "6.73\" AMOLED",
+            "chipset": "Snapdragon 8 Gen 2",
+            "battery": "4820mAh",
+            "camera": "50MP Triple Leica Cam"
+        },
+        "items": [
+            {
+                "price": 25990000,
+                "stock": 10,
+                "specs": {
+                    "Color": "Ceramic White",
+                    "Storage": "256GB"
+                }
+            },
+            {
+                "price": 27990000,
+                "stock": 8,
+                "specs": {
+                    "Color": "Cedar Green",
+                    "Storage": "512GB"
+                }
+            }
+        ]
+    },
+    {
+        "id": "vivo-x90-pro",
+        "name": "Vivo X90 Pro",
+        "brand": "Vivo",
+        "category": "smartphones",
+        "os": "Android 13 (Funtouch os 13)",
+        "tags": [
+            "android",
+            "camera",
+            "premium"
+        ],
+        "description": "Vivo's flagship with Zeiss optics and fast charging.",
+        "baseSpecs": {
+            "display": "6.78\" AMOLED",
+            "chipset": "Dimensity 9200",
+            "battery": "4870mAh",
+            "camera": "50MP + 50MP Ultra Wide + 12MP Portrait"
+        },
+        "items": [
+            {
+                "price": 25990000,
+                "stock": 7,
+                "specs": {
+                    "Color": "Legendary Black",
+                    "Storage": "256GB"
+                }
+            },
+            {
+                "price": 28990000,
+                "stock": 5,
+                "specs": {
+                    "Color": "Morning Blue",
+                    "Storage": "512GB"
+                }
+            }
+        ]
+    },
+    {
+        "id": "pixel-8-pro",
+        "name": "Google Pixel 8 Pro",
+        "brand": "Google",
+        "category": "smartphones",
+        "os": "Android 14",
+        "tags": [
+            "android",
+            "pixel",
+            "flagship",
+            "camera"
+        ],
+        "description": "Google's flagship with AI-powered camera and Tensor G3 chip.",
+        "baseSpecs": {
+            "display": "6.7\" OLED",
+            "chipset": "Google Tensor G3",
+            "battery": "5000mAh",
+            "camera": "50MP Triple Cam"
+        },
+        "items": [
+            {
+                "price": 29990000,
+                "stock": 15,
+                "specs": {
+                    "Color": "Porcelain",
+                    "Storage": "256GB"
+                }
+            },
+            {
+                "price": 32990000,
+                "stock": 10,
+                "specs": {
+                    "Color": "Obsidian",
+                    "Storage": "512GB"
+                }
+            }
+        ]
+    },
+    {
+        "id": "realme-gt-2-pro",
+        "name": "Realme GT 2 Pro",
+        "brand": "Realme",
+        "category": "smartphones",
+        "os": "Android 12 (Realme UI 3.0)",
+        "tags": [
+            "android",
+            "gaming",
+            "5G"
+        ],
+        "description": "A gaming-centric phone with top-tier performance and 120Hz AMOLED display.",
+        "baseSpecs": {
+            "display": "6.7\" AMOLED",
+            "chipset": "Snapdragon 8 Gen 1",
+            "battery": "5000mAh",
+            "camera": "50MP Triple Cam"
+        },
+        "items": [
+            {
+                "price": 18990000,
+                "stock": 5,
+                "specs": {
+                    "Color": "Steel Blue",
+                    "Storage": "128GB"
+                }
+            },
+            {
+                "price": 20990000,
+                "stock": 8,
+                "specs": {
+                    "Color": "Master Grey",
+                    "Storage": "256GB"
+                }
+            }
+        ]
+    },
+    {
+        "id": "oneplus-11",
+        "name": "OnePlus 11 5G",
+        "brand": "OnePlus",
+        "category": "smartphones",
+        "os": "Android 13 (Oxygenos 13)",
+        "tags": [
+            "android",
+            "performance",
+            "5G"
+        ],
+        "description": "OnePlus' flagship with a stunning 120Hz display and Snapdragon 8 Gen 2.",
+        "baseSpecs": {
+            "display": "6.7\" Fluid AMOLED",
+            "chipset": "Snapdragon 8 Gen 2",
+            "battery": "5000mAh",
+            "camera": "50MP + 48MP Ultra Wide + 32MP Telephoto"
+        },
+        "items": [
+            {
+                "price": 28990000,
+                "stock": 7,
+                "specs": {
+                    "Color": "Eternal Green",
+                    "Storage": "256GB"
+                }
+            },
+            {
+                "price": 31990000,
+                "stock": 4,
+                "specs": {
+                    "Color": "Titanium Black",
+                    "Storage": "512GB"
+                }
+            }
+        ]
+    },
+    {
+        "id": "xperia-1-iv",
+        "name": "Sony Xperia 1 IV",
+        "brand": "Sony",
+        "category": "smartphones",
+        "os": "Android 12",
+        "tags": [
+            "android",
+            "camera",
+            "pro",
+            "4K"
+        ],
+        "description": "Sony's flagship with a 4K display and pro-level camera system.",
+        "baseSpecs": {
+            "display": "6.5\" 4K OLED",
+            "chipset": "Snapdragon 8 Gen 1",
+            "battery": "5000mAh",
+            "camera": "12MP Triple Cam"
+        },
+        "items": [
+            {
+                "price": 39990000,
+                "stock": 3,
+                "specs": {
+                    "Color": "Frosted Black",
+                    "Storage": "256GB"
+                }
+            },
+            {
+                "price": 42990000,
+                "stock": 1,
+                "specs": {
+                    "Color": "Frosted Purple",
+                    "Storage": "512GB"
+                }
+            }
+        ]
+    },
+    {
+        "id": "zenfone-9",
+        "name": "Asus Zenfone 9",
+        "brand": "Asus",
+        "category": "smartphones",
+        "os": "Android 12",
+        "tags": [
+            "android",
+            "compact",
+            "5G"
+        ],
+        "description": "Compact flagship with powerful Snapdragon 8+ Gen 1 and 120Hz AMOLED.",
+        "baseSpecs": {
+            "display": "5.9\" AMOLED",
+            "chipset": "Snapdragon 8+ Gen 1",
+            "battery": "4300mAh",
+            "camera": "50MP + 12MP Ultra Wide"
+        },
+        "items": [
+            {
+                "price": 19990000,
+                "stock": 10,
+                "specs": {
+                    "Color": "Midnight Black",
+                    "Storage": "128GB"
+                }
+            },
+            {
+                "price": 21990000,
+                "stock": 7,
+                "specs": {
+                    "Color": "Moonlight White",
+                    "Storage": "256GB"
+                }
+            }
+        ]
+    }
+]
