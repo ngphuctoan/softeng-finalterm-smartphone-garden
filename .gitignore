@@ -1,8 +1,5 @@
-.old
 .env
 data/*
-docker
 node_modules
 src/generated
-package-lock.json
 prisma/migrations
