@@ -5,6 +5,8 @@ import qs from "qs";
 import prisma from "@utils/db";
 import { Item } from "@interfaces";
 
+type VnpParams = Record<string, any>;
+
 const RESPONSE_CODE_MESSAGES: Record<string, string> = {
     "00": "Transaction successful",
     "01": "Transaction failed",
@@ -25,133 +27,169 @@ const RESPONSE_CODE_MESSAGES: Record<string, string> = {
 
 const vnpayRoutes = express.Router();
 
-function sortParams(params: Record<string, string>) {
+function sortParams(params: VnpParams) {
     return Object.keys(params)
         .sort()
-        .reduce((newParams: Record<string, string>, key: string) => {
+        .reduce((newParams, key) => {
             newParams[key] = encodeURIComponent(params[key]).replace(/%20/g, "+");
             return newParams;
-        }, {});
-};
+        }, {} as VnpParams);
+}
+
+function createSecureHash(vnp_Params: VnpParams) {
+    const signData = qs.stringify(sortParams(vnp_Params), { encode: false });
+    return crypto.createHmac("sha512", process.env.vnp_HashSecret as string)
+        .update(Buffer.from(signData, "utf-8"))
+        .digest("hex");
+}
+
+function formatVnpPayDate(dateStr: string) {
+    return new Date(
+        dateStr.replace(
+            /(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})/,
+            "$1-$2-$3T$4:$5:$6"
+        )
+    ).toLocaleString("vi-VN");
+}
 
 vnpayRoutes.post("/payment/create", async (req: Request, res: Response) => {
     process.env.TZ = "Asia/Ho_Chi_Minh";
 
-    const date = new Date();
-    const createDate = moment(date).format("YYYYMMDDHHmmss");
-    const orderId = moment(date).format("DDHHmmss");
-    const ip = req.headers["x-forwarded-for"] || req.socket.remoteAddress || "127.0.0.1";
+    const now = moment();
+    const createDate = now.format("YYYYMMDDHHmmss");
+    const orderId = now.format("DDHHmmss");
 
-    const totalAmount = Number(req.body.totalAmount);
-    const bankCode = req.body.bankCode;
-    const locale = req.body.language || "vn";
+    const { totalAmount, bankCode, language, items } = req.body;
 
-    const params = {
+    const ipAddr =
+        req.headers["x-forwarded-for"] ||
+        req.socket.remoteAddress ||
+        "127.0.0.1";
+
+    const vnp_Params: VnpParams = {
         vnp_Version: "2.1.0",
         vnp_Command: "pay",
         vnp_TmnCode: process.env.vnp_TmnCode,
-        vnp_Locale: locale,
+        vnp_Locale: language || "vn",
         vnp_CurrCode: "VND",
         vnp_TxnRef: orderId,
         vnp_OrderInfo: `Thanh toan cho ma GD: ${orderId}`,
         vnp_OrderType: "other",
-        vnp_Amount: totalAmount * 100,
-        vnp_ReturnUrl: process.env.vnp_ReturnUrl,
-        vnp_IpAddr: ip,
-        vnp_CreateDate: createDate,
-    } as any;
+        vnp_Amount: Number(totalAmount) * 100,
+        vnp_ReturnUrl: `${req.protocol}://${req.get("host")}/payment/vnpay-return`,
+        vnp_IpAddr: ipAddr,
+        vnp_CreateDate: createDate
+    };
 
     if (bankCode) {
-        params.vnp_BankCode = bankCode;
+        vnp_Params.vnp_BankCode = bankCode;
     }
 
-    const sortedParams = sortParams(params);
-    const signData = qs.stringify(sortedParams, { encode: false });
-    const hmac = crypto.createHmac("sha512", process.env.vnp_HashSecret as string);
-    sortedParams.vnp_SecureHash = hmac.update(Buffer.from(signData, "utf-8")).digest("hex");
+    const sortedParams = sortParams(vnp_Params);
+    sortedParams.vnp_SecureHash = createSecureHash(vnp_Params);
 
     await prisma.record.create({
         data: {
             id: orderId,
             userId: req.auth?.userId,
-            vnpayParams: params,
-            totalAmount,
+            vnpayParams: vnp_Params,
+            totalAmount: Number(totalAmount),
             items: {
-                create: JSON.parse(req.body.items)
-                    .map((item: Item & { [amount: string]: number }) => ({
+                create: JSON.parse(items).map(
+                    (item: Item & { amount: number }) => ({
                         item: {
                             connect: { id: item.id }
                         },
                         amount: item.amount
-                    }))
+                    })
+                )
             }
         }
     });
 
-    const paymentUrl = `${process.env.vnp_Url}?${qs.stringify(sortedParams, { encode: false })}`;
-    res.redirect(paymentUrl);
+    res.redirect(`${process.env.vnp_Url}?${qs.stringify(sortedParams, { encode: false })}`);
+});
+
+vnpayRoutes.get("/payment/vnpay-return", async (req: Request, res: Response) => {
+    const vnp_Params = { ...req.query };
+    const { vnp_TxnRef, vnp_ResponseCode } = vnp_Params;
+
+    try {
+        await prisma.$transaction(async prisma => {
+            const record = await prisma.record.findUnique({
+                where: { id: vnp_TxnRef as string },
+                include: { items: true }
+            });
+
+            if (record && record.status === "pending") {
+                const isSuccess = vnp_ResponseCode === "00";
+
+                await prisma.record.update({
+                    where: { id: record.id },
+                    data: { status: isSuccess ? "success" : "failed" }
+                });
+
+                if (isSuccess) {
+                    for (const { itemId, amount } of record.items) {
+                        await prisma.item.update({
+                            where: { id: itemId },
+                            data: {
+                                stock: { decrement: amount }
+                            }
+                        });
+                    }
+
+                    req.session.cart = {};
+                }
+            }
+        });
+    } catch {} finally {
+        res.redirect(`/payment/result?${qs.stringify(vnp_Params)}`);
+    }
 });
 
 vnpayRoutes.get("/payment/result", async (req: Request, res: Response) => {
-    const vnp_Params = { ...req.query };
-    const secureHash = vnp_Params.vnp_SecureHash;
+    const vnp_Params: VnpParams = { ...req.query };
+    const { vnp_SecureHash, vnp_ResponseCode, vnp_TxnRef, vnp_PayDate } = vnp_Params;
+
     delete vnp_Params.vnp_SecureHash;
     delete vnp_Params.vnp_SecureHashType;
 
-    const sorted = sortParams(vnp_Params as Record<string, string>);
-    const signData = qs.stringify(sorted, { encode: false });
-    const hmac = crypto.createHmac("sha512", process.env.vnp_HashSecret as string);
-    const signed = hmac.update(Buffer.from(signData, "utf-8")).digest("hex");
-
-    let code = secureHash === signed ? vnp_Params.vnp_ResponseCode : "97";
+    let code = createSecureHash(vnp_Params) === vnp_SecureHash
+        ? vnp_ResponseCode
+        : "97";
     
     const record = await prisma.record.findUnique({
-        where: { id: vnp_Params.vnp_TxnRef as string }
+        where: { id: vnp_TxnRef }
     });
 
     if (!record) {
         code = "01";
     }
-
-    if (code === "00") {
-        req.session.cart = {};
-    }
     
     res.render("store/pages/payment", {
         code,
         message: RESPONSE_CODE_MESSAGES[code as string] || "Unknown code",
-        payDate: vnp_Params.vnp_PayDate
-            ? new Date((vnp_Params.vnp_PayDate as string).replace(
-                /(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})/,
-                "$1-$2-$3T$4:$5:$6"
-            )).toLocaleString("vi-VN")
-            : undefined,
+        payDate: vnp_PayDate ? formatVnpPayDate(vnp_PayDate) : undefined,
         vnp_Params
     });
 });
 
 vnpayRoutes.get("/payment/vnpay-ipn", async (req: Request, res: Response) => {
     const vnp_Params = { ...req.query };
-    const secureHash = vnp_Params["vnp_SecureHash"];
-    const orderId = vnp_Params["vnp_TxnRef"];
-    const rspCode = vnp_Params["vnp_ResponseCode"];
+    const { vnp_SecureHash, vnp_TxnRef, vnp_Amount } = vnp_Params;
   
-    delete vnp_Params["vnp_SecureHash"];
-    delete vnp_Params["vnp_SecureHashType"];
+    delete vnp_Params.vnp_SecureHash;
+    delete vnp_Params.vnp_SecureHashType;
   
-    const sortedParams = sortParams(vnp_Params as Record<string, string>);
-    const signData = qs.stringify(sortedParams, { encode: false });
-    const hmac = crypto.createHmac("sha512", process.env.vnp_HashSecret as string);
-    const signed = hmac.update(Buffer.from(signData, "utf-8")).digest("hex");
-  
-    if (secureHash !== signed) {
+    if (createSecureHash(vnp_Params as VnpParams) !== vnp_SecureHash) {
         res.status(200).json({ RspCode: "97", Message: "Checksum failed" });
         return;
     }
 
     try {
         const record = await prisma.record.findUnique({
-            where: { id: orderId as string }
+            where: { id: vnp_TxnRef as string }
         });
     
         if (!record) {
@@ -159,7 +197,7 @@ vnpayRoutes.get("/payment/vnpay-ipn", async (req: Request, res: Response) => {
             return;
         }
 
-        if (Number(record.totalAmount) !== Number(vnp_Params.vnp_Amount) / 100) {
+        if (Number(record.totalAmount) !== Number(vnp_Amount) / 100) {
             res.status(200).json({ RspCode: "04", Message: "Amount invalid" });
             return;
         }
@@ -171,11 +209,6 @@ vnpayRoutes.get("/payment/vnpay-ipn", async (req: Request, res: Response) => {
             });
             return;
         }
-
-        await prisma.record.update({
-            where: { id: record.id },
-            data: { status: rspCode === "00" ? "success" : "failed" }
-        });
 
         res.status(200).json({ RspCode: "00", Message: "Success" });
     } catch (error) {

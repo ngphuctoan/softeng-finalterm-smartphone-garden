@@ -28,9 +28,11 @@ block layout-content
                             span.visually-hidden Next
             
             .col-12.col-md
+                - const price = availableItem ? availableItem.price : undefined
+
                 h1.mb-2 #{product.name}
 
-                .d-flex.flex-wrap.gap-2.mb-4
+                .d-flex.flex-wrap.gap-2.mb-3
                     .d-flex.gap-2.me-4
                         strong.me-3 Tags:
 
@@ -41,6 +43,8 @@ block layout-content
                         strong.me-3 Brand:
 
                         span #{product.brand}
+
+                h2.my-3(class=price ? "" : "text-secondary")= price ? `${price.toLocaleString("vi-VN")}đ` : "Not available"
 
                 .d-flex.align-items-center.gap-3
                     span Options
@@ -62,8 +66,8 @@ block layout-content
                                     a(href=`?${params.toString()}` class=(selected ? "active" : "") style=(selected ? "pointer-events: none" : "")).btn.btn-outline-dark #{value}
 
                 .mt-4
-                    if availableItemId !== undefined
-                        form(method="POST" action=`/cart/add-item?id=${availableItemId}`)
+                    if availableItem
+                        form(method="POST" action=`/cart/add-item?id=${availableItem.id}`)
                             button(type="submit").btn.btn-dark.px-3.py-2
                                 iconify-icon(icon="mynaui:cart").me-3
                                 span Add to cart
