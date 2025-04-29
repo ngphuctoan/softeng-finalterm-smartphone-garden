@@ -15,8 +15,8 @@ block layout-content
       tbody#userTableBody
   div#whiteRegion.d-flex
   div.row.align-items-center.d-flex.flex-column-reverse.flex-row-reverse.col-12
-      nav(aria-label="User pagination").p-0 
-        ul.pagination.pagination-sm.justify-content-center.justify-content-sm-end.mb-0#userPagination
+    nav(aria-label="User pagination").p-0 
+      ul.pagination.pagination-sm.justify-content-center.justify-content-sm-end.mb-0#userPagination
 
   //- User Edit Modal
   #userModal.modal.fade(tabindex="-1" aria-hidden="true")
@@ -46,4 +46,19 @@ block layout-content
 block js-imports 
   script.
     const usersData = !{JSON.stringify(users.map(u => ({ id: u.id, name: u.name, email: u.email, roleName: u.roleName })))}; 
+    const icons = document.querySelectorAll('iconify-icon');
+    icons.forEach(icon => {
+      if (icon.closest('a.nav-link') || icon.getAttribute('icon') == 'mynaui:user-circle') return;
+      icon.style.verticalAlign = 'middle';
+      icon.style.fontSize = '1rem';
+      icon.style.lineHeight = '1';
+      icon.style.padding = '0';
+      icon.style.margin = '0';
+      icon.style.display = 'inline-block';
+    });
+    if (usersData.length < 2){
+      const userPagination = document.querySelectorAll('#userPagination');
+      userPagination.forEach(pagination => pagination.classList.add('d-none'));
+    }
+    
   script(src="/protected/dashboard/users.js" defer)

@@ -1,7 +1,7 @@
-import { ItemController, UserController } from "@controllers";
+import { ItemController, UserController, RecordsController } from "@controllers";
 import { Item, Product } from "@interfaces";
 import { checkForRoles } from "@middlewares/roles.middleware";
-import { ItemModel, ProductModel, UserModel } from "@models";
+import { ItemModel, ProductModel, UserModel, RecordsModel } from "@models";
 import { itemSchema, productSchema } from "@utils/schemas";
 import { Request, Response, NextFunction } from "express";
 import { Router } from "express";
@@ -72,6 +72,7 @@ dashboardRoutes.post("/dashboard/products/update-product", async (req: Request, 
 
 dashboardRoutes.get("/dashboard/users", async (req: Request, res: Response) => {
   let users = await UserModel.getAll();
+  RecordsModel.getAllRecords();
   //  Fixed if you want to further revolution the code, add a column in the database with the name "is_backup" and filter in the model
   users = users.filter((user) => user.name != "fallback" && user.email != "fallback@smartphone-store");
   res.render("dashboard/pages/users", {
@@ -84,4 +85,56 @@ dashboardRoutes.get("/dashboard/users", async (req: Request, res: Response) => {
 dashboardRoutes.post("/dashboard/users/:id/update-role",
   UserController.updateRole
 );
+
+function serializeBigInts(obj: any): any {
+  if (typeof obj === "bigint") return obj.toString();
+  if (Array.isArray(obj))      return obj.map(serializeBigInts);
+  if (obj && typeof obj === "object") {
+    return Object.entries(obj).reduce((acc, [k, v]) => {
+      acc[k] = serializeBigInts(v);
+      return acc;
+    }, {} as Record<string, any>);
+  }
+  return obj;
+}
+
+dashboardRoutes.get(
+  "/dashboard/records",
+  async (req: Request, res: Response) => {
+    // 1. Lấy raw
+    const rawRecords = await RecordsModel.getAllRecords();
+
+    // 2. Map và sanitize
+    const records = rawRecords.map((r) => {
+      // đảm bảo createdAt là Date
+      const createdAtDate =
+        r.createdAt instanceof Date
+          ? r.createdAt
+          : new Date(r.createdAt);
+
+      // convert BigInt → string
+      const clean = serializeBigInts({ ...r, createdAt: createdAtDate });
+
+      // thêm ISO string để truyền data-created-at
+      clean.createdAtIso = createdAtDate.toISOString();
+
+      // thêm chuỗi format ready‐to‐display
+      clean.createdAtFormatted = createdAtDate.toLocaleDateString("vi-VN");
+
+      // serialize items thành JSON (chứa toàn string, no BigInt)
+      clean.itemsJson = JSON.stringify(clean.items);
+
+      return clean;
+    });
+
+    // 3. Render chỉ với quân át chủ bài là records đã "sạch"
+    res.render("dashboard/pages/records", {
+      records,
+      activeNav: "/records",
+    });
+  }
+);
+
+dashboardRoutes.get("/dashboard/records/export-csv", RecordsController.exportCSV);
+
 export default dashboardRoutes;

@@ -2,65 +2,83 @@ extends ../layout
 
 block layout-content
     .container-sm.py-5.table-responsive.flex-fill
-        h1.mb-5 Your cart
+        
+        // nếu giỏ rỗng, hiển thị phần này và bỏ qua table
+        if cart.length === 0
+            .d-flex.flex-column.align-items-center.justify-content-center.py-5
+                iconify-icon(icon="mynaui:shopping-cart-tick" style="font-size:4rem; color:#6c757d;")
+                // Engaging message
+                h3.mt-3.text-center.fw-bold Your cart is looking lonely 😢
+                p.text-muted.text-center.mb-4 Find the perfect phone to keep it company!
+                
+                // Primary CTA button
+                a.btn.btn-primary.btn-lg.px-4.py-2.shop-now-btn(href="/#bestSellers")
+                    iconify-icon(icon="mynaui:smartphone-add" style="vertical-align: middle; margin-right: 8px;")
+                    | Shop top phones
+        else
+            h1.mb-5 Your cart
+            table#cartTable.table.text-nowrap
+                - const totalPrice = cart.reduce((totalPrice, item) => totalPrice + item.price * item.amount, 0)
 
-        table#cartTable.table.text-nowrap
-            - const totalPrice = cart.reduce((totalPrice, item) => totalPrice + item.price * item.amount, 0)
+                caption.table-caption.p-3
+                    span(style="line-height: 2.5rem").total-price.text-dark Total price: #{totalPrice.toLocaleString("vi-VN")}đ
 
-            caption.table-caption.p-3
-                span(style="line-height: 2.5rem").total-price.text-dark Total price: #{totalPrice.toLocaleString("vi-VN")}đ
+                    form(method="POST" action="/payment/create")
+                        input(type="hidden" name="items" value=JSON.stringify(cart))
 
-                form(method="POST" action="/payment/create")
-                    input(type="hidden" name="items" value=JSON.stringify(cart))
+                        input(type="hidden" name="totalAmount" value=totalPrice)
 
-                    input(type="hidden" name="totalAmount" value=totalPrice)
+                        button(type="submit" disabled=(cart.length === 0)).btn.btn-dark.float-end
+                            iconify-icon(icon="mynaui:credit-card")
+                            span.ms-3 Proceed to checkout
 
-                    button(type="submit" disabled=(cart.length === 0)).btn.btn-dark.float-end
-                        iconify-icon(icon="mynaui:credit-card")
-                        span.ms-3 Proceed to checkout
+                thead
+                    th
+                    th Product name
+                    th Specs
+                    th Price
+                    th Amount
+                    th
+                
+                tbody.align-middle
+                    if cart.length == 0
+                        tr
+                            td(colspan="6" class="text-center")
+                                iconify-icon(icon="mynaui:funny-square")
+                                a(href="/products/smartphones")  Explore top-selling items before they're gone!
+                    each item in cart
+                        tr(id=item.id)
+                            td
+                                img(
+                                    src=`/public/images/products/${item.productId}/thumb.jpg`
+                                    onerror="this.onerror = null; this.src='/public/images/products/thumb-notfound.jpg'"
+                                    width="80" height="80"
+                                )
 
-            thead
-                th
-                th Product name
-                th Specs
-                th Price
-                th Amount
-                th
-            
-            tbody.align-middle
-                each item in cart
-                    tr(id=item.id)
-                        td
-                            img(
-                                src=`/public/images/products/${item.productId}/thumb.jpg`
-                                onerror="this.onerror = null; this.src='/public/images/products/thumb-notfound.jpg'"
-                                width="80" height="80"
-                            )
+                            td #{item.productName}
 
-                        td #{item.productName}
+                            td
+                                ul.m-0
+                                    each [spec, value] of Object.entries(item.specs)
+                                        li #{spec}: #{value}
 
-                        td
-                            ul.m-0
-                                each [spec, value] of Object.entries(item.specs)
-                                    li #{spec}: #{value}
+                            td(data-price=item.price).price #{item.price.toLocaleString("vi-VN")}đ
 
-                        td(data-price=item.price).price #{item.price.toLocaleString("vi-VN")}đ
+                            td.amount #{item.amount}
 
-                        td.amount #{item.amount}
+                            td
+                                .d-flex.align-items-center.gap-2
+                                    button(type="button" data-bs-item=item).cart-minus.btn.btn-outline-dark.px-1
+                                        iconify-icon(icon="mynaui:minus")
+                                    button(type="button" data-bs-item=item).cart-plus.btn.btn-outline-dark.px-1
+                                        iconify-icon(icon="mynaui:plus")
 
-                        td
-                            .d-flex.align-items-center.gap-2
-                                button(type="button" data-bs-item=item).cart-minus.btn.btn-outline-dark.px-1
-                                    iconify-icon(icon="mynaui:minus")
-                                button(type="button" data-bs-item=item).cart-plus.btn.btn-outline-dark.px-1
-                                    iconify-icon(icon="mynaui:plus")
+                                    form(method="POST" action=`/cart/remove-item?id=${item.id}`)
+                                        button(type="submit").btn.btn-outline-danger
+                                            iconify-icon(icon="mynaui:trash")
 
-                                form(method="POST" action=`/cart/remove-item?id=${item.id}`)
-                                    button(type="submit").btn.btn-outline-danger
-                                        iconify-icon(icon="mynaui:trash")
-
-                                #requestSpinner.spinner-border.spinner-border-sm.ms-4.opacity-0(role="status")
-                                    span.visually-hidden Sending requests...
+                                    #requestSpinner.spinner-border.spinner-border-sm.ms-4.opacity-0(role="status")
+                                        span.visually-hidden Sending requests...
 
     script.
         const table = document.getElementById("cartTable");
