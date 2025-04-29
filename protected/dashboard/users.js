@@ -10,7 +10,6 @@
 
   const allData = usersData;
   let filteredData = [...allData];
-  console.log(allData, filteredData);
 
   //search
   function onSearch(e) {
@@ -40,7 +39,7 @@
                   <div class="d-flex justify-content-center gap-2">
                     <button
                       class="btn btn-sm text-secondary rounded-pill" type="button" data-bs-toggle="modal" data-bs-target="#userModal" data-user='${JSON.stringify(
-                        user
+                        user  
                       )}'>
                       <iconify-icon icon="mynaui:pencil"></iconify-icon>
                     </button>
@@ -232,7 +231,6 @@
     renderPage(currentPage);
     renderPagination();
     userModalEl?.addEventListener("show.bs.modal", onShowEdit);
-    deleteModalEl?.addEventListener("show.bs.modal", onShowDelete);
     const form = document.getElementById("userForm");
     form.addEventListener("submit", async (e) => {
       e.preventDefault();

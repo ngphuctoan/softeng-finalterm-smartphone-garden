@@ -1,0 +1,739 @@
+extends ../layout
+
+block layout-content
+    main.container-fluid.py-4
+        // Page Header with Title and Actions
+        .d-flex.flex-column.gap-1.flex-md-row.justify-content-between.align-items-md-center.mb-4
+            div
+            // Search Box
+            .col-12.border
+                .input-group
+                    span.input-group-text
+                        iconify-icon(icon="mynaui:search")
+                    input#searchInput.form-control.shrink-0(type="search" placeholder="Search orders here " aria-label="Search orders")
+
+        // Search and Filters Row
+        .row.mb-4.justify-content-end.flex-grow-1
+            // Quick Filter Buttons and Action Buttons
+            .col-sm-12.col-md-10.col-xl-8
+                .d-flex.flex-wrap.gap-2.justify-content-end.justify-content-md-end.flex-grow-1
+                    .d-flex.gap-2.order-1.order-md-2
+                        button.btn.btn-outline-secondary.btn-sm.text-hide(data-bs-toggle="collapse" data-bs-target="#advancedFilters" aria-expanded="false" aria-controls="advancedFilters")
+                            iconify-icon(icon="mynaui:filter")
+                            span.d-none.d-md-inline Advanced Filters
+
+                        button#btnExport.btn.btn-outline-secondary.d-flex.align-items-center.btn-sm(onclick="exportCSV()")
+                            iconify-icon(icon="mynaui:download")
+                            span.d-none.d-md-inline.p-md-1 Export
+                        
+                    .d-none.d-md-flex.flex-wrap.gap-2.order-2.order-md-1
+                        button.btn.btn-outline-secondary.btn-sm.filter-btn(data-filter="all") All
+                        button.btn.btn-outline-success.btn-sm.filter-btn(data-filter="success") Success
+                        button.btn.btn-outline-warning.btn-sm.filter-btn(data-filter="pending") Pending
+                        button.btn.btn-outline-danger.btn-sm.filter-btn(data-filter="failed") Failed
+        // Advanced Filters (Collapsible)
+        #advancedFilters.collapse.mb-4
+            .card.shadow-sm
+                .card-header.bg-white.py-3.d-flex.justify-content-between.align-items-center
+                    h5.card-title.mb-0 Advanced Filters
+                    button.btn.btn-sm.btn-link.text-decoration-none(data-bs-toggle="collapse" data-bs-target="#advancedFilters")
+                        iconify-icon.text-secondary(icon="mynaui:x")
+                .card-body
+                    .row.g-3
+                        .col-md-4
+                            label.form-label.fw-medium(for="dateRange") Date Range
+                            select#dateRange.form-select
+                                option(value="today" selected) Today
+                                option(value="yesterday") Yesterday
+                                option(value="last-7") Last 7 days
+                                option(value="last-30" ) Last 30 days
+                                option(value="this-month") This month
+                                option(value="last-month") Last month
+                                option(value="custom") Custom range
+
+                        .col-md-4
+                            label.form-label.fw-medium(for="orderStatus") Order Status
+                            select#orderStatus.form-select
+                                option(value="all" selected) All Statuses
+                                option(value="success") Success
+                                option(value="pending") Pending
+                                option(value="failed") Failed
+
+                        .col-md-4
+                            label.form-label.fw-medium(for="amountRange") Amount Range
+                            .input-group
+                                input#minAmount.form-control(type="number" placeholder="Min" min="0")
+                                span.input-group-text to
+                                input#maxAmount.form-control(type="number" placeholder="Max" min="0")
+
+                    .row.mt-3
+                        .col-12.text-end
+                            button#btnFilter.btn.btn-outline-primary.me-2(type="button") Apply Filters
+                            button#btnReset.btn.btn-outline-secondary(type="button") Reset
+
+        // Orders Table
+        .card.shadow-sm
+            //sort
+            .card-header.bg-white.py-3
+                .d-flex.justify-content-between.align-items-center
+                    h5.card-title.mb-0
+                        | Orders 
+                        span.badge.bg-secondary.ms-2 #{records.length}
+
+                    .dropdown
+                        button.btn.btn-sm.btn-outline-secondary.dropdown-toggle(type="button" data-bs-toggle="dropdown" aria-expanded="false")
+                            iconify-icon.d-none.d-md-inline-block(icon="mynaui:sort")
+                            span.px-1 Sort
+
+                        ul.dropdown-menu.dropdown-menu-end.shadow-sm
+                            li
+                                a.dropdown-item(data-sort="date-desc") Newest first
+                            li
+                                a.dropdown-item(data-sort="date-asc") Oldest first
+                            li
+                                a.dropdown-item(data-sort="amount-desc") Amount (high to low)
+                            li
+                                a.dropdown-item(data-sort="amount-asc") Amount (low to high)
+
+            .card-body.p-0
+                .table-responsive.text-center
+                    table.table.table-hover.align-middle.mb-0
+                        thead.table-light
+                            tr
+                                th.ps-3 Order ID
+                                th(col-span="2") Customer
+                                th.d-none.d-md-table-cell Date
+                                th.d-none.d-md-table-cell Amount
+                                th.d-none.d-md-table-cell Status
+                                th
+
+                        tbody#orderTableBody
+                            each record in records
+                                tr.order-row(data-status=record.status data-date=record.createdAtIso data-amount=record.totalAmount)
+                                    td.ps-3.fw-medium
+                                        span.text-decoration-none= record.id 
+                                    td
+                                        .d-flex.align-items-center
+                                            .avatar.bg-light.rounded-circle.me-2.d-none.d-md-flex(style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;")
+                                                span.fw-bold.text-secondary= record.user.name.charAt(0).toUpperCase()
+                                            div
+                                                div= record.user.name
+                                                    small.text-muted.d-block.d-md-none= record.createdAtFormatted
+
+                                    td.d-none.d-md-table-cell= record.createdAtFormatted
+
+                                    td.d-none.d-md-table-cell.fw-medium= Number(record.totalAmount).toLocaleString("vi-VN") + "đ"
+
+                                    td.d-none.d-md-table-cell
+                                        if record.status === 'success'
+                                            span.badge.bg-success-subtle.text-success.px-3.py-2.rounded-pill Success
+                                        else if record.status === 'pending'
+                                            span.badge.bg-warning-subtle.text-warning.px-3.py-2.rounded-pill Pending
+                                        else
+                                            span.badge.bg-danger-subtle.text-danger.px-3.py-2.rounded-pill Failed
+
+                                    td.p-0
+                                        button.btn.text-primary(
+                                            type="button"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#detailsModal"
+                                            data-id=record.id
+                                            data-created-at=record.createdAtIso
+                                            data-total-amount=record.totalAmount
+                                            data-status=record.status
+                                            data-user-name=record.user.name
+                                            data-user-email=record.user.email
+                                            data-items=record.itemsJson
+                                            )
+                                            iconify-icon(icon="mynaui:info-circle")
+
+            // Pagination
+            .card-footer.bg-white.py-3
+                .row.align-items-center
+                    .col-12.col-md-6.text-center.text-md-start.mb-3.mb-md-0
+                        select#pageSizeSelect.form-select.form-select-sm.d-inline-block.w-auto.me-2
+                            option(value="5") 5 per page
+                            option(value="10" selected) 10 per page
+                            option(value="25") 25 per page
+                            option(value="50") 50 per page
+
+                        span.text-muted.small#paginationInfo Showing 
+                            span.fw-medium 1-10
+                            |  of 
+                            span.fw-medium #{records.length}
+                            |  orders
+                    
+                    .col-12.col-md-6
+                        nav(aria-label="Order pagination")
+                            ul#pagination.pagination.pagination-sm.justify-content-center.justify-content-md-end.mb-0
+                                // Pagination will be generated by JavaScript
+
+        // Details Modal        
+        #detailsModal.modal.fade(tabindex="-1" aria-hidden="true")
+            .modal-dialog
+                .modal-content(style="border-radius: 3px !important;")
+                    .modal-header.d-flex.justify-content-between.align-items-center
+                        h5.modal-title#detailsModal Record Details
+                            iconify-icon(icon="mynaui:document-text").me-2
+                                | Order #
+                            span#modalOrderId
+                        button.btn(type="button" data-bs-dismiss="modal" style="border-radius: 2px !important;")
+                            iconify-icon(icon="mynaui:x")
+                    .modal-body 
+                        // Order Summary Section
+                        .row
+                            // Order Details
+                            .col-md-6.mb-4.mb-md-0
+                            h6.text-uppercase.text-muted.mb-0
+                                iconify-icon(icon="mynaui:info-circle").me-2
+                                | Order Information
+                            
+                            .d-flex.flex-column.gap-2
+                                .d-flex.justify-content-between.align-items-center
+                                    span.text-muted.px-1 Order Date: 
+                                    span.fw-medium#modalOrderDate
+                                
+                                .d-flex.justify-content-between.align-items-center
+                                    span.text-muted.px-1 Total Amount:
+                                    span.fw-medium#modalOrderAmount
+                                
+                                .d-flex.justify-content-between.align-items-center
+                                    span.text-muted.px-1 Status:
+                                    span#modalOrderStatus
+                            
+                            // Customer Details
+                            .col-md-6
+                            h6.text-uppercase.text-muted.mb-3.mt-2
+                                iconify-icon(icon="mynaui:user-circle").me-2
+                                | Customer Information
+                            
+                            .d-flex.flex-column.gap-2
+                                .d-flex.justify-content-between.align-items-center
+                                    span.text-muted.px-1 Name:
+                                    span.fw-medium#modalCustomerName
+                                
+                                .d-flex.justify-content-between.align-items-center
+                                    span.text-muted.px-1 Email:
+                                    span#modalCustomerEmail
+                        
+                        // Order Items Section
+                        .p-4
+                        h6.text-uppercase.text-muted.mb-3
+                            iconify-icon(icon="mynaui:cart").me-2
+                            | Order Items
+                        
+                        .table-responsive.mt-3
+                            table.table.table-sm.table-hover.align-middle
+                                thead.table-light
+                                        tr
+                                        th Product
+                                        th Quantity
+                                        th Price
+                                        th Subtotal
+                                
+                                tbody#modalOrderItems
+                                // Items will be inserted here via JavaScript
+                        
+                        .d-flex.justify-content-between.align-items-center.mt-4.pt-3.border-top
+                            span.text-muted.px-1 Total Items:
+                            span.fw-medium#modalTotalItems
+                        
+                        .d-flex.justify-content-between.align-items-center.mt-2.mb-4
+                            span.fw-medium.px-1 Total Amount:
+                            span.fw-bold.fs-5#modalTotalAmount
+
+block js-imports
+    script.
+        function exportCSV() {
+                fetch('/dashboard/records/export-csv')
+                    .then(response => response.blob())
+                    .then(blob => {
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = 'orders.csv';
+                        document.body.appendChild(a);
+                        a.click();
+                        a.remove();
+                        window.URL.revokeObjectURL(url);
+                    })
+                    .catch(error => console.error('Error exporting CSV:', error));
+            }
+        document.addEventListener('DOMContentLoaded', function() {
+            // Pagination variables
+            let currentPage = 1;
+            let pageSize = 10;
+            let filteredRows = [];
+            let originalRows = [];
+
+            // Format currency in Vietnamese format
+            function formatVND(value) {
+                return Number(value).toLocaleString('vi-VN') + 'đ';
+            }
+            
+            // Initialize pagination
+            function initPagination() {
+                const allRows = document.querySelectorAll('.order-row');
+                originalRows = Array.from(allRows); 
+                filteredRows = Array.from(originalRows); 
+                
+                const pageSizeSelect = document.getElementById('pageSizeSelect');
+                if (pageSizeSelect) {
+                    pageSize = parseInt(pageSizeSelect.value);
+                    pageSizeSelect.addEventListener('change', function() {
+                        pageSize = parseInt(this.value);
+                        currentPage = 1;
+                        applyPagination();
+                    });
+                }
+                
+                applyPagination();
+            }
+                        
+            // Apply pagination to the table
+            function applyPagination() {
+                const tbody = document.getElementById('orderTableBody');
+                if (!tbody) return;
+
+                // Xóa toàn bộ nội dung hiện tại của tbody
+                tbody.innerHTML = '';
+
+                // Tính toán các hàng cần hiển thị cho trang hiện tại
+                const startIndex = (currentPage - 1) * pageSize;
+                const endIndex = Math.min(startIndex + pageSize, filteredRows.length);
+
+                // Thêm các hàng từ filteredRows vào tbody
+                for (let i = startIndex; i < endIndex; i++) {
+                    if (filteredRows[i]) {
+                        tbody.appendChild(filteredRows[i]);
+                    }
+                }
+
+                // Cập nhật thông tin phân trang và điều khiển phân trang
+                updatePaginationInfo();
+                generatePaginationControls();
+            }
+            
+            // Update the pagination info text
+            function updatePaginationInfo() {
+                const paginationInfo = document.getElementById('paginationInfo');
+                if (paginationInfo) {
+                    const startItem = filteredRows.length > 0 ? (currentPage - 1) * pageSize + 1 : 0;
+                    const endItem = Math.min(currentPage * pageSize, filteredRows.length);
+                    
+                    paginationInfo.innerHTML = `Showing <span class="fw-medium">${startItem}-${endItem}</span> of <span class="fw-medium">${filteredRows.length}</span> orders`;
+                }
+            }
+            
+            // Generate pagination controls
+            function generatePaginationControls() {
+                const paginationElement = document.getElementById('pagination');
+                if (!paginationElement) return;
+                
+                // Clear existing pagination
+                paginationElement.innerHTML = '';
+                
+                // Calculate total pages
+                const totalPages = Math.ceil(filteredRows.length / pageSize);
+                if (totalPages === 0) return;
+                
+                // Previous button
+                const prevLi = document.createElement('li');
+                prevLi.className = `page-item ${currentPage === 1 ? 'disabled' : ''}`;
+                
+                const prevLink = document.createElement('a');
+                prevLink.className = 'page-link';
+                prevLink.href = '#';
+                prevLink.setAttribute('aria-label', 'Previous');
+                prevLink.innerHTML = '<span aria-hidden="true"><iconify-icon icon="mynaui:chevron-left"></iconify-icon></span>';
+                
+                if (currentPage > 1) {
+                    prevLink.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        currentPage--;
+                        applyPagination();
+                    });
+                }
+                
+                prevLi.appendChild(prevLink);
+                paginationElement.appendChild(prevLi);
+                
+                // Page numbers
+                const maxPagesToShow = 5;
+                let startPage = Math.max(1, currentPage - Math.floor(maxPagesToShow / 2));
+                let endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
+                
+                // Adjust if we're near the end
+                if (endPage - startPage + 1 < maxPagesToShow) {
+                    startPage = Math.max(1, endPage - maxPagesToShow + 1);
+                }
+                
+                // First page (if not in range)
+                if (startPage > 1) {
+                    const firstLi = document.createElement('li');
+                    firstLi.className = 'page-item';
+                    
+                    const firstLink = document.createElement('a');
+                    firstLink.className = 'page-link';
+                    firstLink.href = '#';
+                    firstLink.textContent = '1';
+                    
+                    firstLink.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        currentPage = 1;
+                        applyPagination();
+                    });
+                    
+                    firstLi.appendChild(firstLink);
+                    paginationElement.appendChild(firstLi);
+                    
+                    // Ellipsis if needed
+                    if (startPage > 2) {
+                        const ellipsisLi = document.createElement('li');
+                        ellipsisLi.className = 'page-item disabled';
+                        
+                        const ellipsisSpan = document.createElement('span');
+                        ellipsisSpan.className = 'page-link';
+                        ellipsisSpan.textContent = '...';
+                        
+                        ellipsisLi.appendChild(ellipsisSpan);
+                        paginationElement.appendChild(ellipsisLi);
+                    }
+                }
+                
+                // Page numbers
+                for (let i = startPage; i <= endPage; i++) {
+                    const pageLi = document.createElement('li');
+                    pageLi.className = `page-item ${i === currentPage ? 'active' : ''}`;
+                    
+                    const pageLink = document.createElement('a');
+                    pageLink.className = 'page-link';
+                    pageLink.href = '#';
+                    pageLink.textContent = i;
+                    
+                    if (i !== currentPage) {
+                        pageLink.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            currentPage = i;
+                            applyPagination();
+                        });
+                    }
+                    
+                    pageLi.appendChild(pageLink);
+                    paginationElement.appendChild(pageLi);
+                }
+                
+                // Ellipsis and last page if needed
+                if (endPage < totalPages) {
+                    if (endPage < totalPages - 1) {
+                        const ellipsisLi = document.createElement('li');
+                        ellipsisLi.className = 'page-item disabled';
+                        
+                        const ellipsisSpan = document.createElement('span');
+                        ellipsisSpan.className = 'page-link';
+                        ellipsisSpan.textContent = '...';
+                        
+                        ellipsisLi.appendChild(ellipsisSpan);
+                        paginationElement.appendChild(ellipsisLi);
+                    }
+                    
+                    const lastLi = document.createElement('li');
+                    lastLi.className = 'page-item';
+                    
+                    const lastLink = document.createElement('a');
+                    lastLink.className = 'page-link';
+                    lastLink.href = '#';
+                    lastLink.textContent = totalPages;
+                    
+                    lastLink.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        currentPage = totalPages;
+                        applyPagination();
+                    });
+                    
+                    lastLi.appendChild(lastLink);
+                    paginationElement.appendChild(lastLi);
+                }
+                
+                // Next button
+                const nextLi = document.createElement('li');
+                nextLi.className = `page-item ${currentPage === totalPages || totalPages === 0 ? 'disabled' : ''}`;
+                
+                const nextLink = document.createElement('a');
+                nextLink.className = 'page-link';
+                nextLink.href = '#';
+                nextLink.setAttribute('aria-label', 'Next');
+                nextLink.innerHTML = '<span aria-hidden="true"><iconify-icon icon="mynaui:chevron-right"></iconify-icon></span>';
+                
+                if (currentPage < totalPages) {
+                    nextLink.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        currentPage++;
+                        applyPagination();
+                    });
+                }
+                
+                nextLi.appendChild(nextLink);
+                paginationElement.appendChild(nextLi);
+                
+                // Style the iconify icons
+                const icons = document.querySelectorAll('#pagination iconify-icon');
+                icons.forEach(icon => {
+                    icon.style.verticalAlign = 'middle';
+                    icon.style.fontSize = '1rem';
+                    icon.style.lineHeight = '1';
+                    icon.style.padding = '0';
+                    icon.style.margin = '0';
+                    icon.style.display = 'inline-block';
+                });
+            }
+            
+            // Initialize filter buttons
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            filterButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const filter = this.getAttribute('data-filter');
+                    filterOrders(filter);
+
+                    // Update active state
+                    filterButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+
+            // Reset button functionality
+            const btnReset = document.getElementById('btnReset');
+            if (btnReset) {
+                btnReset.addEventListener('click', () => {
+                    document.getElementById('dateRange').value = 'today';
+                    document.getElementById('orderStatus').value = 'all';
+                    document.getElementById('minAmount').value = '';
+                    document.getElementById('maxAmount').value = '';
+
+                    // Reset filters and pagination
+                    resetFilters();
+
+                    const bsCollapse = new bootstrap.Collapse(document.getElementById('advancedFilters'));
+                    bsCollapse.hide();
+                });
+            }
+
+            // Apply filters button
+            const btnFilter = document.getElementById('btnFilter');
+            if (btnFilter) {
+                btnFilter.addEventListener('click', applyAdvancedFilters);
+            }
+
+            // Modal functionality
+            const detailsModal = document.getElementById('detailsModal');
+            if (detailsModal) {
+                detailsModal.addEventListener('show.bs.modal', function(event) {
+                    const btn = event.relatedTarget;
+
+                    // Read data attributes
+                    const id = btn.getAttribute('data-id');
+                    const createdAt = new Date(btn.getAttribute('data-created-at'));
+                    const totalAmount = btn.getAttribute('data-total-amount');
+                    const status = btn.getAttribute('data-status');
+                    const userName = btn.getAttribute('data-user-name');
+                    const userEmail = btn.getAttribute('data-user-email');
+                    const items = JSON.parse(btn.getAttribute('data-items'));
+
+                    // Set modal header content
+                    detailsModal.querySelector('#modalOrderId').textContent = id;
+                    detailsModal.querySelector('#modalOrderDate').textContent = createdAt.toLocaleDateString();
+                    detailsModal.querySelector('#modalOrderAmount').textContent = formatVND(totalAmount);
+                    detailsModal.querySelector('#modalOrderStatus').textContent = status.charAt(0).toUpperCase() + status.slice(1);
+
+                    // Set customer information
+                    detailsModal.querySelector('#modalCustomerName').textContent = userName;
+                    detailsModal.querySelector('#modalCustomerEmail').textContent = userEmail;
+
+                    // Populate items table
+                    const tbody = detailsModal.querySelector('#modalOrderItems');
+                    tbody.innerHTML = ''; // Clear previous content
+                    let totalItemsCount = 0;
+                    
+                    items.forEach(({ amount, item }) => {
+                        const { price, product } = item;
+                        const subtotal = amount * price;
+                        totalItemsCount += amount;
+
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td class="ps-0">${product.name}</td>
+                            <td class="text-center">${amount}</td>
+                            <td class="text-end">${formatVND(price)}</td>
+                            <td class="text-end pe-0">${formatVND(subtotal)}</td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+
+                    // Set totals
+                    detailsModal.querySelector('#modalTotalItems').textContent = totalItemsCount;
+                    detailsModal.querySelector('#modalTotalAmount').textContent = formatVND(totalAmount);
+                });
+            }
+
+            // Search functionality
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.addEventListener('input', function() {
+                    const searchTerm = this.value.toLowerCase().trim();
+                    searchOrders(searchTerm);
+                });
+            }
+
+            // Function to filter orders by status
+            function filterOrders(status) {
+                filteredRows = originalRows.filter(row => {
+                    return status === 'all' || row.getAttribute('data-status') === status;
+                });
+                currentPage = 1;
+                applyPagination();
+                const countBadge = document.querySelector('.card-title .badge');
+                if (countBadge) {
+                    countBadge.textContent = filteredRows.length;
+                }
+            }
+
+            // Function to search orders
+            function searchOrders(term) {
+                filteredRows = originalRows.filter(row => {
+                    const text = row.textContent.toLowerCase();
+                    return text.includes(term);
+                });
+                currentPage = 1;
+                applyPagination();
+                const countBadge = document.querySelector('.card-title .badge');
+                if (countBadge) {
+                    countBadge.textContent = filteredRows.length;
+                }
+            }
+
+            // Function to apply advanced filters
+            function applyAdvancedFilters() {
+                const dateRange = document.getElementById('dateRange').value;
+                const status = document.getElementById('orderStatus').value;
+                const minAmount = parseFloat(document.getElementById('minAmount').value) || 0;
+                const maxAmount = parseFloat(document.getElementById('maxAmount').value) || Infinity;
+
+                const now = new Date();
+                let startDate = new Date(0);
+                let endDate = now;
+
+                switch (dateRange) {
+                    case 'today':
+                        startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                        break;
+                    case 'yesterday':
+                        startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+                        endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                        break;
+                    case 'last-7':
+                        startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 6);
+                        break;
+                    case 'last-30':
+                        startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 29);
+                        break;
+                    case 'this-month':
+                        startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+                        break;
+                    case 'last-month':
+                        startDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+                        endDate = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59);
+                        break;
+                }
+
+                filteredRows = originalRows.filter(row => {
+                    const rowDate = new Date(row.dataset.date);
+                    const amount = parseFloat(row.dataset.amount);
+                    const rowStatus = row.getAttribute('data-status');
+
+                    const matchesStatus = (status === 'all') || (rowStatus === status);
+                    const matchesDate = (rowDate >= startDate && rowDate <= endDate);
+                    const matchesAmount = (amount >= minAmount && amount <= maxAmount);
+
+                    return matchesStatus && matchesDate && matchesAmount;
+                });
+                
+                currentPage = 1;
+                applyPagination();
+                
+                const countBadge = document.querySelector('.card-title .badge');
+                if (countBadge) {
+                    countBadge.textContent = filteredRows.length;
+                }
+
+                const bsCollapse = new bootstrap.Collapse(document.getElementById('advancedFilters'));
+                bsCollapse.hide();
+            }
+
+            // Function to reset all filters
+            function resetFilters() {
+                filteredRows = Array.from(originalRows);
+                currentPage = 1;
+                applyPagination();
+                const countBadge = document.querySelector('.card-title .badge');
+                if (countBadge) {
+                    countBadge.textContent = filteredRows.length;
+                }
+            }
+            // Sort orders function
+            function sortOrders(sortType) {
+                filteredRows.sort((a, b) => {
+                    if (sortType.startsWith('date')) {
+                        const da = new Date(a.dataset.date);
+                        const db = new Date(b.dataset.date);
+                        return sortType === 'date-desc' ? db - da : da - db;
+                        } else {
+                        const aa = parseFloat(a.dataset.amount), ab = parseFloat(b.dataset.amount);
+                        return sortType === 'amount-desc' ? ab - aa : aa - ab;
+                    }
+                });
+                
+                // Clear and re-append sorted rows to maintain DOM order
+                const tbody = document.getElementById('orderTableBody');
+                if (tbody) {
+                    // Store current page
+                    const oldPage = currentPage;
+                    
+                    // Reset to first page and apply pagination
+                    currentPage = 1;
+                    applyPagination();
+                }
+            }
+
+            // Attach event listeners to sort dropdown items
+            document.querySelectorAll('.dropdown-item[data-sort]').forEach(link => {
+                link.addEventListener('click', e => {
+                    e.preventDefault();
+                    // Remove previous highlight
+                    document.querySelectorAll('.dropdown-item.active').forEach(a => a.classList.remove('active'));
+                    link.classList.add('active');
+                    
+                    const sortType = link.getAttribute('data-sort');
+                    sortOrders(sortType);
+                });
+            });
+
+            // Style iconify icons
+            const icons = document.querySelectorAll('iconify-icon');
+            icons.forEach(icon => {
+                if (icon.closest('a.nav-link') || 
+                   icon.getAttribute('icon') == 'mynaui:user-circle' || 
+                   icon.getAttribute('icon') == "mynaui:x" || 
+                   icon.getAttribute('icon') == "mynaui:cart" || 
+                   icon.getAttribute('icon') == "mynaui:info-circle") return;
+                
+                icon.style.verticalAlign = 'middle';
+                icon.style.fontSize = '1rem';
+                icon.style.lineHeight = '1';
+                icon.style.padding = '0';
+                icon.style.margin = '0';
+                icon.style.display = 'inline-block';
+            });
+            
+            // Initialize pagination on page load
+            initPagination();
+        });
