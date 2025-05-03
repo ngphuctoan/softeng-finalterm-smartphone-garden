@@ -5,19 +5,11 @@ import { AuthController } from "@controllers";
 const authRoutes = Router();
 
 authRoutes.route("/login")
-    .get((req: Request, res: Response) => {
-        if (req.cookies.authToken) {
-            res.redirect("/");
-        } else {
-            res.render("auth/pages/login");
-        }
-    })
+    .get(AuthController.getLoginPage)
     .post(AuthController.login);
 
 authRoutes.route("/register")
-    .get((req: Request, res: Response) =>
-        res.render("auth/pages/register")
-    )
+    .get(AuthController.getRegisterPage)
     .post(
         AuthController.register,
         AuthController.logout,

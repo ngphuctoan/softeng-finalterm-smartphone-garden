@@ -3,3 +3,6 @@ export * as UserController from "./user.controller.js";
 export * as AuthController from "./auth.controller.js";
 export * as RecordsController from "./records.controller.js";
 export * as StoreController from "./store.controller.js";
+export * as DashboardController from "./dashboard.controller.js";
+export * as ProfileController from "./profile.controller.js";
+export * as VnpayController from "./vnpay.controller.js";

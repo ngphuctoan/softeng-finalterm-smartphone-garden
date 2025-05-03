@@ -104,3 +104,15 @@ export function checkLogin(req: Request, res: Response, next: NextFunction) {
 
     next();
 }
+
+export function getLoginPage(req: Request, res: Response) {
+    if (req.cookies.authToken) {
+        res.redirect("/");
+    } else {
+        res.render("auth/pages/login");
+    }
+}
+
+export function getRegisterPage(req: Request, res: Response) {
+    res.render("auth/pages/register");
+}
