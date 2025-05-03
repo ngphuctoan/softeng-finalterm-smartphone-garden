@@ -67,12 +67,25 @@ export async function getCategoryPage(req: Request, res: Response) {
         }
     };
 
-    const products = await ProductModel.getAll();
+    const { brand, priceRange } = req.query;
+    let [gte, lte] = [0, 100000000];
+
+    if (typeof priceRange === "string" && priceRange !== "") {
+        [gte, lte] = priceRange.split("-").map(Number);
+    }
+
+    const products = await ProductModel.getFiltered({
+        brand: brand || undefined,
+        items: { some: { price: { gte, lte } } }
+    });
     
     res.render("store/pages/category", {
         category,
         products,
         categoryPhotos,
+        filteredBrand: brand,
+        priceRange: [gte, lte],
+        brands: await ProductModel.getAllBrands(),
         activeNav: `/products/${category}`,
         userName: res.locals.userName,
         showDashboard: ["administrator", "manager"].includes(res.locals.roleName),

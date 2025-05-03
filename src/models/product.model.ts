@@ -31,6 +31,16 @@ export async function getAll(): Promise<Product[]> {
     return products.map(productToJson);
 }
 
+
+export async function getFiltered(filters: any): Promise<Product[]> {
+    const products = await prisma.product.findMany({
+        where: filters,
+        select: productSelect
+    });
+
+    return products.map(productToJson);
+}
+
 export async function getById(id: string): Promise<Product> {
     const product = await prisma.product.findUnique({
         where: { id },
@@ -42,6 +52,13 @@ export async function getById(id: string): Promise<Product> {
     }
 
     return productToJson(product);
+}
+
+export async function getAllBrands(): Promise<string[]> {
+    return (await prisma.product.findMany({
+        select: { brand: true },
+        distinct: ["brand"]
+    })).map(result => result.brand);
 }
 
 export async function add({ id, name, brand, os, category, tags, description, baseSpecs }: Omit<Product, "items" | "createdAt">): Promise<Product> {
