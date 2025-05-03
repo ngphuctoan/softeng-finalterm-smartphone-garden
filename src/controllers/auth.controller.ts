@@ -95,3 +95,12 @@ export async function logout(req: Request, res: Response, next: NextFunction) {
     res.clearCookie("authToken");
     next();
 }
+
+export function checkLogin(req: Request, res: Response, next: NextFunction) {
+    if (!req.cookies.authToken) {
+        res.redirect("/login");
+        return;
+    }
+
+    next();
+}
