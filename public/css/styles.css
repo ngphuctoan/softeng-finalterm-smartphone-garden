@@ -1,4 +1,4 @@
-@import "https://fonts.googleapis.com/css2?family=Poppins";
+@import "https://fonts.googleapis.com/css2?family=Montserrat";
 @import "https://fonts.googleapis.com/css2?family=Comfortaa";
 
 *:not(.badge):not(.spinner-border):not([type=radio]) {
@@ -6,7 +6,7 @@
 }
 
 body {
-    font-family: Poppins, sans-serif;
+    font-family: "Montserrat", sans-serif;
 }
 
 iconify-icon {

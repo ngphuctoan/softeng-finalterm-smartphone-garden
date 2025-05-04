@@ -30,9 +30,9 @@ storeRoutes.post("/cart/subtract-item", StoreController.substractItemFromCart);
 
 storeRoutes.post("/cart/remove-item", StoreController.removeItemFromCart);
 
-storeRoutes.get("/contact",
+storeRoutes.get("/about",
     UserController.getUserNameAndRoleName,
-    StoreController.getContactPage
+    StoreController.getAboutPage
 );
 
 storeRoutes.get("/404",

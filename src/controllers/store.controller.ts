@@ -204,9 +204,9 @@ export async function removeItemFromCart(req: Request, res: Response) {
     res.redirect("/cart");
 }
 
-export function getContactPage(req: Request, res: Response) {
-    res.render("store/pages/contact", {
-        activeNav: "/contact",
+export function getAboutPage(req: Request, res: Response) {
+    res.render("store/pages/about", {
+        activeNav: "/about",
         userName: res.locals.userName,
         showDashboard: ["administrator", "manager"].includes(res.locals.roleName),
         cartCount: getCartItemsCount(req.session.cart)
