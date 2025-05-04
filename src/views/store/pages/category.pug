@@ -18,6 +18,10 @@ block layout-styles
             transform: scale(1.1);
         }
 
+        .noUi-connect {
+            background: var(--bs-black);
+        }
+
 block layout-content
     - const photo = categoryPhotos[category]
 
@@ -31,36 +35,66 @@ block layout-content
         ).w-100.h-100.position-absolute.top-0.start-0.object-fit-cover
 
     .container-sm.py-5
-        .col
-            .row.row-cols-1.row-cols-md-2.row-cols-xl-4.g-4
-                each product in products
-                    include ../partials/product-card
-                        - var product = product
-        //- .row.g-4
-        //-     .col-12.col-md-6.col-lg-4.col-xl-3
-        //-         .d-flex.align-items-center.gap-3.mb-4
-        //-             span Filters
-        //-             hr.w-100.m-0
+        .row.g-4
+            form#filterForm.col-12.col-md-6.col-lg-4.col-xl-3
+                .d-flex.align-items-center.gap-3.mb-4
+                    span Filters
+                    hr.w-100.m-0
 
-        //-         #filtersAccordion.accordion
-        //-             .accordion-item
-        //-                 .accordion-header
-        //-                     button(type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true").accordion-button Accordion Item #1
+                div.mb-3
+                    h6.fw-bold.mb-3 Brand
 
-        //-                     #collapseOne(data-bs-parent="#filtersAccordion").accordion-collapse.collapse.show
-        //-                         .accordion-body
-        //-                             span Test
+                    select(name="brand").form-select
+                        option(value="" checked=!filteredBrand) All brands
 
-        //-             .accordion-item
-        //-                 .accordion-header
-        //-                     button(type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false").accordion-button.collapsed Accordion Item #1
+                        each brand in brands
+                            option(value=brand checked=(filteredBrand === brand))= brand
 
-        //-                     #collapseTwo(data-bs-parent="#filtersAccordion").accordion-collapse.collapse
-        //-                         .accordion-body
-        //-                             span Test
+                div.mb-3
+                    h6.fw-bold.mb-3 Brand
 
-        //-     .col
-        //-         .row.row-cols-lg-2.row-cols-xl-3.g-4
-        //-             each product in products
-        //-                 include ../partials/product-card
-        //-                     - var product = product
+                    #priceFilter.mb-3
+
+                    input(type="hidden" name="priceRange" value=priceRange.join("-"))
+
+                    .d-flex.justify-content-between
+                        - const priceTypes = ["min", "max"]
+
+                        each [price, type] of priceRange.map((price, i) => [price, priceTypes[i]])
+                            span(id=type)= price.toLocaleString("vi-VN") + "đ"
+
+                .d-flex.gap-2
+                    button(type="submit").btn.btn-dark Submit
+                    button(type="reset").btn.btn-outline-dark Reset
+
+            .col
+                .row.row-cols-lg-2.row-cols-xl-3.g-4
+                    each product in products
+                        include ../partials/product-card
+                            - var product = product
+
+    script.
+        const filterForm = document.getElementById("filterForm");
+        const priceFilter = document.getElementById("priceFilter");
+        const priceRange = document.querySelector("[name=priceRange]");
+
+        filterForm.onreset = () => {
+            priceRange.value = "";
+            filterForm.submit();
+        }
+
+        noUiSlider.create(priceFilter, {
+            start: [#{priceRange}],
+            connect: true,
+            range: { min: 0, max: 100000000 },
+            step: 100000
+        });
+
+        priceFilter.noUiSlider.on("update", (values) => {
+            for (const [i, type] of [[0, "min"], [1, "max"]]) {
+                document.getElementById(type).textContent =
+                    Number(values[i]).toLocaleString("vi-VN") + "đ";
+            }
+
+            priceRange.value = values.join("-");
+        });

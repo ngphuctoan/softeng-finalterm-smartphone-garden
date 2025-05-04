@@ -95,3 +95,24 @@ export async function logout(req: Request, res: Response, next: NextFunction) {
     res.clearCookie("authToken");
     next();
 }
+
+export function checkLogin(req: Request, res: Response, next: NextFunction) {
+    if (!req.cookies.authToken) {
+        res.redirect("/login");
+        return;
+    }
+
+    next();
+}
+
+export function getLoginPage(req: Request, res: Response) {
+    if (req.cookies.authToken) {
+        res.redirect("/");
+    } else {
+        res.render("auth/pages/login");
+    }
+}
+
+export function getRegisterPage(req: Request, res: Response) {
+    res.render("auth/pages/register");
+}
