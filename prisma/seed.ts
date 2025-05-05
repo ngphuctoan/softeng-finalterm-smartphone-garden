@@ -1,12 +1,11 @@
 import bcrypt from "bcrypt";
 import { User } from "@interfaces";
 import { ItemModel, ProductModel, UserModel } from "@models";
-import project from "../package.json" with { type: "json" };
 import products from "./products.json" with { type: "json" };
 
 const FALLBACK_USER: Omit<User, "id"> & { password: string } = {
     name: "fallback",
-    email: `fallback@${project.name}`,
+    email: "fallback@smartphone-garden.top",
     password: "nhom11",
     roleName: "administrator"
 };

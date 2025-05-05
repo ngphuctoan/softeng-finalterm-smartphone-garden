@@ -38,13 +38,16 @@ export async function getSalesOverTime(req: Request, res: Response) {
 export async function getTotalSales(req: Request, res: Response) {
     const totalSales = await prisma.record.aggregate({
         _sum: { totalAmount: true },
+        where: { status: "success" }
     });
 
     res.json({ totalSales: totalSales._sum.totalAmount?.toString() });
 }
 
 export async function getTotalUsers(req: Request, res: Response) {
-    const totalUsers = await prisma.user.count();
+    const totalUsers = await prisma.user.count({
+        where: { NOT: { email: "fallback@smartphone-garden.top" } }
+    });
     res.json({ totalUsers });
 }
 

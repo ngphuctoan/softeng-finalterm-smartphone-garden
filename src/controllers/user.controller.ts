@@ -34,7 +34,7 @@ export async function updateMyProfile(req: Request, res: Response) {
         ...updateData
     });
 
-    res.json(userToProfile(me));
+    res.redirect("/profile");
 }
 
 export async function updateMyPassword(req: Request, res: Response) {
