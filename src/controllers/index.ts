@@ -6,3 +6,4 @@ export * as StoreController from "./store.controller.js";
 export * as DashboardController from "./dashboard.controller.js";
 export * as ProfileController from "./profile.controller.js";
 export * as VnpayController from "./vnpay.controller.js";
+export * as StatsController from "./stats.controller.js";

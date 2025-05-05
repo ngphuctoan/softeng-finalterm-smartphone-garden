@@ -3,5 +3,13 @@ import profileRoutes from "./profile.routes.js";
 import dashboardRoutes from "./dashboard.routes.js";
 import storeRoutes from "./store.routes.js";
 import vnpayRoutes from "./vnpay.routes.js";
+import statRoutes from "./stats.routes.js";
 
-export { authRoutes, profileRoutes, dashboardRoutes, storeRoutes, vnpayRoutes };
+export {
+    authRoutes,
+    profileRoutes,
+    dashboardRoutes,
+    storeRoutes,
+    vnpayRoutes,
+    statRoutes
+};

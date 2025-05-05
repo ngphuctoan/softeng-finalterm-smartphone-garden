@@ -6,6 +6,7 @@ import { authRoutes, dashboardRoutes, profileRoutes, storeRoutes } from "@routes
 import authMiddleware from "@middlewares/auth.middleware";
 import { checkForRoles } from "@middlewares/roles.middleware";
 import vnpayRoutes from "@routes/vnpay.routes";
+import statsRoutes from "@routes/stats.routes";
 
 const app = express();
 
@@ -41,6 +42,7 @@ app.use("/",
     vnpayRoutes,
     profileRoutes,
     dashboardRoutes,
+    statsRoutes,
     errorHandlingMiddleware
 );
 

@@ -10,7 +10,7 @@ type ProductFromDB = Omit<Product, "tags" | "baseSpecs" | "items"> & {
     items: ItemModel.ItemFromDB[]
 };
 
-function productToJson(product: ProductFromDB): Product {
+export function productToJson(product: ProductFromDB): Product {
     return {
         ...product,
         tags: product.tags.map(tag => tag.id),
@@ -132,7 +132,13 @@ export async function getMostSales(take: number) {
                 select: {
                     ...itemSelect,
                     _count: {
-                        select: { records: true }
+                        select: {
+                            records: {
+                                where: {
+                                    record: { status: "success" }
+                                }
+                            }
+                        }
                     }
                 }
             }

@@ -1,1 +1,192 @@
 extends ../layout
+
+block layout-style
+    style.
+        .card-body {
+            width: 100%;
+            position: relative;
+        }
+        
+        canvas {
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+block layout-content
+    .d-flex.flex-column.gap-2
+        .row.flex-column.flex-md-row.flex-lg-column.flex-xl-row.g-2
+            .col.col-md-7.col-lg-12.col-xl-7
+                .card
+                    .card-body(style="height: 300px; margin-bottom: 1.5rem")
+                        .row.g-0
+                            .col-8
+                                h5.card-title.fw-bold Sales over time 📈
+
+                            .col-4
+                                .d-flex.justify-content-end.gap-2
+                                    span Week
+
+                                    .form-check.form-switch
+                                        label(for="monthView").form-check-label Month
+                                        input(type="checkbox" role="switch" id="monthView" onchange="updateSalesChart()").form-check-input
+                        
+                        canvas#salesOverTime
+
+            .col.col-md-5.col-lg-12.col-xl-5
+                .d-flex.flex-column.gap-2.h-100
+                    .flex-fill.card
+                        .card-body
+                            h5.card-title.fw-bold Total sales ✨
+                            h2#totalSales.card-text 0
+                    
+                    .flex-fill.d-flex.gap-2
+                        .flex-fill.card
+                            .card-body
+                                h5.card-title.fw-bold Products 🛍️
+                                h2#totalProducts.card-text 0
+                        
+                        .flex-fill.card
+                            .card-body
+                                h5.card-title.fw-bold Users 👥
+                                h2#totalUsers.card-text 0
+
+        .row.flex-column.flex-md-row.flex-lg-column.flex-xl-row.g-2
+            .col.col-md-8.col-lg-12.col-xl-8
+                .card
+                    .card-body(style="height: 300px; margin-bottom: 1.5rem")
+                        h5.card-title.fw-bold Top products ⚡
+
+                        canvas#topProducts
+
+            .col.col-md-4.col-lg-12.col-xl-4
+                .card
+                    .card-body(style="height: 300px; margin-bottom: 1.5rem")
+                        h5.card-title.fw-bold Record statuses 🧾
+
+                        canvas#recordStatuses
+    
+    script(src="https://unpkg.com/chart.js")
+    script(src="https://unpkg.com/countup.js")
+
+    script.
+        const salesCtx = document.getElementById("salesOverTime").getContext("2d");
+
+        const salesGradient = salesCtx.createLinearGradient(0, 0, 0, 400);
+        salesGradient.addColorStop(0, "#4caf50");
+        salesGradient.addColorStop(.5, "#ffd54f");
+        salesGradient.addColorStop(1, "#f44336");
+
+        const salesChart = new Chart(salesCtx, {
+            type: "line",
+            data: {
+                labels: [],
+                datasets: [{
+                    label: "Sales",
+                    data: [],
+                    borderColor: salesGradient
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+
+        function fetchSalesData(groupBy = "month") {
+            fetch(`/stats/sales-over-time?groupBy=${groupBy}`)
+                .then(res => res.json())
+                .then(data => {
+                    salesChart.data.labels = data.labels;
+                    salesChart.data.datasets[0].data = data.data;
+
+                    salesChart.update();
+                });
+        }
+
+        function updateSalesChart() {
+            const isMonthView = document.getElementById("monthView").checked;
+            fetchSalesData(isMonthView ? "month" : "week");
+        }
+
+        updateSalesChart();
+
+        for (const { api_path, id, options } of [
+            { api_path: "total-sales", id: "totalSales", options: { suffix: "đ" } },
+            { api_path: "total-products", id: "totalProducts" },
+            { api_path: "total-users", id: "totalUsers" }
+        ]) {
+            fetch(`/stats/${api_path}`)
+            .then(res => res.json())
+            .then(data => {
+                const counter = new countUp.CountUp(
+                    id, Number(Object.values(data)[0]), {
+                        ...options, separator: ".", decimal: ","
+                    }
+                );
+
+                if (!counter.error) {
+                    counter.start();
+                } else {
+                    console.error(counter.error);
+                }
+            });
+        }
+
+        const topProductsCtx = document.getElementById("topProducts").getContext("2d");
+
+        fetch("/stats/top-products")
+            .then(res => res.json())
+            .then(data => {
+                new Chart(topProductsCtx, {
+                    type: "bar",
+                    data: {
+                        labels: data.map(product => product.name),
+                        datasets: [{
+                            label: "Sales Count",
+                            data: data.map(product => product.salesCount),
+                            backgroundColor: "rgba(75, 192, 192, .4)",
+                            borderColor: "rgba(75, 192, 192)",
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        indexAxis: "y",
+                        plugins: {
+                            legend: { display: false }
+                        }
+                    }
+                });
+            });
+
+        fetch("/stats/record-statuses")
+            .then(res => res.json())
+            .then(({ labels, data }) => {
+                new Chart(document.getElementById("recordStatuses"), {
+                    type: "doughnut",
+                    data: {
+                        labels,
+                        datasets: [{
+                            data,
+                            backgroundColor: [
+                                "#f44336",
+                                "#ffc107",
+                                "#4caf50"
+                            ],
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: "bottom"
+                            }
+                        }
+                    }
+                });
+            });

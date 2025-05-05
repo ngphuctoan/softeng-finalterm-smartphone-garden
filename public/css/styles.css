@@ -1,7 +1,7 @@
 @import "https://fonts.googleapis.com/css2?family=Montserrat";
 @import "https://fonts.googleapis.com/css2?family=Comfortaa";
 
-*:not(.badge):not(.spinner-border):not([type=radio]) {
+*:not(.badge):not(.spinner-border):not([type=radio]):not([role=switch]) {
     border-radius: 0 !important;
 }
 
