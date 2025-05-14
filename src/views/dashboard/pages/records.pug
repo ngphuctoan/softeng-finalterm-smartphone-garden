@@ -25,7 +25,7 @@ block layout-content
                         button#btnExport.btn.btn-outline-secondary.d-flex.align-items-center.btn-sm(onclick="exportCSV()")
                             iconify-icon(icon="mynaui:download")
                             span.d-none.d-md-inline.p-md-1 Export
-                        
+
                     .d-none.d-md-flex.flex-wrap.gap-2.order-2.order-md-1
                         button.btn.btn-outline-secondary.btn-sm.filter-btn(data-filter="all") All
                         button.btn.btn-outline-success.btn-sm.filter-btn(data-filter="success") Success
@@ -144,6 +144,9 @@ block layout-content
                                             data-user-name=record.user.name
                                             data-user-email=record.user.email
                                             data-items=record.itemsJson
+                                            data-phone=record.phoneNumber
+                                            data-address=record.address
+                                            data-recipientName=record.recipientName
                                             )
                                             iconify-icon(icon="mynaui:info-circle")
 
@@ -162,7 +165,7 @@ block layout-content
                             |  of 
                             span.fw-medium #{records.length}
                             |  orders
-                    
+
                     .col-12.col-md-6
                         nav(aria-label="Order pagination")
                             ul#pagination.pagination.pagination-sm.justify-content-center.justify-content-md-end.mb-0
@@ -187,57 +190,69 @@ block layout-content
                             h6.text-uppercase.text-muted.mb-0
                                 iconify-icon(icon="mynaui:info-circle").me-2
                                 | Order Information
-                            
+
                             .d-flex.flex-column.gap-2
                                 .d-flex.justify-content-between.align-items-center
                                     span.text-muted.px-1 Order Date: 
                                     span.fw-medium#modalOrderDate
-                                
+
                                 .d-flex.justify-content-between.align-items-center
                                     span.text-muted.px-1 Total Amount:
                                     span.fw-medium#modalOrderAmount
-                                
+
                                 .d-flex.justify-content-between.align-items-center
                                     span.text-muted.px-1 Status:
                                     span#modalOrderStatus
-                            
+
                             // Customer Details
                             .col-md-6
                             h6.text-uppercase.text-muted.mb-3.mt-2
                                 iconify-icon(icon="mynaui:user-circle").me-2
                                 | Customer Information
-                            
+
                             .d-flex.flex-column.gap-2
                                 .d-flex.justify-content-between.align-items-center
                                     span.text-muted.px-1 Name:
                                     span.fw-medium#modalCustomerName
-                                
+
                                 .d-flex.justify-content-between.align-items-center
                                     span.text-muted.px-1 Email:
                                     span#modalCustomerEmail
-                        
+
+                                .d-flex.justify-content-between.align-items-center
+                                    span.text-muted.px-1 Phone:
+                                    span#modalCustomerPhone
+
+                                .d-flex.justify-content-between.align-items-center
+                                    span.text-muted.px-1 Address:
+                                    span#modalCustomerAddress
+
+                                .d-flex.justify-content-between.align-items-center
+                                    span.text-muted.px-1 recipientName:
+                                    span#modalCustomerrecipientName
+                                    
                         // Order Items Section
                         .p-4
                         h6.text-uppercase.text-muted.mb-3
                             iconify-icon(icon="mynaui:cart").me-2
                             | Order Items
-                        
+
                         .table-responsive.mt-3
                             table.table.table-sm.table-hover.align-middle
                                 thead.table-light
-                                        tr
-                                        th Product
-                                        th Quantity
-                                        th Price
-                                        th Subtotal
-                                
+                                    tr
+                                    th Product
+                                    th Quantity
+                                    th Price
+                                    th Subtotal
+
                                 tbody#modalOrderItems
                                 // Items will be inserted here via JavaScript
-                        
+
                         .d-flex.justify-content-between.align-items-center.mt-4.pt-3.border-top
                             span.text-muted.px-1 Total Items:
                             span.fw-medium#modalTotalItems
-                        
+
                         .d-flex.justify-content-between.align-items-center.mt-2.mb-4
                             span.fw-medium.px-1 Total Amount:
                             span.fw-bold.fs-5#modalTotalAmount
@@ -245,19 +260,19 @@ block layout-content
 block js-imports
     script.
         function exportCSV() {
-                fetch('/dashboard/records/export-csv')
-                    .then(response => response.blob())
-                    .then(blob => {
-                        const url = window.URL.createObjectURL(blob);
-                        const a = document.createElement('a');
-                        a.href = url;
-                        a.download = 'orders.csv';
-                        document.body.appendChild(a);
-                        a.click();
-                        a.remove();
-                        window.URL.revokeObjectURL(url);
-                    })
-                    .catch(error => console.error('Error exporting CSV:', error));
+            fetch('/dashboard/records/export-csv')
+                .then(response => response.blob())
+                .then(blob => {
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'orders.csv';
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                    window.URL.revokeObjectURL(url);
+                })
+                .catch(error => console.error('Error exporting CSV:', error));
             }
         document.addEventListener('DOMContentLoaded', function() {
             // Pagination variables
@@ -270,13 +285,13 @@ block js-imports
             function formatVND(value) {
                 return Number(value).toLocaleString('vi-VN') + 'đ';
             }
-            
+
             // Initialize pagination
             function initPagination() {
                 const allRows = document.querySelectorAll('.order-row');
                 originalRows = Array.from(allRows); 
                 filteredRows = Array.from(originalRows); 
-                
+
                 const pageSizeSelect = document.getElementById('pageSizeSelect');
                 if (pageSizeSelect) {
                     pageSize = parseInt(pageSizeSelect.value);
@@ -286,10 +301,10 @@ block js-imports
                         applyPagination();
                     });
                 }
-                
+
                 applyPagination();
             }
-                        
+
             // Apply pagination to the table
             function applyPagination() {
                 const tbody = document.getElementById('orderTableBody');
@@ -313,40 +328,40 @@ block js-imports
                 updatePaginationInfo();
                 generatePaginationControls();
             }
-            
+
             // Update the pagination info text
             function updatePaginationInfo() {
                 const paginationInfo = document.getElementById('paginationInfo');
                 if (paginationInfo) {
                     const startItem = filteredRows.length > 0 ? (currentPage - 1) * pageSize + 1 : 0;
                     const endItem = Math.min(currentPage * pageSize, filteredRows.length);
-                    
+
                     paginationInfo.innerHTML = `Showing <span class="fw-medium">${startItem}-${endItem}</span> of <span class="fw-medium">${filteredRows.length}</span> orders`;
                 }
             }
-            
+
             // Generate pagination controls
             function generatePaginationControls() {
                 const paginationElement = document.getElementById('pagination');
                 if (!paginationElement) return;
-                
+
                 // Clear existing pagination
                 paginationElement.innerHTML = '';
-                
+
                 // Calculate total pages
                 const totalPages = Math.ceil(filteredRows.length / pageSize);
                 if (totalPages === 0) return;
-                
+
                 // Previous button
                 const prevLi = document.createElement('li');
                 prevLi.className = `page-item ${currentPage === 1 ? 'disabled' : ''}`;
-                
+
                 const prevLink = document.createElement('a');
                 prevLink.className = 'page-link';
                 prevLink.href = '#';
                 prevLink.setAttribute('aria-label', 'Previous');
                 prevLink.innerHTML = '<span aria-hidden="true"><iconify-icon icon="mynaui:chevron-left"></iconify-icon></span>';
-                
+
                 if (currentPage > 1) {
                     prevLink.addEventListener('click', function(e) {
                         e.preventDefault();
@@ -354,63 +369,63 @@ block js-imports
                         applyPagination();
                     });
                 }
-                
+
                 prevLi.appendChild(prevLink);
                 paginationElement.appendChild(prevLi);
-                
+
                 // Page numbers
                 const maxPagesToShow = 5;
                 let startPage = Math.max(1, currentPage - Math.floor(maxPagesToShow / 2));
                 let endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
-                
+
                 // Adjust if we're near the end
                 if (endPage - startPage + 1 < maxPagesToShow) {
                     startPage = Math.max(1, endPage - maxPagesToShow + 1);
                 }
-                
+
                 // First page (if not in range)
                 if (startPage > 1) {
                     const firstLi = document.createElement('li');
                     firstLi.className = 'page-item';
-                    
+
                     const firstLink = document.createElement('a');
                     firstLink.className = 'page-link';
                     firstLink.href = '#';
                     firstLink.textContent = '1';
-                    
+
                     firstLink.addEventListener('click', function(e) {
                         e.preventDefault();
                         currentPage = 1;
                         applyPagination();
                     });
-                    
+
                     firstLi.appendChild(firstLink);
                     paginationElement.appendChild(firstLi);
-                    
+
                     // Ellipsis if needed
                     if (startPage > 2) {
                         const ellipsisLi = document.createElement('li');
                         ellipsisLi.className = 'page-item disabled';
-                        
+
                         const ellipsisSpan = document.createElement('span');
                         ellipsisSpan.className = 'page-link';
                         ellipsisSpan.textContent = '...';
-                        
+
                         ellipsisLi.appendChild(ellipsisSpan);
                         paginationElement.appendChild(ellipsisLi);
                     }
                 }
-                
+
                 // Page numbers
                 for (let i = startPage; i <= endPage; i++) {
                     const pageLi = document.createElement('li');
                     pageLi.className = `page-item ${i === currentPage ? 'active' : ''}`;
-                    
+
                     const pageLink = document.createElement('a');
                     pageLink.className = 'page-link';
                     pageLink.href = '#';
                     pageLink.textContent = i;
-                    
+
                     if (i !== currentPage) {
                         pageLink.addEventListener('click', function(e) {
                             e.preventDefault();
@@ -418,53 +433,53 @@ block js-imports
                             applyPagination();
                         });
                     }
-                    
+
                     pageLi.appendChild(pageLink);
                     paginationElement.appendChild(pageLi);
                 }
-                
+
                 // Ellipsis and last page if needed
                 if (endPage < totalPages) {
                     if (endPage < totalPages - 1) {
                         const ellipsisLi = document.createElement('li');
                         ellipsisLi.className = 'page-item disabled';
-                        
+
                         const ellipsisSpan = document.createElement('span');
                         ellipsisSpan.className = 'page-link';
                         ellipsisSpan.textContent = '...';
-                        
+
                         ellipsisLi.appendChild(ellipsisSpan);
                         paginationElement.appendChild(ellipsisLi);
                     }
-                    
+
                     const lastLi = document.createElement('li');
                     lastLi.className = 'page-item';
-                    
+
                     const lastLink = document.createElement('a');
                     lastLink.className = 'page-link';
                     lastLink.href = '#';
                     lastLink.textContent = totalPages;
-                    
+
                     lastLink.addEventListener('click', function(e) {
                         e.preventDefault();
                         currentPage = totalPages;
                         applyPagination();
                     });
-                    
+
                     lastLi.appendChild(lastLink);
                     paginationElement.appendChild(lastLi);
                 }
-                
+
                 // Next button
                 const nextLi = document.createElement('li');
                 nextLi.className = `page-item ${currentPage === totalPages || totalPages === 0 ? 'disabled' : ''}`;
-                
+
                 const nextLink = document.createElement('a');
                 nextLink.className = 'page-link';
                 nextLink.href = '#';
                 nextLink.setAttribute('aria-label', 'Next');
                 nextLink.innerHTML = '<span aria-hidden="true"><iconify-icon icon="mynaui:chevron-right"></iconify-icon></span>';
-                
+
                 if (currentPage < totalPages) {
                     nextLink.addEventListener('click', function(e) {
                         e.preventDefault();
@@ -472,10 +487,10 @@ block js-imports
                         applyPagination();
                     });
                 }
-                
+
                 nextLi.appendChild(nextLink);
                 paginationElement.appendChild(nextLi);
-                
+
                 // Style the iconify icons
                 const icons = document.querySelectorAll('#pagination iconify-icon');
                 icons.forEach(icon => {
@@ -487,7 +502,7 @@ block js-imports
                     icon.style.display = 'inline-block';
                 });
             }
-            
+
             // Initialize filter buttons
             const filterButtons = document.querySelectorAll('.filter-btn');
             filterButtons.forEach(button => {
@@ -538,6 +553,9 @@ block js-imports
                     const userName = btn.getAttribute('data-user-name');
                     const userEmail = btn.getAttribute('data-user-email');
                     const items = JSON.parse(btn.getAttribute('data-items'));
+                    const phoneNumber = btn.getAttribute('data-phone') || 'Scammed by the store =))';
+                    const address = btn.getAttribute('data-address') || 'Scammed by the store';
+                    const recipientName = btn.getAttribute('data-recipientName') || 'Scammed by the store';
 
                     // Set modal header content
                     detailsModal.querySelector('#modalOrderId').textContent = id;
@@ -548,12 +566,14 @@ block js-imports
                     // Set customer information
                     detailsModal.querySelector('#modalCustomerName').textContent = userName;
                     detailsModal.querySelector('#modalCustomerEmail').textContent = userEmail;
-
+                    detailsModal.querySelector('#modalCustomerPhone').textContent = phoneNumber;
+                    detailsModal.querySelector('#modalCustomerAddress').textContent = address;
+                    detailsModal.querySelector('#modalCustomerrecipientName').textContent = recipientName;
                     // Populate items table
                     const tbody = detailsModal.querySelector('#modalOrderItems');
                     tbody.innerHTML = ''; // Clear previous content
                     let totalItemsCount = 0;
-                    
+
                     items.forEach(({ amount, item }) => {
                         const { price, product } = item;
                         const subtotal = amount * price;
@@ -656,10 +676,10 @@ block js-imports
 
                     return matchesStatus && matchesDate && matchesAmount;
                 });
-                
+
                 currentPage = 1;
                 applyPagination();
-                
+
                 const countBadge = document.querySelector('.card-title .badge');
                 if (countBadge) {
                     countBadge.textContent = filteredRows.length;
@@ -691,13 +711,13 @@ block js-imports
                         return sortType === 'amount-desc' ? ab - aa : aa - ab;
                     }
                 });
-                
+
                 // Clear and re-append sorted rows to maintain DOM order
                 const tbody = document.getElementById('orderTableBody');
                 if (tbody) {
                     // Store current page
                     const oldPage = currentPage;
-                    
+
                     // Reset to first page and apply pagination
                     currentPage = 1;
                     applyPagination();
@@ -711,7 +731,7 @@ block js-imports
                     // Remove previous highlight
                     document.querySelectorAll('.dropdown-item.active').forEach(a => a.classList.remove('active'));
                     link.classList.add('active');
-                    
+
                     const sortType = link.getAttribute('data-sort');
                     sortOrders(sortType);
                 });
@@ -721,11 +741,11 @@ block js-imports
             const icons = document.querySelectorAll('iconify-icon');
             icons.forEach(icon => {
                 if (icon.closest('a.nav-link') || 
-                   icon.getAttribute('icon') == 'mynaui:user-circle' || 
-                   icon.getAttribute('icon') == "mynaui:x" || 
-                   icon.getAttribute('icon') == "mynaui:cart" || 
-                   icon.getAttribute('icon') == "mynaui:info-circle") return;
-                
+                    icon.getAttribute('icon') == 'mynaui:user-circle' || 
+                icon.getAttribute('icon') == "mynaui:x" || 
+                icon.getAttribute('icon') == "mynaui:cart" || 
+                icon.getAttribute('icon') == "mynaui:info-circle") return;
+
                 icon.style.verticalAlign = 'middle';
                 icon.style.fontSize = '1rem';
                 icon.style.lineHeight = '1';
@@ -733,7 +753,7 @@ block js-imports
                 icon.style.margin = '0';
                 icon.style.display = 'inline-block';
             });
-            
+
             // Initialize pagination on page load
             initPagination();
         });

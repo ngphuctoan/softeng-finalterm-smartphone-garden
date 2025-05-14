@@ -5,6 +5,7 @@ import qs from "qs";
 import prisma from "@utils/db";
 import { Item } from "@interfaces";
 import { RecordsModel } from "@models";
+import { add } from "date-fns";
 
 const RESPONSE_CODE_MESSAGES: Record<string, string> = {
     "00": "Transaction successful",
@@ -57,7 +58,9 @@ export async function createPayment(req: Request, res: Response) {
     const now = moment();
     const createDate = now.format("YYYYMMDDHHmmss");
     const orderId = now.format("DDHHmmss");
-
+    const address = (req.body.address || "").trim();
+    const phoneNumber = (req.body.phoneNumber || "").trim();
+    const recipientName = (req.body.recipientName || "").trim();
     const { totalAmount, bankCode, language, items } = req.body;
 
     const ipAddr =
@@ -90,6 +93,9 @@ export async function createPayment(req: Request, res: Response) {
         userId: req.auth?.userId,
         vnpayParams: vnp_Params,
         totalAmount: Number(totalAmount),
+        address,
+        phoneNumber,
+        recipientName,
         items: JSON.parse(items),
     });
 
@@ -145,6 +151,9 @@ export async function paymentResult(req: Request, res: Response) {
         message: RESPONSE_CODE_MESSAGES[code as string] || "Unknown code",
         payDate: vnp_PayDate ? formatVnpPayDate(vnp_PayDate) : undefined,
         vnp_Params,
+        address: record?.address,
+        phoneNumber: record?.phoneNumber,
+        recipientName: record?.recipientName,
     });
 }
 

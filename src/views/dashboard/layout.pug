@@ -37,7 +37,8 @@ html
             include partials/sidebar
             //- Xin phep giam my-5 thanh my-4 de cho dep hon nha <3
             main.container-fluid.px-4.px-lg-5.my-4
-                h2.pb-2.mb-4.border-bottom #{navs[activeNav].title}
+                if navs && navs[activeNav] && navs[activeNav].title != "Users"
+                    h2.pb-2.mb-4.border-bottom #{navs[activeNav].title}
 
                 block layout-content
 

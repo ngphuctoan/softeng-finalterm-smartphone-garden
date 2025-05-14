@@ -1,52 +1,128 @@
 extends ../layout
 
 block layout-content 
-  .row.justify-content-end.align-items-center.mb-1
-    .col-12.col-md-6
-      input#searchUser(type="text" class="form-control" placeholder="Search user by name or email")
-  div.table-responsive.d-flex
-    table.table.table-striped.table-hover.text-center
-      thead.text-center
-        tr                   
-          th(scope="col") Name
-          th(scope="col" class="d-none d-sm-table-cell") Email
-          th(scope="col" class="d-none d-md-table-cell") Role
-          th(scope="col") Actions
-      tbody#userTableBody
-  div#whiteRegion.d-flex
-  div.row.align-items-center.d-flex.flex-column-reverse.flex-row-reverse.col-12
-    nav(aria-label="User pagination").p-0 
-      ul.pagination.pagination-sm.justify-content-center.justify-content-sm-end.mb-0#userPagination
+  .container-fluid.py-4
+    .card.border-0.shadow-sm
+      .card-header.bg-dark.text-white.py-3.d-flex.justify-content-between.align-items-center
+        .div.d-flex.align-items-start
+          .div.m-1
+            iconify-icon(icon="mynaui:users" style="vertical-align: -2px; margin-right: 8px; font-size: 2rem;")
+          h4.m-1.cursor-default User Management
+        .d-flex.align-items-center
+          .dropdown.me-2
+            button.btn.btn-sm.btn-outline-light.dropdown-toggle(type="button" data-bs-toggle="dropdown" aria-expanded="false")
+              iconify-icon(icon="mynaui:filter" style="margin-right: 5px;")
+              | Filter
+            ul.dropdown-menu.dropdown-menu-end.shadow-sm
+              li
+                a.dropdown-item(href="#" data-filter="all") All Users
+              li
+                a.dropdown-item(href="#" data-filter="administrator") Administrators
+              li
+                a.dropdown-item(href="#" data-filter="customer") Customers
+          .input-group.input-group-sm
+            span.input-group-text.bg-white.border-end-0
+              iconify-icon(icon="mynaui:search")
+            input#searchUser.form-control.form-control-sm.ps-0.border-start-0(
+              type="text" 
+              placeholder="Search by name or email"
+              aria-label="Search users"
+            )
+      
+      .card-body.p-0
+        .table-responsive
+          table.table.table-hover.mb-0
+            thead.table-light
+              tr.text-center                 
+                th.py-3(scope="col") Name
+                th.py-3.d-none.d-sm-table-cell(scope="col") Email
+                th.py-3.d-none.d-md-table-cell(scope="col") Role
+                th.py-3.text-center(scope="col" style="width: 100px") Actions
+            tbody#userTableBody
+              if usersData && usersData.length > 0
+                each user in usersData
+                  tr
+                    td.align-middle
+                      .d-flex.align-items-center
+                        .user-avatar.me-2.d-flex.align-items-center.justify-content-center.rounded-circle.bg-light.text-dark(style="width: 36px; height: 36px;")
+                          span= user.name.charAt(0).toUpperCase()
+                        .user-info
+                          p.fw-medium.mb-0= user.name
+                          p.small.text-muted.d-sm-none.mb-0= user.email
+                    td.align-middle.d-none.d-sm-table-cell= user.email
+                    td.align-middle.d-none.d-md-table-cell.text-center
+                      span(class=`badge bg-${user.roleName === 'administrator' ? 'dark' : user.roleName === 'manager' ? 'secondary' : 'light text-dark'}`)= user.roleName
+                    td.align-middle.text-center
+                      .d-flex.justify-content-center.gap-2
+                        button.btn.btn-sm.btn-outline.rounded-circle(
+                          type="button" 
+                          data-bs-toggle="modal" 
+                          data-bs-target="#userModal" 
+                          data-user=JSON.stringify(user)
+                          title="Edit user"
+                        )
+                          iconify-icon(icon="mynaui:pencil")
+              else
+                tr
+                  td.text-center.py-4(colspan="4") No users found
+        
+        #whiteRegion.d-flex
+
+      .card-footer.bg-white.border-0.py-3
+        .d-flex.justify-content-between.align-items-center
+          .text-muted.small
+            span#totalUsers= usersData ? usersData.length : 0
+            |  users total
+          nav(aria-label="User pagination").p-0
+            ul.pagination.pagination-sm.justify-content-end.mb-0#userPagination
 
   //- User Edit Modal
   #userModal.modal.fade(tabindex="-1" aria-hidden="true")
-    .modal-dialog.modal-dialog-centered.modal-dialog-scrollable.modal-m
-      .modal-content
-        .modal-header
-          h5.modal-title User Information
-          button.btn-close(type="button" data-bs-dismiss="modal")
+    .modal-dialog.modal-dialog-centered.modal-m
+      .modal-content.border-0.shadow
+        .modal-header.bg-dark.text-white
+          h5.modal-title.d-flex.align-items-center
+            iconify-icon(icon="mynaui:user-edit" style="margin-right: 8px;")
+            | Edit User Role
+          button.btn-close.btn-close-white(type="button" data-bs-dismiss="modal" aria-label="Close")
         form#userForm
-          .modal-body
+          .modal-body.p-4
             input(type="hidden" name="id" id="userId")
+            
+            .user-info.text-center.mb-4
+              .user-avatar.d-inline-flex.align-items-center.justify-content-center.rounded-circle.bg-light.mb-3(style="width: 64px; height: 64px;")
+                span#userInitial
+              h5#userNameDisplay.mb-1
+              p#userEmailDisplay.text-muted.mb-0
+            
+            .mb-4
+              label.form-label.fw-medium(for="userName") Name
+              input.form-control.bg-light(type="text" name="name" id="userName" readonly)
+            
+            .mb-4
+              label.form-label.fw-medium(for="userEmail") Email
+              input.form-control.bg-light(type="email" name="email" id="userEmail" readonly)
+            
             .mb-3
-              label.form-label(for="userName") Name
-              input.form-control(type="text" name="name" id="userName" readonly)
-            .mb-3
-              label.form-label(for="userEmail") Email
-              input.form-control(type="email" name="email" id="userEmail" readonly)
-            .mb-3
-              label.form-label(for="userRole") Role
+              label.form-label.fw-medium(for="userRole") Role
               select.form-select(name="role" id="userRole")
                 option(value="administrator") Administrator
-                option(value="manager") Manager
                 option(value="customer") Customer
-          .modal-footer
-            button.btn.btn-primary(type="submit") Save
-            button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cancel
+              .form-text.small Role determines what permissions the user has in the system.
+          
+          .modal-footer.bg-light
+            button.btn.btn-secondary(type="button" data-bs-dismiss="modal")
+              iconify-icon(icon="mynaui:close" style="margin-right: 5px;")
+              | Cancel
+            button.btn.btn-dark(type="submit")
+              iconify-icon(icon="mynaui:check" style="margin-right: 5px;")
+              | Save Changes
 
 block js-imports 
   script.
     const usersData = !{JSON.stringify(users.map(u => ({ id: u.id, name: u.name, email: u.email, roleName: u.roleName })))}; 
+    
+    // Style icons
     const icons = document.querySelectorAll('iconify-icon');
     icons.forEach(icon => {
       if (icon.closest('a.nav-link') || icon.getAttribute('icon') == 'mynaui:user-circle') return;
@@ -57,9 +133,364 @@ block js-imports
       icon.style.margin = '0';
       icon.style.display = 'inline-block';
     });
+    
     if (usersData.length < 2){
       const userPagination = document.querySelectorAll('#userPagination');
       userPagination.forEach(pagination => pagination.classList.add('d-none'));
     }
     
-  script(src="/protected/dashboard/users.js" defer)
+    (() => {  
+      const rowsPerPage = 10; // Increased from 6 to 10
+      let currentPage = 1;
+      const maxVisible = 5;
+      
+      // DOM nodes
+      const tbody = document.getElementById("userTableBody");
+      const pagination = document.getElementById("userPagination");
+      const userModalEl = document.getElementById("userModal");
+      const totalUsersEl = document.getElementById("totalUsers");
+      
+      // Data
+      const allData = usersData;
+      let filteredData = [...allData];
+      let activeFilter = 'all';
+      
+      // Filter users by role
+      function filterUsers(role = 'all') {
+        activeFilter = role;
+        if (role === 'all') {
+          filteredData = [...allData];
+        } else {
+          filteredData = allData.filter(user => user.roleName === role);
+        }
+        
+        currentPage = 1;
+        renderPage(currentPage);
+        renderPagination();
+        
+        // Update total count
+        totalUsersEl.textContent = filteredData.length;
+      }
+      
+      // Add event listeners for filter options
+      document.querySelectorAll('[data-filter]').forEach(el => {
+        el.addEventListener('click', (e) => {
+          e.preventDefault();
+          const filterValue = e.target.dataset.filter;
+          filterUsers(filterValue);
+        });
+      });
+
+      // Search users
+      function onSearch(e) {
+        const q = e.target.value.trim().toLowerCase();
+        
+        if (q.length > 0) {
+          // First filter by active role filter, then by search term
+          const baseData = activeFilter === 'all' ? allData : allData.filter(u => u.roleName === activeFilter);
+          
+          filteredData = baseData.filter(
+            (u) => u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q)
+          );
+
+          currentPage = 1;
+          
+          if (filteredData.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4" class="text-center py-4">No users found matching "${q}"</td></tr>`;
+            createWhiteRegion();
+            pagination.innerHTML = '';
+          } else {
+            renderPage(currentPage);
+            renderPagination();
+          }
+          
+          // Update total count
+          totalUsersEl.textContent = filteredData.length;
+        } else {
+          // Reset to active filter
+          filterUsers(activeFilter);
+        }
+      }
+
+      // Render a page of users
+      function renderPage(page) {
+        const start = (page - 1) * rowsPerPage;
+        const end = start + rowsPerPage;
+        const pageItems = filteredData.slice(start, end);
+        
+        tbody.innerHTML = "";
+
+        if (pageItems.length === 0) {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `<td colspan="4" class="text-center py-4">No users found</td>`;
+          tbody.appendChild(tr);
+          createWhiteRegion();
+          return;
+        }
+
+        pageItems.forEach((user) => {
+          const tr = document.createElement("tr");
+          const roleBadgeClass = user.roleName === 'administrator' ? 'bg-dark' : 
+              user.roleName === 'manager' ? 'bg-secondary' : 
+              'bg-light text-dark';
+          
+          tr.innerHTML = `
+            <td class="align-middle">
+              <div class="d-flex align-items-center">
+                <div class="user-avatar me-2 d-flex align-items-center justify-content-center rounded-circle bg-light text-dark" style="width: 36px; height: 36px;">
+                  <span>${user.name.charAt(0).toUpperCase()}</span>
+                </div>
+                <div class="user-info">
+                  <p class="fw-medium mb-0">${user.name}</p>
+                  <p class="small text-muted d-sm-none mb-0">${user.email}</p>
+                </div>
+              </div>
+            </td>
+            <td class="align-middle d-none d-sm-table-cell">${user.email}</td>
+            <td class="align-middle d-none d-md-table-cell text-center">
+              <span class="badge ${roleBadgeClass}">${user.roleName}</span>
+            </td>
+            <td class="align-middle text-center">
+              <div class="d-flex justify-content-center gap-2">
+                <button
+                  class="btn btn-sm btn-outline-dark rounded-circle"
+                  type="button"
+                  data-bs-toggle="modal"
+                  data-bs-target="#userModal"
+                  data-user='${JSON.stringify(user)}'
+                  title="Edit user">
+                  <iconify-icon icon="mynaui:pencil"></iconify-icon>
+                </button>
+              </div>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+
+        if (pageItems.length < rowsPerPage) {
+          createWhiteRegion((rowsPerPage - pageItems.length) * 57); // Adjusted height per row
+        } else {
+          createWhiteRegion(0);
+        }
+      }
+
+      function createWhiteRegion(height = 0) {
+        const div = document.getElementById("whiteRegion");
+        div.style.height = height + "px";
+        div.style.width = "100%";
+      }
+
+      // Render pagination controls
+      function createPageItem({
+        label,
+        page,
+        disabled = false,
+        active = false,
+        icon = null,
+        title = "",
+      }) {
+        const li = document.createElement("li");
+        li.className = "page-item" + (disabled ? " disabled" : "") + (active ? " active" : "");
+
+        const a = document.createElement("a");
+        a.className = "page-link";
+        a.href = "#";
+        if (icon) {
+          a.innerHTML = `<iconify-icon icon="${icon}"></iconify-icon>`;
+          a.title = title;
+        } else {
+          a.textContent = label;
+        }
+        if (!disabled && !active) {
+          a.addEventListener("click", (e) => {
+            e.preventDefault();
+            currentPage = page;
+            renderPage(currentPage);
+            renderPagination();
+          });
+        }
+        li.appendChild(a);
+        return li;
+      }
+
+      function renderPagination() {
+        const pageCount = Math.ceil(filteredData.length / rowsPerPage);
+        if (pageCount <= 1) {
+          pagination.innerHTML = "";
+          return;
+        }
+        
+        pagination.innerHTML = "";
+
+        // First & Prev
+        pagination.appendChild(
+          createPageItem({
+            icon: "mynaui:chevron-double-left",
+            page: 1,
+            disabled: currentPage === 1,
+            title: "First Page",
+          })
+        );
+        pagination.appendChild(
+          createPageItem({
+            icon: "mynaui:chevron-left",
+            page: currentPage - 1,
+            disabled: currentPage === 1,
+            title: "Previous Page",
+          })
+        );
+
+        // Calculate visible page range
+        let start = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+        let end = start + maxVisible - 1;
+
+        if (end > pageCount) {
+          end = pageCount;
+          start = Math.max(1, end - maxVisible + 1);
+        }
+
+        // First ellipsis
+        if (start > 1) {
+          pagination.appendChild(createPageItem({ label: "…", disabled: true }));
+        }
+
+        // Page numbers
+        for (let i = start; i <= end; i++) {
+          pagination.appendChild(
+            createPageItem({
+              label: i,
+              page: i,
+              active: i === currentPage,
+            })
+          );
+        }
+
+        // Last ellipsis
+        if (end < pageCount) {
+          pagination.appendChild(createPageItem({ label: "…", disabled: true }));
+        }
+
+        // Next & Last
+        pagination.appendChild(
+          createPageItem({
+            icon: "mynaui:chevron-right",
+            page: currentPage + 1,
+            disabled: currentPage === pageCount,
+            title: "Next Page",
+          })
+        );
+        pagination.appendChild(
+          createPageItem({
+            icon: "mynaui:chevron-double-right",
+            page: pageCount,
+            disabled: currentPage === pageCount,
+            title: "Last Page",
+          })
+        );
+      }
+
+      // Fill user edit modal with data
+      function onShowEdit(event) {
+        const user = JSON.parse(event.relatedTarget.dataset.user);
+        const form = document.getElementById("userForm");
+        
+        // Set form values
+        form.userId.value = user.id;
+        form.name.value = user.name;
+        form.email.value = user.email;
+        
+        // Set display values
+        document.getElementById('userNameDisplay').textContent = user.name;
+        document.getElementById('userEmailDisplay').textContent = user.email;
+        document.getElementById('userInitial').textContent = user.name.charAt(0).toUpperCase();
+        
+        // Set selected role
+        Array.from(form.role.options).forEach((opt) => {
+          opt.selected = opt.value === user.roleName;
+        });
+        
+        // Focus on the role dropdown
+        setTimeout(() => form.role.focus(), 300);
+      }
+
+      // Initialize
+      document.addEventListener("DOMContentLoaded", () => {
+        // Search input handler
+        const searchEl = document.getElementById("searchUser");
+        searchEl.addEventListener("input", onSearch);
+        
+        // User modal handler
+        userModalEl?.addEventListener("show.bs.modal", onShowEdit);
+        
+        // User form submission handler
+        const form = document.getElementById("userForm");
+        form.addEventListener("submit", async (e) => {
+          e.preventDefault();
+          
+          const saveButton = form.querySelector('button[type="submit"]');
+          const originalButtonText = saveButton.innerHTML;
+          saveButton.disabled = true;
+          saveButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Saving...';
+          
+          const id = form.userId.value;
+          const role = form.role.value;
+      
+          try {
+            const res = await fetch(`/dashboard/users/${id}/update-role`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify({ role })
+            });
+      
+            if (res.redirected) {
+              window.location.href = res.url;
+            } else if (res.ok) {
+              // Flash success message before reload
+              const modal = bootstrap.Modal.getInstance(userModalEl);
+              modal.hide();
+              
+              // Create toast notification
+              const toastContainer = document.createElement('div');
+              toastContainer.className = 'position-fixed bottom-0 end-0 p-3';
+              toastContainer.style.zIndex = '11';
+              
+              toastContainer.innerHTML = `
+                <div class="toast align-items-center text-white bg-dark border-0" role="alert" aria-live="assertive" aria-atomic="true">
+                  <div class="d-flex">
+                    <div class="toast-body">
+                      <iconify-icon icon="mynaui:check-circle" style="margin-right: 8px;"></iconify-icon>
+                      User role updated successfully!
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                  </div>
+                </div>
+              `;
+              
+              document.body.appendChild(toastContainer);
+              const toastElement = toastContainer.querySelector('.toast');
+              const toast = new bootstrap.Toast(toastElement, { delay: 3000 });
+              toast.show();
+              
+              // Reload page after toast
+              setTimeout(() => window.location.reload(), 1500);
+            } else {
+              const text = await res.text();
+              console.error("Update failed:", text);
+              alert("An error occurred while updating the role.");
+            }
+          } catch (err) {
+            console.error(err);
+            alert("Could not connect to server.");
+          } finally {
+            saveButton.disabled = false;
+            saveButton.innerHTML = originalButtonText;
+          }
+        });
+        
+        // Initial render
+        renderPage(currentPage);
+        renderPagination();
+      });
+    })();

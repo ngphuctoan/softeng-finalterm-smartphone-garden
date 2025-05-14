@@ -204,6 +204,14 @@ export async function removeItemFromCart(req: Request, res: Response) {
     res.redirect("/cart");
 }
 
+export async function emptyCart(req: Request, res: Response) {
+    if (req.session.cart) {
+        req.session.cart = {};
+    }
+
+    res.redirect("/cart");
+}
+
 export function getAboutPage(req: Request, res: Response) {
     res.render("store/pages/about", {
         activeNav: "/about",

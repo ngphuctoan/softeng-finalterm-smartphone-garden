@@ -1,25 +1,69 @@
 extends ../layout
 
 block layout-content
-    h3.text-center Register
+    .container
+        .row.justify-content-center
+            .col-md-6.col-lg-5
+                .card.shadow-sm.border-0
+                    .card-body.p-2.p-md-5
+                        h3.text-center.mb-2.fw-bold Register
 
-    form(method="POST" action="/register")
-        .mb-3
-            label(for="name").form-label Fullname
-            input(type="name" name="name" placeholder="Example Name").form-control
+                        form(method="POST" action="/register" novalidate)
+                            .mb-3
+                                label(for="name").form-label.fw-medium Full Name
+                                .input-group
+                                    span.input-group-text.bg-white.border-end-0
+                                        i.bi.bi-person
+                                    input#name.form-control.border-start-0.p-2(
+                                        type="text", name="name", placeholder="Example Name", required, autocomplete="name"
+                                    )
 
-        .mb-3
-            label(for="email").form-label Email
-            input(type="text" name="email" placeholder="example@domain.com").form-control
+                            .mb-3
+                                label(for="email").form-label.fw-medium Email
+                                .input-group
+                                    span.input-group-text.bg-white.border-end-0
+                                        i.bi.bi-envelope
+                                    input#email.form-control.border-start-0.p-2(
+                                        type="email", name="email", placeholder="example@domain.com", required, autocomplete="email"
+                                    )
 
-        .mb-5
-            label(for="password").form-label Password
-            input(type="password" name="password" placeholder="********").form-control
+                            .mb-4
+                                label(for="password").form-label.fw-medium Password
+                                .input-group
+                                    span.input-group-text.bg-white.border-end-0
+                                        i.bi.bi-lock
+                                    input#password.form-control.border-start-0.p-2(
+                                        type="password", name="password", placeholder="********", required, minlength="8", autocomplete="new-password"
+                                    )
+                                .form-text.text-muted.small#error Password must be at least 8 characters long
 
-        .d-flex.flex-wrap.gap-2
-            button(type="reset").flex-fill.btn.btn-outline-dark.px-5 Reset
-            button(type="submit").flex-fill.btn.btn-dark.px-5 Register
+                            .d-grid.gap-2.mt-4
+                                button(type="submit").btn.btn-dark.py-2.w-100 Register
+                                button(type="reset").btn.btn-outline-dark.py-2.w-100 Reset
 
-        p.text-center.mt-4.mb-0
-            | Already a user? 
-            a(href="/login") Login instead!
+                        .text-center.mt-4
+                            p.text-muted.mb-0
+                                | Already have an account?
+                                a(href="/login").text-dark.fw-medium.text-decoration-none.ms-1 Login instead!
+
+    //– Toast lỗi (ẩn bằng .d-none)
+    if error
+        .toast.fade#register-toast.border-danger.position-absolute.top-0.end-0.mt-4.me-4.d-none(
+            aria-live="assertive" aria-atomic="true"
+            style="z-index:1055; transition:transform .4s,opacity .4s"
+        )
+            .toast-header.bg-danger.text-white.d-flex.align-items-center.justify-content-between
+                strong.toast-title.mr-auto Register Failed
+                button.btn-close.btn-close-white(type="button" data-bs-dismiss="toast" aria-label="Close")
+            .toast-body.text-danger
+                | #{error}
+
+    block scripts
+        script(src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js")
+        if error
+            script.
+                document.addEventListener('DOMContentLoaded', () => {
+                    const toastEl = document.getElementById('register-toast');
+                    toastEl.classList.remove('d-none');
+                    new bootstrap.Toast(toastEl).show();
+                });

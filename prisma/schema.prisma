@@ -87,19 +87,21 @@ model ItemSpecs {
     @@id([itemId, specId])
 }
 
-model Record {
-    id              String          @id
-    userId          Int
-    createdAt       DateTime        @default(now())
-    vnpayParams     Json
-    totalAmount     BigInt
-    status          String          @default("pending")
+ model Record {
+     id              String          @id
+     userId          Int
+     createdAt       DateTime        @default(now())
+     vnpayParams     Json
+     totalAmount     BigInt
+     status          String          @default("pending")
+     address         String          @default("")
+     phoneNumber     String          @default("")
+     user            User            @relation(fields: [userId], references: [id])
+     items           RecordItems[]
+     recipientName   String          @default("")
+     @@index([userId])
+ }
 
-    user            User            @relation(fields: [userId], references: [id])
-    items           RecordItems[]
-
-    @@index([userId])
-}
 
 model RecordItems {
     recordId        String

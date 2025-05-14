@@ -18,18 +18,24 @@ export const exportCSV = async (req: Request, res: Response) => {
                 status: record.status,
                 userName: record.user.name,
                 userEmail: record.user.email,
-                items: itemsString
+                items: itemsString,
+                phoneNumber: record.phoneNumber,
+                address: record.address,
+                recipientName: record.recipientName,
             };
         });
 
         const fields = [
             { label: "Order ID", value: "id" },
-            { label: "Created At", value: "createdAt" },
-            { label: "Total Amount", value: "totalAmount" },
-            { label: "Status", value: "status" },
             { label: "Customer Name", value: "userName" },
             { label: "Customer Email", value: "userEmail" },
-            { label: "Items", value: "items" }
+            { label: "Items", value: "items" },
+            { label: "Phone Number", value: "phoneNumber" },
+            { label: "Address", value: "address" },
+            { label: "Total Amount", value: "totalAmount" },
+            { label: "Created At", value: "createdAt" },
+            { label: "Status", value: "status" },
+            { label: "Recipient Name", value: "recipientName" },
         ];
 
         const json2csvParser = new Parser({ fields });
