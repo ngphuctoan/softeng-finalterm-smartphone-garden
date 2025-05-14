@@ -18,63 +18,79 @@ const registerSchema = z.object({
 });
 
 export async function login(req: Request, res: Response, next: NextFunction) {
-    const { email, password } = loginSchema.parse(req.body);
+    try {
+        const { email, password } = loginSchema.parse(req.body);
 
-    const user = await UserModel.getByEmail(email);
-    const passwordHash = await UserModel.getPasswordHash(user.id);
+        const user = await UserModel.getByEmail(email);
+        if (!user) {
+            return res.status(400).render("auth/pages/login", {
+                error: "Email or password is incorrect."
+            });
+        }
 
-    if (!user || !await bcrypt.compare(password, passwordHash)) {
-        res.status(400).send("Incorrect email or password.");
-        return;
-    }
+        const passwordHash = await UserModel.getPasswordHash(user.id);
+        const match = await bcrypt.compare(password, passwordHash);
+        if (!match) {
+            return res.status(400).render("auth/pages/login", {
+                error: "Email or password is incorrect."
+            });
+        }
 
-    const token = jwt.sign(
-        {
-            jti: uuidv4(),
-            userId: user.id,
-            roleName: user.roleName
-        },
-        process.env.JWT_SECRET as string,
-        { expiresIn: "1w" }
-    );
-
-    res.cookie(
-        "authToken",
-        token,
-        {
+        const token = jwt.sign(
+            { jti: uuidv4(), userId: user.id, roleName: user.roleName },
+            process.env.JWT_SECRET as string,
+            { expiresIn: "1w" }
+        );
+        res.cookie("authToken", token, {
             httpOnly: true,
             secure: true,
             sameSite: true,
-            maxAge: 604800000
-        }
-    );
-    
-    res.redirect("/");
+            maxAge: 7 * 24 * 60 * 60 * 1000
+        });
+
+        return res.redirect("/");
+    }
+    catch (e) {
+        console.error("Login error:", e);
+        return res.status(400).render("auth/pages/login", {
+            error: "Email or password is incorrect."
+        });
+    }
 }
+
 
 export async function register(req: Request, res: Response, next: NextFunction) {
-    const { name, email, password } = registerSchema.parse(req.body);
-
     try {
-        if (await UserModel.getByEmail(email)) {
-            res.status(409).send("Email was already taken.");
-            return;
+        const { name, email, password } = registerSchema.parse(req.body);
+
+        const existing = await UserModel.getByEmail(email);
+        if (existing) {
+            return res.status(409).render("auth/pages/register", {
+                error: "Email này đã được sử dụng."
+            });
         }
-    } catch {}
 
-    const passwordHash = await bcrypt.hash(password, 10);
-    const defaultRole = "customer";
+        const passwordHash = await bcrypt.hash(password, 10);
+        await UserModel.add({
+            name,
+            email,
+            password: passwordHash,
+            roleName: "customer"
+        });
 
-    await UserModel.add({
-        name,
-        email,
-        password: passwordHash,
-        roleName: defaultRole
-    });
-
-    req.body = { email, password };
-    next();
+        return res.redirect("/login");
+    } catch (e) {
+        // Zod validation hoặc các lỗi khác
+        console.error("Register error:", e);
+        const msg = e instanceof z.ZodError
+            ? "This account already exists."
+            : "Registration failed, please try again later";
+        return res.status(400).render("auth/pages/register", {
+            error: msg
+        });
+    }
 }
+
 
 export async function logout(req: Request, res: Response, next: NextFunction) {
     if (!req.cookies.authToken) {

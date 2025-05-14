@@ -1,141 +1,377 @@
 extends ../layout
 
 block layout-content
-    .container-sm.py-5.table-responsive.flex-fill
-        
-        // nếu giỏ rỗng, hiển thị phần này và bỏ qua table
+    .container.pb-5.pt-2
+
+        // Empty cart state
         if cart.length === 0
-            .d-flex.flex-column.align-items-center.justify-content-center.py-5
-                iconify-icon(icon="mynaui:shopping-cart-tick" style="font-size:4rem; color:#6c757d;")
-                // Engaging message
-                h3.mt-3.text-center.fw-bold Your cart is looking lonely 😢
-                p.text-muted.text-center.mb-4 Find the perfect phone to keep it company!
-                
-                // Primary CTA button
-                a.btn.btn-dark.btn-lg.px-4.py-2.shop-now-btn(href="/#bestSellers")
-                    iconify-icon(icon="mynaui:cart" style="margin-right: 8px;")
-                    | Shop top phones
-        else
-            h1.mb-5 Your cart
-            table#cartTable.table.text-nowrap
-                - const totalPrice = cart.reduce((totalPrice, item) => totalPrice + item.price * item.amount, 0)
+            .card.border-0.shadow-sm.text-center.py-5.px-4
+                .py-4
+                    iconify-icon(icon="mynaui:cart-x" style="font-size:5rem; color:#6c757d;")
+                h2.mt-3.fw-bold Your cart is looking lonely 😢
+                p.text-muted.mb-4 Find the perfect phone to keep it company!
+                .d-flex.justify-content-center.gap-3
+                    a.btn.btn-dark.btn-lg.px-4.py-2.shop-now-btn(href="/#bestSellers")
+                        iconify-icon(icon="mynaui:cart" style="margin-right: 8px;")
+                        | Shop top phones
+                    a.btn.btn-outline-dark.btn-lg.px-4.py-2(href="/products/smartphones")
+                        iconify-icon(icon="mynaui:grid" style="margin-right: 8px;")
+                        | Browse all products
+        if !cart.length == 0
+            h1.mb-4.fw-bold.pt-3
+                iconify-icon(icon="mynaui:cart" style="vertical-align: -2px; margin-right: 10px; font-size: 2.5rem;")
+                | Your Cart
 
-                caption.table-caption.p-3
-                    span(style="line-height: 2.5rem").total-price.text-dark Total price: #{totalPrice.toLocaleString("vi-VN")}đ
+            .row.g-4
+                // Cart items column
+                .col-lg-8
+                    .card.border-0.shadow-sm.mb-4
+                        .card-header.bg-dark.text-white.py-3.px-4
+                            .d-flex.justify-content-between.align-items-center.position-relative
+                                h5.mb-0 Cart Items (#{cart.length})
+                                // Hide by default, show on hover
+                                button#clearCartBtn.btn.btn-sm.btn-outline-light.d-none(type="button" style="position: absolute; right: 0; top: 50%; transform: translateY(-50%);")
+                                    iconify-icon(icon="mynaui:trash" style="margin-right: 5px;")
+                                    | Empty Cart
+                            style.
+                                .card-header:hover #clearCartBtn {
+                                    display: inline-block !important;
+                                }
 
-                    form(method="POST" action="/payment/create")
-                        input(type="hidden" name="items" value=JSON.stringify(cart))
+                        .card-body.p-0
+                            .table-responsive
+                                table#cartTable.table.mb-0
+                                    thead.table-light
+                                        tr
+                                            th.py-3.ps-md-4.ps-1(scope="col") Product
+                                            th.py-3.text-center.d-none.d-md-table-cell(scope="col") Price
+                                            th.py-3.text-center(scope="col") Quantity
+                                            th.py-3.text-center.pe-4(scope="col")    Total
+                                    tbody.align-middle
+                                        each item in cart
+                                            tr(id=item.id)
+                                                td.py-3.ps-md-4.ps-1
+                                                    .d-flex.align-items-center
+                                                        .product-img.me-3.position-relative
+                                                            img.rounded(
+                                                                src=`/public/images/products/${item.productId}/thumb.jpg`
+                                                                onerror="this.onerror = null; this.src='/public/images/products/thumb-notfound.jpg'"
+                                                                width="80" height="80"
+                                                                alt=item.productName
+                                                            )
+                                                        .product-info
+                                                            h6.mb-1.fw-semibold(
+                                                                class="d-none d-md-block"
+                                                            ) #{item.productName}
+                                                            h6.mb-1.fw-semibold.fs-6(
+                                                                class="d-block d-md-none"
+                                                            ) #{item.productName}
+                                                            .specs.small.text-muted.mb-2.d-none.d-md-flex.flex-wrap
+                                                                each [spec, value] of Object.entries(item.specs)
+                                                                    span.me-3 #{spec}: #{value}
+                                                            .specs.text-muted.mb-2.d-flex.d-md-none.flex-wrap.fs-7
+                                                                each [spec, value] of Object.entries(item.specs)
+                                                                    span.me-3 #{spec}: #{value}
 
-                        input(type="hidden" name="totalAmount" value=totalPrice)
+                                                            .d-block.d-md-none
+                                                                span.fw-medium #{item.price.toLocaleString("vi-VN")}đ
 
-                        button(type="submit" disabled=(cart.length === 0)).btn.btn-dark.float-end
-                            iconify-icon(icon="mynaui:credit-card")
-                            span.ms-3 Proceed to checkout
 
-                thead
-                    th
-                    th Product name
-                    th Specs
-                    th Price
-                    th Amount
-                    th
-                
-                tbody.align-middle
-                    if cart.length == 0
-                        tr
-                            td(colspan="6" class="text-center")
-                                iconify-icon(icon="mynaui:funny-square")
-                                a(href="/products/smartphones")  Explore top-selling items before they're gone!
-                    each item in cart
-                        tr(id=item.id)
-                            td
-                                img(
-                                    src=`/public/images/products/${item.productId}/thumb.jpg`
-                                    onerror="this.onerror = null; this.src='/public/images/products/thumb-notfound.jpg'"
-                                    width="80" height="80"
-                                )
+                                                td.text-center.d-none.d-md-table-cell(data-price=item.price).price
+                                                    span.fw-medium #{item.price.toLocaleString("vi-VN")}đ
 
-                            td #{item.productName}
+                                                td.text-center
+                                                    .quantity-control.d-inline-flex.align-items-center.border.rounded
+                                                        button(type="button" data-bs-item=item).cart-minus.btn.btn-sm.btn-light.border-0.px-2
+                                                            iconify-icon(icon="mynaui:minus")
 
-                            td
-                                ul.m-0
-                                    each [spec, value] of Object.entries(item.specs)
-                                        li #{spec}: #{value}
+                                                        input.form-control.form-control-sm.text-center.border-0.quantity-input(
+                                                            type="number"
+                                                            min="1"
+                                                            max=item.stock
+                                                            value=item.amount
+                                                            style="width: 50px;"
+                                                            data-item-id=item.id
+                                                            readonly
+                                                        )
 
-                            td(data-price=item.price).price #{item.price.toLocaleString("vi-VN")}đ
+                                                        button(type="button" data-bs-item=item).cart-plus.btn.btn-sm.btn-light.border-0.px-2
+                                                            iconify-icon(icon="mynaui:plus")
 
-                            td.amount #{item.amount}
+                                                td.text-end.pe-4
+                                                    .d-flex.justify-content-end.align-items-center
+                                                        span.fw-semibold.item-total #{(item.price * item.amount).toLocaleString("vi-VN")}đ
 
-                            td
-                                .d-flex.align-items-center.gap-2
-                                    button(type="button" data-bs-item=item).cart-minus.btn.btn-outline-dark.px-1
-                                        iconify-icon(icon="mynaui:minus")
-                                    button(type="button" data-bs-item=item).cart-plus.btn.btn-outline-dark.px-1
-                                        iconify-icon(icon="mynaui:plus")
+                                                        //- form.ms-3.d-none.d-md-block(method="POST" action=`/cart/remove-item?id=${item.id}`)
+                                                        //-     button(type="submit" title="Remove item").btn.btn-sm.btn-outline-danger.rounded-circle
+                                                        //-         iconify-icon(icon="mynaui:trash")
 
-                                    form(method="POST" action=`/cart/remove-item?id=${item.id}`)
-                                        button(type="submit").btn.btn-outline-danger
-                                            iconify-icon(icon="mynaui:trash")
+                    // Continue shopping button
+                    .d-flex.justify-content-between.align-items-center.mb-4
+                        a.btn.btn-outline-dark(href="/products")
+                            iconify-icon(icon="mynaui:arrow-left" style="margin-right: 5px;")
+                            | Continue Shopping
 
-                                    #requestSpinner.spinner-border.spinner-border-sm.ms-4.opacity-0(role="status")
-                                        span.visually-hidden Sending requests...
+                        #updateStatus.d-flex.align-items-center.text-success.opacity-0.transition-opacity
+                            iconify-icon(icon="mynaui:check-circle" style="margin-right: 5px;")
+                            span Cart updated
+
+                // Order summary column
+                .col-lg-4
+                    .card.border-0.shadow-sm.mb-4
+                        .card-header.bg-dark.text-white.py-3.px-4
+                            h5.mb-0 Order Summary
+
+                        .card-body.p-4
+                            form#checkoutForm(method="POST" action="/payment/create")
+                                input(type="hidden" name="items" value=JSON.stringify(cart))
+                                - const subtotalPrice = cart.reduce((totalPrice, item) => totalPrice + item.price * item.amount, 0)
+                                input(type="hidden" name="subtotalAmount" id="subtotalInput" value=subtotalPrice)
+                                input(type="hidden" name="totalAmount" id="totalAmountInput" value=subtotalPrice)
+
+                                // Order summary
+                                .mb-4
+                                    .d-flex.justify-content-between.mb-2
+                                        span Subtotal
+                                        span#subtotal.fw-medium #{subtotalPrice.toLocaleString("vi-VN")}đ
+
+                                    .d-flex.justify-content-between.mb-2
+                                        span Shipping
+                                        span#shipping.fw-medium Free
+
+                                    .d-flex.justify-content-between.mb-2
+                                        span Tax
+                                        span#tax.fw-medium Included
+
+                                    hr.my-3
+
+                                    .d-flex.justify-content-between.mb-0
+                                        span.fw-bold Total
+                                        span#totalPrice.fw-bold #{subtotalPrice.toLocaleString("vi-VN")}đ
+                                
+                                // Shipping information
+                                h6.fw-bold.mb-3 Shipping Information
+
+                                .mb-3
+                                    label.form-label.small.fw-medium(for="recipientName") Recipient Name
+                                    .input-group
+                                        span.input-group-text.bg-white.border-end-0
+                                            iconify-icon(icon="mynaui:user")
+                                        input.form-control.border-start-0.ps-2#recipientName(
+                                            type="text"
+                                            name="recipientName"
+                                            placeholder="Full Name"
+                                            required
+                                        )
+
+                                .mb-3
+                                    label.form-label.small.fw-medium(for="phoneNumber") Phone Number
+                                    .input-group
+                                        span.input-group-text.bg-white.border-end-0
+                                            iconify-icon(icon="mynaui:telephone-call")
+                                        input.form-control.border-start-0.ps-2#phoneNumber(
+                                            type="tel"
+                                            name="phoneNumber"
+                                            placeholder="Your phone number"
+                                            pattern="^[0-9]{10}$"
+                                            minlength="10"
+                                            maxlength="10"
+                                            min="0"
+                                            required
+                                            inputmode="numeric"
+                                            oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                                        )
+
+                                .mb-4
+                                    label.form-label.small.fw-medium(for="address") Shipping Address
+                                    .input-group
+                                        span.input-group-text.bg-white.border-end-0
+                                            iconify-icon(icon="mynaui:home")
+                                        textarea.form-control.border-start-0.ps-2#address(
+                                            name="address"
+                                            placeholder="Street, District, City"
+                                            rows="1"
+                                            required
+                                        )
+
+                                // Terms and conditions
+                                .form-check.mb-4
+                                    input.form-check-input(type="checkbox" id="terms" required)
+                                    label.form-check-label(for="terms")
+                                        | I agree to the 
+                                        a(href="") Terms and Conditions
+                                        |  and 
+                                        a(href="") Privacy Policy
+
+                                // Checkout button
+                                button.btn.btn-dark.w-100.py-2.mb-2(type="submit" disabled=(cart.length === 0))
+                                    iconify-icon(icon="mynaui:credit-card" style="margin-right: 8px;")
+                                    | Proceed to Checkout
+
+                                p.text-center.small.text-muted.mb-0 Secure checkout with SSL encryption
+
+    // Toast notification
+    .toast-container.position-fixed.bottom-0.end-0.p-3
+        #cartToast.toast.align-items-center.text-white.bg-dark.border-0(role="alert" aria-live="assertive" aria-atomic="true")
+            .d-flex
+                .toast-body
+                    span#toastMessage
+                button.btn-close.btn-close-white.me-2.m-auto(type="button" data-bs-dismiss="toast" aria-label="Close")
 
     script.
-        const table = document.getElementById("cartTable");
-        const spinner = document.getElementById("requestSpinner");
+        document.addEventListener('DOMContentLoaded', function() {
+            const table = document.getElementById("cartTable");
+            const spinner = document.getElementById("requestSpinner");
+            const updateStatus = document.getElementById("updateStatus");
+            const subtotalElement = document.getElementById("subtotal");
+            const totalPriceElement = document.getElementById("totalPrice");
+            const subtotalInput = document.getElementById("subtotalInput");
+            const totalAmountInput = document.getElementById("totalAmountInput");
+            const cartToast = document.getElementById('cartToast');
+            const toastMessage = document.getElementById('toastMessage');
 
-        for (const button of document.getElementsByClassName("cart-plus")) {
-            button.onclick = async (event) => {
-                const item = JSON.parse(button.dataset.bsItem);
+            // Initialize Bootstrap toast
+            const toast = new bootstrap.Toast(cartToast, {
+                delay: 3000
+            });
 
-                spinner.classList.remove("opacity-0");
+            // Show toast message
+            function showToast(message) {
+                toastMessage.textContent = message;
+                toast.show();
+            }
 
-                await fetch(`/cart/add-item?id=${item.id}`, {
-                    method: "POST"
+            // Show update status
+            function showUpdateStatus() {
+                updateStatus.classList.remove('opacity-0');
+                setTimeout(() => {
+                    updateStatus.classList.add('opacity-0');
+                }, 2000);
+            }
+
+            // Update cart item quantity
+            async function updateItemQuantity(itemId, newQuantity, itemElement) {
+                try {
+                    // If quantity is 0, remove the item
+                    if (newQuantity <= 0) {
+                        await fetch(`/cart/remove-item?id=${itemId}`, {
+                            method: "POST"
+                        });
+
+                        // Remove the row with animation
+                        const row = document.getElementById(itemId);
+                        row.style.transition = 'opacity 0.3s ease';
+                        row.style.opacity = '0';
+
+                        setTimeout(() => {
+                            row.remove();
+                            updateTotalPrice();
+                            showToast('Item removed from cart');
+
+                            // If cart is empty, reload page to show empty state
+                            if (table.querySelectorAll('tbody tr').length === 0) {
+                                window.location.reload();
+                            }
+                        }, 300);
+
+                        return;
+                    }
+
+                    // Otherwise update quantity
+                    if (newQuantity > parseInt(itemElement.dataset.bsItem.stock)) {
+                        showToast('Cannot add more of this item');
+                        return;
+                    }
+
+                    // Update quantity in UI
+                    const row = document.getElementById(itemId);
+                    const quantityInput = row.querySelector('.quantity-input');
+                    quantityInput.value = newQuantity;
+
+                    // Update item total
+                    const price = parseInt(row.querySelector('.price')?.dataset.price) || 
+                        parseInt(JSON.parse(itemElement.dataset.bsItem).price);
+                    const itemTotal = row.querySelector('.item-total');
+                    itemTotal.textContent = (price * newQuantity).toLocaleString("vi-VN") + 'đ';
+
+                    // Update server
+                    if (newQuantity > parseInt(quantityInput.value)) {
+                        await fetch(`/cart/add-item?id=${itemId}`, {
+                            method: "POST"
+                        });
+                    } else {
+                        await fetch(`/cart/subtract-item?id=${itemId}`, {
+                            method: "POST"
+                        });
+                    }
+
+                    updateTotalPrice();
+                    showUpdateStatus();
+                } catch (error) {
+                    console.error('Error updating quantity:', error);
+                    showToast('Error updating cart');
+                }
+            }
+
+            // Handle plus button click
+            for (const button of document.getElementsByClassName("cart-plus")) {
+                button.onclick = async (event) => {
+                    const item = JSON.parse(button.dataset.bsItem);
+                    const row = document.getElementById(item.id);
+                    const quantityInput = row.querySelector('.quantity-input');
+                    const currentQuantity = parseInt(quantityInput.value);
+
+                    await updateItemQuantity(item.id, currentQuantity + 1, button);
+                }
+            }
+
+            // Handle minus button click
+            for (const button of document.getElementsByClassName("cart-minus")) {
+                button.onclick = async (event) => {
+                    const item = JSON.parse(button.dataset.bsItem);
+                    const row = document.getElementById(item.id);
+                    const quantityInput = row.querySelector('.quantity-input');
+                    const currentQuantity = parseInt(quantityInput.value);
+
+                    await updateItemQuantity(item.id, currentQuantity - 1, button);
+                }
+            }
+
+            // Handle clear cart button
+            const clearCartBtn = document.getElementById('clearCartBtn');
+            if (clearCartBtn) {
+                clearCartBtn.addEventListener('click', async () => {
+                    if (confirm('Are you sure you want to clear your cart?')) {
+                        try {
+                            // Here you would add the endpoint to clear the cart
+                            // For now, we'll just reload the page
+                            window.location.href = "/cart/empty-cart";
+                        } catch (error) {
+                            console.error('Error clearing cart:', error);
+                            showToast('Error clearing cart');
+                        }
+                    }
                 });
-
-                const row = document.getElementById(item.id)
-                    .getElementsByClassName("amount")[0];
-
-                row.textContent = Math.min(parseInt(row.textContent) + 1, item.stock);
-
-                updateTotalPrice();
-
-                spinner.classList.add("opacity-0");
-            }
-        }
-
-        for (const button of document.getElementsByClassName("cart-minus")) {
-            button.onclick = async (event) => {
-                const item = JSON.parse(button.dataset.bsItem);
-
-                spinner.classList.remove("opacity-0");
-
-                await fetch(`/cart/subtract-item?id=${item.id}`, {
-                    method: "POST"
-                });
-
-                const row = document.getElementById(item.id)
-                    .getElementsByClassName("amount")[0];
-
-                row.textContent = Math.max(parseInt(row.textContent) - 1, 1);
-
-                updateTotalPrice();
-
-                spinner.classList.add("opacity-0");
-            }
-        }
-
-        function updateTotalPrice() {
-            let totalPrice = 0;
-
-            for (const row of table.querySelectorAll("tbody tr")) {
-                const price = parseInt(row.getElementsByClassName("price")[0].dataset.price);
-                const amount = parseInt(row.getElementsByClassName("amount")[0].textContent);
-
-                totalPrice += price * amount;
             }
 
-            table.getElementsByClassName("total-price")[0]
-                .textContent = `Total price: ${totalPrice.toLocaleString("vi-VN")}đ`;
-        }
+            // Update total price
+            function updateTotalPrice() {
+                let subtotal = 0;
+
+                for (const row of table.querySelectorAll('tbody tr')) {
+                    const price = parseInt(row.querySelector('.price')?.dataset.price) || 
+                        parseInt(row.querySelector('.item-total').textContent.replace(/[^\d]/g, ''));
+                    const quantity = parseInt(row.querySelector('.quantity-input').value);
+
+                    subtotal += price * quantity;
+                }
+
+                // Update subtotal and total displays
+                subtotalElement.textContent = subtotal.toLocaleString("vi-VN") + 'đ';
+                totalPriceElement.textContent = subtotal.toLocaleString("vi-VN") + 'đ';
+
+                // Update hidden inputs
+                subtotalInput.value = subtotal;
+                totalAmountInput.value = subtotal;
+            }
+        });

@@ -4,8 +4,13 @@ block layout-content
     .text-center.p-5.m-auto
         if code === "00"
             h1.mb-3 ･:*+.\(( °ω° ))/.:+
-            h4.mb-5 Payment successful
-
+            h4.mb-2 Payment successful
+            p
+                | Thank you for your order!
+                | <br>
+                | Your order will be shipped to the address you provided.
+                | <br>
+                | Please wait for a phone call to confirm your order.
             .p-4.text-start.text-nowrap.border(style="width: 50vw")
                 .row.mb-3
                     strong.col Order ID
@@ -27,9 +32,15 @@ block layout-content
                     strong.col Amount
                     span.col= `${(parseInt(vnp_Params.vnp_Amount) / 100).toLocaleString("vi-VN")}đ`
 
-                .row
+                .row.mb-3 
                     strong.col Date of purchase
                     span.col= payDate
+                .row.mb-3
+                    strong.col Address 
+                    span.col= address 
+                .row 
+                    strong.col Phone number 
+                    span.col= phoneNumber
         else
             h1.mb-3 (╥﹏╥)
             h4.mb-5 Something went wrong

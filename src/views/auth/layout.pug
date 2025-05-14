@@ -1,12 +1,75 @@
 doctype html
-html
+html(lang="en")
     head
-        meta(name="viewport" content="width=device-width, initial-scale=1")
+        meta(charset="UTF-8")
+        meta(name="viewport" content="width=device-width, initial-scale=1.0")
+        title Your Application
+        // Bootstrap CSS
+        link(href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet")
+        // Bootstrap Icons
+        link(href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet")
+        // Custom CSS
+        style.
+            body {
+                background-color: #f8f9fa;
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            }
+            .card {
+                transition: all 0.3s ease;
+            }
+            .form-control:focus, .btn:focus {
+                box-shadow: 0 0 0 0.25rem rgba(33, 37, 41, 0.25);
+                border-color: #212529;
+            }
+            .btn-dark {
+                background-color: #212529;
+            }
+            .btn-dark:hover {
+                background-color: #000;
+            }
+            .btn-outline-dark:hover {
+                background-color: #f8f9fa;
+                color: #000;
+            }
+    body
+        header.bg-white.shadow-sm.mb-4
+            .container
+                nav.navbar.navbar-expand-lg.navbar-light
+                    a.navbar-brand(href="/") 
+                        | SMARTPHONE GARDEN
+                    button.navbar-toggler(type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav")
+                        span.navbar-toggler-icon
+                    #navbarNav.collapse.navbar-collapse
+                        ul.navbar-nav.ms-auto
+                            li.nav-item
+                                a.nav-link(href="/") Home
+                            li.nav-item
+                                a.nav-link(href="/login") Login
+                            li.nav-item
+                                a.nav-link(href="/register") Register
 
-        link(rel="stylesheet" href="https://unpkg.com/bootstrap@5.3.5/dist/css/bootstrap.min.css")
-    
-    body.d-flex.justify-content-center.align-items-center.p-2.min-vh-100
-        main(style="max-width: 30rem").d-flex.flex-column.gap-2.w-100.p-4.bg-body.border
+        main
             block layout-content
 
-        script(src="https://unpkg.com/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js")
+        footer.bg-dark.text-white.py-4.mt-5
+            .container.text-center
+                p.mb-0 &copy; 2025 SmartPhone Garden. All rights reserved.
+        block scripts
+        // Bootstrap JS
+        script(src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js")
+        // Custom JS
+        script.
+            // Add form validation
+            (function() {
+                'use strict'
+                const forms = document.querySelectorAll('form')
+                Array.from(forms).forEach(form => {
+                    form.addEventListener('submit', event => {
+                        if (!form.checkValidity()) {
+                            event.preventDefault()
+                            event.stopPropagation()
+                        }
+                        form.classList.add('was-validated')
+                    }, false)
+                })
+            })()

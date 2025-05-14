@@ -1,21 +1,69 @@
 extends ../layout
 
 block layout-content
-    h3.text-center Login
+    .container.py-0
+        .row.justify-content-center
+            .col-md-6.col-lg-5
+                .card.border-0.shadow-sm
+                    .card-body.p-4.p-md-5
+                        h2.text-center.mb-4.fw-bold Login
 
-    form(method="POST" action="/login")
-        .mb-3
-            label(for="email").form-label Email
-            input(type="text" name="email" placeholder="example@domain.com").form-control
+                        form(method="POST" action="/login" novalidate)
+                            .mb-4
+                                label(for="email").form-label.fw-medium Email address
+                                .input-group
+                                    span.input-group-text.bg-white.border-end-0
+                                        i.bi.bi-envelope
+                                    input#email.form-control.border-start-0.pl-2(
+                                        type="email",
+                                        name="email",
+                                        placeholder="example@domain.com",
+                                        required,
+                                        autocomplete="email"
+                                    )
 
-        .mb-5
-            label(for="password").form-label Password
-            input(type="password" name="password" placeholder="********").form-control
+                            .mb-4
+                                label(for="password").form-label.fw-medium Password
+                                .input-group
+                                    span.input-group-text.bg-white.border-end-0
+                                        i.bi.bi-lock
+                                    input#password.form-control.border-start-0.pl-2(
+                                        type="password",
+                                        name="password",
+                                        placeholder="********",
+                                        required,
+                                        autocomplete="current-password"
+                                    )
 
-        .d-flex.flex-wrap.gap-2
-            button(type="reset").flex-fill.btn.btn-outline-dark.px-5 Reset
-            button(type="submit").flex-fill.btn.btn-dark.px-5 Login
+                            .d-flex.flex-column-reverse.flex-md-row.gap-2.mb-4
+                                button(type="reset").btn.btn-outline-dark.py-2.w-100.w-md-50.me-md-2 Reset
+                                button(type="submit").btn.btn-dark.py-2.w-100.w-md-50
+                                    | Login 
+                                    i.bi.bi-arrow-right.ms-2
 
-        p.text-center.mt-4.mb-0
-            | Don't have an account? 
-            a(href="/register") Register now!
+                            .text-center.mt-4
+                                p.text-muted.mb-0
+                                    | Don't have an account? 
+                                    a(href="/register").text-dark.fw-medium.text-decoration-none.ms-1 Register now!
+
+    if error
+        .toast.fade#login-toast.border-danger.position-absolute.top-0.end-0.mt-4.me-4.d-none(
+            aria-live="assertive" aria-atomic="true"
+            style="z-index:1055; transition: transform 0.4s cubic-bezier(.4,0,.2,1), opacity 0.4s cubic-bezier(.4,0,.2,1);" 
+        )
+            .toast-header.bg-danger.text-white.d-flex.align-items-center.justify-content-between
+                strong.toast-title.mr-auto Login Failed
+                button.btn-close.btn-close-white(type="button" data-bs-dismiss="toast" aria-label="Close")
+            .toast-body.text-danger
+                | #{error}
+
+    block scripts
+    // Bootstrap JS
+    script(src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js")
+    if error
+        script.
+            document.addEventListener('DOMContentLoaded', () => {
+                const toastEl = document.getElementById('login-toast');
+                toastEl.classList.remove('d-none');
+                new bootstrap.Toast(toastEl).show();
+            });

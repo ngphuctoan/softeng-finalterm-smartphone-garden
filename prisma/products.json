@@ -5,12 +5,7 @@
         "brand": "Apple",
         "category": "smartphones",
         "os": "ios 18",
-        "tags": [
-            "ios",
-            "flagship",
-            "camera",
-            "5G"
-        ],
+        "tags": ["ios","flagship","camera","5G"],
         "description": "The ultimate iPhone experience with the A17 Pro chip and a titanium frame.",
         "baseSpecs": {
             "display": "6.7\" OLED",

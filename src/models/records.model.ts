@@ -1,14 +1,16 @@
 import { Item } from "@interfaces";
 import prisma from "@utils/db";
 
-export async function getAllRecords(): Promise<any[]> {
+export async function getAllRecords(): Promise<Record<any, any>[]> {
     return await prisma.record.findMany({
         select: {
             id: true, // mã đơn
             createdAt: true, // ngày tạo
             totalAmount: true, // tổng tiền
             status: true, // trạng thái
-
+            address: true, // địa chỉ
+            phoneNumber: true, // số điện thoại
+            recipientName: true, // tên người nhận
             user: {
                 select: {
                     name: true,
@@ -41,6 +43,9 @@ export async function createRecordWithItems(data: {
     userId: number;
     vnpayParams: Record<string, any>;
     totalAmount: number;
+    address: string;
+    phoneNumber: string;
+    recipientName: string;
     items: (Item & { amount: number })[];
 }) {
     return prisma.record.create({
@@ -49,6 +54,9 @@ export async function createRecordWithItems(data: {
             userId: data.userId,
             vnpayParams: data.vnpayParams,
             totalAmount: data.totalAmount,
+            address: data.address,
+            phoneNumber: data.phoneNumber,
+            recipientName: data.recipientName,
             items: {
                 create: data.items.map((item) => ({
                     item: {
