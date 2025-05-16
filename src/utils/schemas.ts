@@ -19,6 +19,7 @@ export const roleSchema = z.object({
 export const productSchema = z.object({
     id: z.string().min(1),
     name: z.string().min(1),
+    os: z.string().min(1),
     brand: z.string().min(1),
     category: z.string().min(1),
     tags: z.string().min(1).transform(val => JSON.parse(val)),

@@ -230,6 +230,12 @@ block layout-content
             const cartToast = document.getElementById('cartToast');
             const toastMessage = document.getElementById('toastMessage');
 
+            function finalizeUpdate(message) {
+                updateTotalPrice();
+                showUpdateStatus();
+                showToast(message);
+            }
+
             // Initialize Bootstrap toast
             const toast = new bootstrap.Toast(cartToast, {
                 delay: 3000
@@ -313,28 +319,59 @@ block layout-content
                 }
             }
 
-            // Handle plus button click
-            for (const button of document.getElementsByClassName("cart-plus")) {
-                button.onclick = async (event) => {
-                    const item = JSON.parse(button.dataset.bsItem);
-                    const row = document.getElementById(item.id);
-                    const quantityInput = row.querySelector('.quantity-input');
-                    const currentQuantity = parseInt(quantityInput.value);
+            // Xử lý nút “+”
+            for (const btnPlus of document.getElementsByClassName("cart-plus")) {
+                btnPlus.addEventListener('click', async () => {
+                const item = JSON.parse(btnPlus.dataset.bsItem);
+                const row = document.getElementById(item.id);
+                const input = row.querySelector('.quantity-input');
+                const currentQty = parseInt(input.value);
 
-                    await updateItemQuantity(item.id, currentQuantity + 1, button);
+                if (currentQty >= item.stock) {
+                    showToast('Không thể thêm nữa');
+                    return;
                 }
+
+                await fetch(`/cart/add-item?id=${item.id}`, { method: "POST" });
+
+                const newQty = currentQty + 1;
+                input.value = newQty;
+                // cập nhật subtotal của dòng
+                const price = parseInt(row.querySelector('.price').dataset.price);
+                row.querySelector('.item-total').textContent =
+                    (price * newQty).toLocaleString("vi-VN") + 'đ';
+
+                finalizeUpdate('Đã thêm 1 sản phẩm');
+                });
             }
 
-            // Handle minus button click
-            for (const button of document.getElementsByClassName("cart-minus")) {
-                button.onclick = async (event) => {
-                    const item = JSON.parse(button.dataset.bsItem);
-                    const row = document.getElementById(item.id);
-                    const quantityInput = row.querySelector('.quantity-input');
-                    const currentQuantity = parseInt(quantityInput.value);
+            for (const btnMinus of document.getElementsByClassName("cart-minus")) {
+                btnMinus.addEventListener('click', async () => {
+                const item = JSON.parse(btnMinus.dataset.bsItem);
+                const row = document.getElementById(item.id);
+                const input = row.querySelector('.quantity-input');
+                const currentQty = parseInt(input.value);
 
-                    await updateItemQuantity(item.id, currentQuantity - 1, button);
+                if (currentQty <= 1) {
+                    await fetch(`/cart/remove-item?id=${item.id}`, { method: "POST" });
+                    row.remove();
+                    // nếu bỏ hết thì reload để show empty state
+                    if (!table.querySelector('tbody tr')) window.location.reload();
+                    showToast('Đã xóa sản phẩm');
+                    updateTotalPrice();
+                    return;
                 }
+
+                await fetch(`/cart/subtract-item?id=${item.id}`, { method: "POST" });
+
+                const newQty = currentQty - 1;
+                input.value = newQty;
+                const price = parseInt(row.querySelector('.price').dataset.price);
+                row.querySelector('.item-total').textContent =
+                    (price * newQty).toLocaleString("vi-VN") + 'đ';
+
+                finalizeUpdate('Đã giảm 1 sản phẩm');
+                });
             }
 
             // Handle clear cart button
