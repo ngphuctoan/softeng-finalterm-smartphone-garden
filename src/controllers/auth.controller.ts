@@ -63,12 +63,13 @@ export async function register(req: Request, res: Response, next: NextFunction) 
     try {
         const { name, email, password } = registerSchema.parse(req.body);
 
-        const existing = await UserModel.getByEmail(email);
-        if (existing) {
+        try {
+            await UserModel.getByEmail(email);
+
             return res.status(409).render("auth/pages/register", {
                 error: "Email này đã được sử dụng."
             });
-        }
+        } catch (e) {}
 
         const passwordHash = await bcrypt.hash(password, 10);
         await UserModel.add({
@@ -83,7 +84,7 @@ export async function register(req: Request, res: Response, next: NextFunction) 
         // Zod validation hoặc các lỗi khác
         console.error("Register error:", e);
         const msg = e instanceof z.ZodError
-            ? "This account already exists."
+            ? e.errors.map(err => err.message).join(", ")
             : "Registration failed, please try again later";
         return res.status(400).render("auth/pages/register", {
             error: msg

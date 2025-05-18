@@ -4,6 +4,7 @@ import { User } from "@interfaces";
 import { UserModel } from "@models";
 import { NextFunction, Request, Response } from "express";
 import { passwordSchema, roleSchema, updateSchema } from "@utils/schemas";
+import { z } from "zod";
 
 export interface Profile {
     name: string,
@@ -26,28 +27,44 @@ export async function getMyProfile(req: Request, res: Response, next: NextFuncti
 }
 
 export async function updateMyProfile(req: Request, res: Response) {
-    const userId = req.auth?.userId;
-    const updateData = updateSchema.parse(req.body);
+    try {
+        const userId = req.auth?.userId;
+        const updateData = updateSchema.parse(req.body);
 
-    const me = await UserModel.update({
-        id: userId,
-        ...updateData
-    });
+        const me = await UserModel.update({
+            id: userId,
+            ...updateData
+        });
 
-    res.redirect("/profile");
+        res.redirect("/profile");
+    } catch (e) {
+        const msg = e instanceof z.ZodError
+            ? e.errors.map(err => err.message).join(", ")
+            : "Update failed, please try again later";
+
+        res.redirect(`/profile?=error=${msg}`);
+    }
 }
 
 export async function updateMyPassword(req: Request, res: Response) {
-    const userId = req.auth?.userId;
-    const { password } = passwordSchema.parse(req.body);
-    const passwordHash = await bcrypt.hash(password, 10);
+    try {
+        const userId = req.auth?.userId;
+        const { password } = passwordSchema.parse(req.body);
+        const passwordHash = await bcrypt.hash(password, 10);
 
-    await UserModel.update({
-        id: userId,
-        password: passwordHash
-    });
+        await UserModel.update({
+            id: userId,
+            password: passwordHash
+        });
 
-    res.redirect("/profile");
+        res.redirect("/profile");
+    } catch (e) {
+        const msg = e instanceof z.ZodError
+            ? e.errors.map(err => err.message).join(", ")
+            : "Update failed, please try again later";
+
+        res.redirect(`/profile?error=${msg}`);
+    }
 }
 
 export async function getAll(req: Request, res: Response) {
